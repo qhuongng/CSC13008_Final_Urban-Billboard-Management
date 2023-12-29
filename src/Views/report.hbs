@@ -5,8 +5,39 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create New Report</title>
+
+    <script src="https://cdn.tiny.cloud/1/5g6xzyhpro9zvlir37isxfsb34o6zzm0iza7tj6mvmvlwtne/tinymce/6/tinymce.min.js"
+        referrerpolicy="origin"></script>
+    <script>
+        tinymce.init({
+
+            selector: '#content',  // Replace the textarea with id="myTextarea" with TinyMCE
+            height: 300,
+            plugins: [
+                'advlist autolink lists link image charmap print preview anchor',
+                'searchreplace visualblocks code fullscreen',
+                'insertdatetime media table paste code help wordcount'
+            ],
+            toolbar: 'undo redo | formatselect | ' +
+                'bold italic backcolor | alignleft aligncenter ' +
+                'alignright alignjustify | bullist numlist outdent indent | ' +
+                'removeformat | help'
+        });
+    </script>
+    <style>
+        #content-container {
+            border: 1px solid #ccc;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .tox-statusbar__path-item {
+            display: none !important;
+        }
+    </style>
 </head>
-<body >
+
+<body>
     <div class="container mt-5">
         <h2 class="mb-4">Report</h2>
         <form action="index.html" method="post">
@@ -14,15 +45,15 @@
             <div class="form-group">
                 <label for="ads-form">Hình thức quảng cáo:</label>
                 <select class="form-control" id="ads-form">
-                    <option>Tố giác sai phạm</option>  
+                    <option>Tố giác sai phạm</option>
                     <option>Đăng ký nội dung</option>
                     <option>Đóng góp ý kiến</option>
-                    <option>Giải đáp thắc mắc</option> 
+                    <option>Giải đáp thắc mắc</option>
                 </select>
             </div>
             <div class="form-group">
-                <label for="address">Họ và tên người báo cáo:</label>
-                <input type="text" class="form-control" id="address" name="address" required>
+                <label for="name">Họ và tên người báo cáo:</label>
+                <input type="text" class="form-control" id="name" name="name" required>
             </div>
             <div class="form-group">
                 <label for="longitude">Email:</label>
@@ -34,12 +65,14 @@
             </div>
             <div class="form-group">
                 <label for="content">Nội dung báo cáo:</label>
-                <textarea class="form-control" id="content" name="content" required></textarea>
+                <div id="content-container"><textarea class="form-control" id="content" name="content"
+                        required></textarea></div>
             </div>
-            <div class="form-group">
-                <label for="content">Ảnh chụp bảng quảng cáo:</label>
-                <input type="file" class="form-control" id="image" name="image" multiple required>
-            </div>
+        <div class="form-group">
+        <label for="image">Ảnh chụp bảng quảng cáo:</label>
+        <input type="file" class="form-control" id="image" name="image" multiple required>
+        <small class="form-text text-muted">Chọn một hoặc nhiều file.</small>
+      </div>
             <button type="submit" class="btn btn-primary" onclick="window.history.back()">Back to Map</button>
             <button type="submit" class="btn btn-primary">Create Report</button>
         </form>
