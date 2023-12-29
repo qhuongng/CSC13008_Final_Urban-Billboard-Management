@@ -323,7 +323,7 @@ function setupMap(center) {
             // map.on("mouseenter", ["unclustered-point", "unclustered-point-reported"], (e) => {
             map.on("mouseenter", "unclustered-point", (e) => {
                 const coordinates = e.features[0].geometry.coordinates.slice();
-                const isZoning = e.features[0].properties.isZoning === true  ? "ĐÃ QUY HOẠCH" : "CHƯA QUY HOẠCH";
+                const isZoning = e.features[0].properties.isZoning === true ? "ĐÃ QUY HOẠCH" : "CHƯA QUY HOẠCH";
                 const description = `<strong>${e.features[0].properties.billboardType}</strong><br>
                               ${e.features[0].properties.positionType}<br>
                               ${e.features[0].properties.address}<br>
