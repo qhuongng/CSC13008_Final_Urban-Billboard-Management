@@ -115,12 +115,19 @@ function setupMap(center) {
 
     map.on("style.load", () => {
         map.on("click", (e) => {
+            const isGeneralPoint = e.originalEvent.target.classList.contains("poi-label");
+
+            if (!isGeneralPoint) {
+                return;
+            }
+
             if (marker) {
                 marker.remove();
             }
 
             marker = new mapboxgl.Marker().setLngLat(e.lngLat).addTo(map);
 
+            var l = map.getStyle().layers;
             var features = map.queryRenderedFeatures(e.point);
 
             if (features[0] !== undefined && features[0].properties.name !== undefined) {
@@ -174,6 +181,7 @@ function setupMap(center) {
                         coordinates: [data[i].locate[0], data[i].locate[1]],
                     },
                     properties: {
+                        name: data[i].name,
                         billboardType: data[i].formAdvertising,
                         positionType: data[i].positionType,
                         address: data[i].address,
@@ -182,6 +190,7 @@ function setupMap(center) {
                             district: data[i].area.district,
                         },
                         isZoning: data[i].isZoning,
+                        picturePoint: data[i].picturePoint
                     },
                 };
 
@@ -227,7 +236,8 @@ function setupMap(center) {
                 type: "symbol",
                 source: "billboardPos",
                 // filter: ["all", ["!", ["has", "point_count"]], ["==", ["get", "reported"], 1]],
-                filter: [["!", ["has", "point_count"]], ["==", ["get", "isZoning"]]],
+                filter: ["all", ["!", ["has", "point_count"]], ["==", ["get", "isZoning"], true]],
+                // filter: ["!", ["has", "point_count"]],
                 layout: {
                     "text-field": "QC",
                     "text-font": ["DIN Offc Pro Medium", "Arial Unicode MS Regular"],
@@ -351,17 +361,20 @@ function setupMap(center) {
             });
 
             map.on("click", "unclustered-point", (e) => {
+                console.log(e.features[0]);
+
                 const coordinates = e.features[0].geometry.coordinates.slice();
                 const address = `${e.features[0].properties.address}<br>${JSON.parse(e.features[0].properties.area).ward}, ${JSON.parse(e.features[0].properties.area).district}`;
+                const imgUrl = `https://drive.google.com/uc?id=${e.features[0].properties.picturePoint}`;
                 const placeInfoPaneHeader = '<h5 class="alert-heading"><i class="bi bi-check2-circle"></i> Thông tin địa điểm</h5>';
                 const reportButton = '<button type="button" class="btn btn-outline-danger"><i class="bi bi-exclamation-octagon-fill"></i> BÁO CÁO VI PHẠM</button>';
 
-                document.getElementById("place-info-pane").innerHTML = `${placeInfoPaneHeader}<br><strong>${e.features[0].properties.name}</strong><br>${address}<br><img src="https://drive.google.com/uc?id=${e.features[0].properties.picturePoint}" alt=""><br><br>${reportButton}`;
+                document.getElementById("place-info-pane").innerHTML = `${placeInfoPaneHeader}<br><strong>${e.features[0].properties.name}</strong><br>${address}<br><br><img class="img-fluid" src=${imgUrl} alt=""><br><br>${reportButton}`;
 
                 map.easeTo({
                     center: coordinates,
                 });
-            })
+            });
 
             // map.on("mouseleave", ["unclustered-point", "unclustered-point-reported"], () => {
             map.on("mouseleave", "unclustered-point", () => {
