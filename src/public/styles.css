@@ -1,0 +1,87 @@
+body {
+    margin: 0;
+}
+
+#map {
+    height: 100vh;
+    width: 100%;
+    border-radius: 5px;
+}
+
+.bottom-bar {
+    position: absolute;
+    bottom: 5%;
+    left: 5%;
+    width: 90%;
+    height: 50px;
+    background-color: rgba(200, 188, 188, 0.589);
+    display: flex;
+    align-items: center;
+    justify-content: baseline;
+    z-index: 1;
+    border-radius: 5px;
+}
+
+.bottom-bar p {
+    margin-left: 10px;
+    margin-bottom: 0;
+}
+
+.bottom-bar div {
+    display: flex;
+    align-items: center;
+    justify-content: baseline;
+    margin: 0 10px;
+    position: relative;
+}
+
+.btn:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+.bottom-bar div .switch {
+    position: relative;
+    display: inline-block;
+    width: 30px;
+    height: 10px;
+    margin-bottom: 0;
+}
+
+.bottom-bar div .switch input {
+    display: none;
+}
+
+.bottom-bar div .switch .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: gray;
+    transition: 0.4s;
+    border-radius: 34px;
+}
+
+.bottom-bar div .slider:before {
+    position: absolute;
+    content: "";
+    height: 15px;
+    width: 15px;
+    left: 0px;
+    bottom: -2.5px;
+    background-color: white;
+    transition: 0.4s;
+    border-radius: 50%;
+    border: 0.5px solid rgb(189, 189, 189);
+    box-shadow: 0 0 1px rgba(169, 169, 169, 0.5);
+}
+
+.bottom-bar div input:checked + .slider {
+    background-color: #2196f3;
+}
+
+.bottom-bar div input:checked + .slider:before {
+    transform: translateX(15px);
+}
