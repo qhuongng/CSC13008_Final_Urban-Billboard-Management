@@ -15,6 +15,8 @@ app.use(bodyParser.json());
 app.use(express.static(__dirname + "/public"));
 app.use('/static', express.static('static'));
 
+routes(app);
+
 app.engine('hbs', handlebars.engine({
     extname: 'hbs'
 }));
@@ -28,10 +30,9 @@ app.get("/", (req, res) => {
 
 mongoose.connect(`${process.env.MONGO_URL}`).then(() => {
     console.log("Connect DB success");
-})
-    .catch((err) => {
-        console.log(err);
-    });
+}).catch((err) => {
+    console.log(err);
+});
 
 app.listen(process.env.PORT, () => {
     console.log(`Server is running on http://localhost:${process.env.PORT}`);
