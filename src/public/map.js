@@ -227,7 +227,7 @@ function setupMap(center) {
                 type: "symbol",
                 source: "billboardPos",
                 // filter: ["all", ["!", ["has", "point_count"]], ["==", ["get", "reported"], 1]],
-                filter: ["!", ["has", "point_count"]],
+                filter: [["!", ["has", "point_count"]], ["==", ["get", "isZoning"]]],
                 layout: {
                     "text-field": "QC",
                     "text-font": ["DIN Offc Pro Medium", "Arial Unicode MS Regular"],
@@ -356,7 +356,7 @@ function setupMap(center) {
                 const placeInfoPaneHeader = '<h5 class="alert-heading"><i class="bi bi-check2-circle"></i> Thông tin địa điểm</h5>';
                 const reportButton = '<button type="button" class="btn btn-outline-danger"><i class="bi bi-exclamation-octagon-fill"></i> BÁO CÁO VI PHẠM</button>';
 
-                document.getElementById("place-info-pane").innerHTML = `${placeInfoPaneHeader}<br><strong>${e.features[0].properties.name}</strong><br>${address}<br><br>${reportButton}`;
+                document.getElementById("place-info-pane").innerHTML = `${placeInfoPaneHeader}<br><strong>${e.features[0].properties.name}</strong><br>${address}<br><img src="https://drive.google.com/uc?id=${e.features[0].properties.picturePoint}" alt=""><br><br>${reportButton}`;
 
                 map.easeTo({
                     center: coordinates,
