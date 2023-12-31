@@ -1,4 +1,5 @@
 var map; // Mapbox map
+var marker;
 
 mapboxgl.accessToken = "pk.eyJ1IjoibmhhdGhvYTE0IiwiYSI6ImNscDZjMnZ2cDBkY3AybHNoaTk4cnZ2eHMifQ.KhkP2ZxWJQ5CwtdIr8c_IA";
 
@@ -114,10 +115,22 @@ function setupMap(center) {
 
     map.on("style.load", () => {
         map.on("click", (e) => {
-            let l = map.getStyle().layers; // here you can get all the layers of the style
+            const isGeneralPoint = e.originalEvent.target.classList.contains("poi-label");
+
+            if (!isGeneralPoint) {
+                return;
+            }
+
+            if (marker) {
+                marker.remove();
+            }
+
+            marker = new mapboxgl.Marker().setLngLat(e.lngLat).addTo(map);
+
+            var l = map.getStyle().layers;
             var features = map.queryRenderedFeatures(e.point);
 
-            if (features[0] != undefined && features[0].properties.name != undefined) {
+            if (features[0] !== undefined && features[0].properties.name !== undefined) {
                 var url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${features[0].properties.name}.json?access_token=${mapboxgl.accessToken}`;
 
                 fetch(url)
@@ -140,6 +153,10 @@ function setupMap(center) {
                     .catch((error) => {
                         console.log("Error:", error);
                     });
+            }
+            else {
+                const placeInfoPaneHeader = '<h5 class="alert-heading"><i class="bi bi-check2-circle"></i> Thông tin địa điểm</h5>';
+                document.getElementById("place-info-pane").innerHTML = `${placeInfoPaneHeader}Chưa có dữ liệu.`;
             }
         });
     });
@@ -164,6 +181,7 @@ function setupMap(center) {
                         coordinates: [data[i].locate[0], data[i].locate[1]],
                     },
                     properties: {
+                        name: data[i].name,
                         billboardType: data[i].formAdvertising,
                         positionType: data[i].positionType,
                         address: data[i].address,
@@ -172,6 +190,7 @@ function setupMap(center) {
                             district: data[i].area.district,
                         },
                         isZoning: data[i].isZoning,
+                        picturePoint: data[i].picturePoint
                     },
                 };
 
@@ -217,7 +236,8 @@ function setupMap(center) {
                 type: "symbol",
                 source: "billboardPos",
                 // filter: ["all", ["!", ["has", "point_count"]], ["==", ["get", "reported"], 1]],
-                filter: ["!", ["has", "point_count"]],
+                filter: ["all", ["!", ["has", "point_count"]], ["==", ["get", "isZoning"], true]],
+                // filter: ["!", ["has", "point_count"]],
                 layout: {
                     "text-field": "QC",
                     "text-font": ["DIN Offc Pro Medium", "Arial Unicode MS Regular"],
@@ -341,13 +361,15 @@ function setupMap(center) {
             });
 
             map.on("click", "unclustered-point", (e) => {
+                console.log(e.features[0]);
+
                 const coordinates = e.features[0].geometry.coordinates.slice();
-                const billboardInfoPaneHeader = '<h5 class="alert-heading"><i class="bi bi-info-circle"></i> Thông tin bảng quảng cáo</h5>';
                 const address = `${e.features[0].properties.address}<br>${JSON.parse(e.features[0].properties.area).ward}, ${JSON.parse(e.features[0].properties.area).district}`;
-                const details = `Kích thước:<br>Số lượng:<br>Hình thức: <strong>${e.features[0].properties.billboardType}</strong><br>Phân loại: <strong>${e.features[0].properties.positionType}</strong><br>`;
+                const imgUrl = `https://drive.google.com/uc?id=${e.features[0].properties.picturePoint}`;
+                const placeInfoPaneHeader = '<h5 class="alert-heading"><i class="bi bi-check2-circle"></i> Thông tin địa điểm</h5>';
                 const reportButton = '<button type="button" class="btn btn-outline-danger"><i class="bi bi-exclamation-octagon-fill"></i> BÁO CÁO VI PHẠM</button>';
 
-                document.getElementById("billboard-info-pane").innerHTML = `${billboardInfoPaneHeader}${address}<br><br>${details}<br>${reportButton}`;
+                document.getElementById("place-info-pane").innerHTML = `${placeInfoPaneHeader}<br><strong>${e.features[0].properties.name}</strong><br>${address}<br><br><img class="img-fluid" src=${imgUrl} alt=""><br><br>${reportButton}`;
 
                 map.easeTo({
                     center: coordinates,

@@ -8,10 +8,11 @@ const adsFormServices = require("../Services/adsForm.services");
 
 const createPoint = (newPoint) => {
     return new Promise(async (resolve, reject) => {
-        const { address, area, locate, positionType, formAdvertising, picturePoint, isZoning } = newPoint;
+        const { name, address, area, locate, positionType, formAdvertising, picturePoint, isZoning } = newPoint;
         try {
             const checkPoint = await Point.findOne({
-                address: address,
+                name: name,
+                address: address
             });
 
             if (checkPoint !== null) {
@@ -39,6 +40,7 @@ const createPoint = (newPoint) => {
                     });
                 }
                 const newPoint = await Point.create({
+                    name,
                     address,
                     //area: {ward: ward.wardName, district: district.disName},
                     area,
