@@ -4,6 +4,7 @@ const DistrictRouter = require("./district.routes");
 const PositionTypeRouter = require("./positionType.routes");
 const AdsFormRouter = require("./adsForm.routes");
 const PanelRouter = require("./panel.routes");
+const ReportTypeRouter = require("./reportType.routes");
 
 const routes = (app) => {
     // đường dẫn dùng cho citizen
@@ -13,6 +14,7 @@ const routes = (app) => {
     app.use("/api/positionType", PositionTypeRouter);
     app.use("/api/adsForm", AdsFormRouter);
     app.use("/api/panel", PanelRouter);
+    app.use("/api/reportType", ReportTypeRouter);
 };
 
 module.exports = routes;
