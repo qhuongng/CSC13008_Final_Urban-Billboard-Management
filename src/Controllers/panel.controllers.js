@@ -2,11 +2,11 @@ const PanelService = require('../Services/panel.services')
 
 const createPanel= async(req,res)=>{
     try{
-        const {idPanel, Paneltype, amount, size, picturePanel, expDate} = req.body
+        const {idPoint, Paneltype, amount, size, picturePanel, expDate} = req.body
         //isService: {type: Boolean, default: false, require: true},
         const reg =  /\/d\/(.+?)\//;   
         const IDPicture = picturePanel.match(reg);
-        if(!idPanel || !Paneltype || !amount || !size|| !IDPicture || !expDate){
+        if(!idPoint || !Paneltype || !amount || !size|| !IDPicture || !expDate){
             return res.status(404).json({
                 status: 'ERR',
                 message: 'The input is required'
@@ -19,6 +19,7 @@ const createPanel= async(req,res)=>{
         }
         req.body.picturePanel = IDPicture[1]
         const response = await PanelService.createPanel(req.body)
+        console.log(response);
         return res.status(200).json(response)
     }catch(e){
         return res.status(404).json({
@@ -38,18 +39,17 @@ const getAllPanel = async(req,res)=>{
     }
 }
 
-const getDetailsPanel = async(req,res)=>{
+const getListPanel = async(req,res)=>{
     try{
-        const idPanel = req.params.id
+        const idPoint = req.params.id
         //const token = req.headers
-        if(!idPanel){
+        if(!idPoint){
             return res.status(404).json({
                 status: 'ERR', 
-                message: 'The panelId is required'
+                message: 'The pointId is required'
             })
         }
-
-        const response = await PanelService.getDetailsPanel(idPanel)
+        const response = await PanelService.getDetailsPanel(idPoint)
         return res.status(200).json(response)
     }catch(e){
         return res.status(404).json({
@@ -100,7 +100,7 @@ const updatePanel = async(req,res)=>{
 module.exports = {
     createPanel,
     getAllPanel,
-    getDetailsPanel,
+    getListPanel,
     deletePanel,
     updatePanel
 }

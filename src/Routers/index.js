@@ -3,6 +3,7 @@ const WardRouter = require("./ward.routes");
 const DistrictRouter = require("./district.routes");
 const PositionTypeRouter = require("./positionType.routes");
 const AdsFormRouter = require("./adsForm.routes");
+const PanelRouter = require("./panel.routes");
 
 const routes = (app) => {
     // đường dẫn dùng cho citizen
@@ -11,6 +12,7 @@ const routes = (app) => {
     app.use("/api/district", DistrictRouter);
     app.use("/api/positionType", PositionTypeRouter);
     app.use("/api/adsForm", AdsFormRouter);
+    app.use("/api/panel", PanelRouter);
 };
 
 module.exports = routes;

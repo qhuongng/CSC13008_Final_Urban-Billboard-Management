@@ -1,18 +1,11 @@
-const PointRouter = require("./point.routes");
-const WardRouter = require("./ward.routes");
-const DistrictRouter = require("./district.routes");
-const PositionTypeRouter = require("./positionType.routes");
-const AdsFormRouter = require("./adsForm.routes");
-const PanelRouter = require('./panel.routes')
+const express = require('express');
+const router = express.Router()
+const panelController = require('../Controllers/panel.controllers')
 
-const routes = (app) => {
-    // đường dẫn dùng cho citizen
-    app.use("/api/point", PointRouter);
-    app.use("/api/ward", WardRouter);
-    app.use("/api/district", DistrictRouter);
-    app.use("/api/positionType", PositionTypeRouter);
-    app.use("/api/adsForm", AdsFormRouter);
-    app.use('/api/panel', PanelRouter)
-};
+router.post('/uploadPanel', panelController.createPanel),
+router.get('/getAllPanel', panelController.getAllPanel),
+router.get('/getListPanel/:id', panelController.getListPanel),
+router.delete('/deletePanel/:id', panelController.deletePanel),
+router.put('/updatePanel/:id',panelController.updatePanel),
 
-module.exports = routes;
+module.exports = router;

@@ -1,34 +1,37 @@
 const Panel = require("../Models/Panel");
+const Point = require("../Models/Point");
 
 const createPanel = (newPanel)=>{
     return new Promise(async(resolve, reject)=>{
-        const {idPanel, Paneltype, amount, size, picturePanel, expDate} = newPanel
-        console.log(newPanel)
+        const {idPoint, Paneltype, amount, size, picturePanel, expDate} = newPanel
         try{
-            const checkPanel = await Panel.findOne({
-                idPanel: idPanel,
+            const checkPoint = await Point.findOne({
+                _id: idPoint
             });
-
-            if(checkPanel!==null){
+            if(checkPoint === null){
                 reject({
                     status: 'ERR',
-                    message: 'The Panel is already'
+                    message: 'The Point is not already'
                 })
             }
-
-            if(checkPanel === null){
-
+            if(checkPoint !== null && checkPoint.isZoning === false){
+                reject({
+                    status: 'ERR',
+                    message: 'The Point is not zoning'
+                })
+            }
+            console.log(123);
+            if(checkPoint !== null){
                 const newPanelData = {
-                    idPanel, 
+                    idPoint, 
                     Paneltype, 
                     amount, 
                     size, 
                     picturePanel, 
                     expDate
                 };
-
                 const newPanel = await Panel.create(newPanelData);
-
+                console.log(newPanel);
                 if (newPanel) {
                     resolve({
                         status: 'OK',
@@ -59,22 +62,34 @@ const getAllPanel = ()=>{
     })
 }
 
-const getDetailsPanel = (id)=>{
+const getDetailsPanel = (id)=>{ 
     return new Promise(async(resolve, reject)=>{
         try{
-            const panel = await Panel.findOne({
-                idPanel: id
+            // const CheckPoint = await Point.findOne({
+            //     _id : new ObjectId(id)
+            // })
+            // console.log(CheckPoint);
+            // if(CheckPoint === null){
+            //     resolve({
+            //         status: 'ERR',
+            //         message: 'The point is not defined'
+            //     })
+            // }
+            const listPanel = await Panel.find({
+                idPoint : id
             })
-            if(panel === null){
+            console.log(1);
+            console.log(listPanel);
+            if(listPanel === null){
                 resolve({
                     status: 'OK',
-                    message: 'The panel is not defined'
-                })
+                    message: 'The point contains no panels'
+                })                
             }
             resolve({
                 status: 'OK',
                 message: 'SUCCESS',
-                data: panel
+                data: listPanel
             })
         }catch(e){
             reject(e)
@@ -86,7 +101,7 @@ const updatePanel = (id, data)=>{
     return new Promise(async(resolve, reject)=>{
         try{
             const checkPanel = await Panel.findOne({
-                idPanel: id
+                _id: id
             })
             if(checkPanel === null){
                 resolve({
@@ -94,7 +109,7 @@ const updatePanel = (id, data)=>{
                     message: 'The Panel is not defined'
                 })
             }
-           const updatedPanel = await Panel.findOneAndUpdate({ idPanel: id }, { $set: data }, { new: true })
+           const updatedPanel = await Panel.findOneAndUpdate({ _id: id }, { $set: data }, { new: true })
             resolve({
                 status: 'OK',
                 message: 'Update Panel success',
@@ -110,7 +125,7 @@ const deletePanel = (id)=>{
     return new Promise(async(resolve, reject)=>{
         try{
             const checkPanel = await Panel.findOne({
-                idPanel: id
+                _id : id
             })
             if(checkPanel === null){
                 resolve({
@@ -118,7 +133,7 @@ const deletePanel = (id)=>{
                     message: 'The Panel is not defined'
                 })
             }
-            await Panel.findOneAndDelete({ idPanel: id })
+            await Panel.findOneAndDelete({ _id: id })
             resolve({
                 status: 'OK',
                 message: 'Delete Panel success',

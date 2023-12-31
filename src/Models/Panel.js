@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
 const panelSchema = new mongoose.Schema(
     {
-        idPoint: {type: mongoose.Schema.Types.ObjectId,  ref: 'Point', require: true},
+        idPoint: {type: String, require: true},
 
         // loại bảng quảng cáo
         Paneltype: {type: String, require: true},
