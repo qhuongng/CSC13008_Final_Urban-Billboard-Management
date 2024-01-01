@@ -12,19 +12,11 @@ function successLocation(position) {
 }
 
 function errorLocation() {
-    setupMap([106.629664, 10.823099]);
+    setupMap([106.68247638583301, 10.77121635650299]);
 }
 
 function bottomController() {
     const toggleableLayerIds = ["billboard", "report-violation"];
-
-    for (const id of toggleableLayerIds) {
-        if (document.getElementById(id)) {
-            console.log(true);
-        } else {
-            console.log(false);
-        }
-    }
 
     for (const id of toggleableLayerIds) {
         if (document.getElementById(id)) {
@@ -115,22 +107,19 @@ function setupMap(center) {
 
     map.on("style.load", () => {
         map.on("click", (e) => {
-            const isGeneralPoint = e.originalEvent.target.classList.contains("poi-label");
-
-            if (!isGeneralPoint) {
-                return;
-            }
-
             if (marker) {
                 marker.remove();
             }
 
             marker = new mapboxgl.Marker().setLngLat(e.lngLat).addTo(map);
 
-            var l = map.getStyle().layers;
             var features = map.queryRenderedFeatures(e.point);
 
             if (features[0] !== undefined && features[0].properties.name !== undefined) {
+                if (features[0].layer.id == "unclustered-point" || features[0].layer.id == "unclustered-point-label") {
+                    return;
+                }
+
                 var url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${features[0].properties.name}.json?access_token=${mapboxgl.accessToken}`;
 
                 fetch(url)
@@ -165,11 +154,11 @@ function setupMap(center) {
         //add bottomController
         bottomController();
 
-        let jsonObj;
+        let pointJson;
         (async () => {
             let data = await loadPoints();
 
-            jsonObj = {
+            pointJson = {
                 features: [],
             };
 
@@ -181,6 +170,7 @@ function setupMap(center) {
                         coordinates: [data[i].locate[0], data[i].locate[1]],
                     },
                     properties: {
+                        id: data[i]._id,
                         name: data[i].name,
                         billboardType: data[i].formAdvertising,
                         positionType: data[i].positionType,
@@ -194,12 +184,12 @@ function setupMap(center) {
                     },
                 };
 
-                jsonObj.features.push(point);
+                pointJson.features.push(point);
             }
 
             map.addSource("billboardPos", {
                 type: "geojson",
-                data: jsonObj,
+                data: pointJson,
                 cluster: true,
                 clusterMaxZoom: 14, // Max zoom to cluster points on
                 clusterRadius: 50, // Radius of each cluster when clustering points (defaults to 50)
@@ -361,8 +351,7 @@ function setupMap(center) {
             });
 
             map.on("click", "unclustered-point", (e) => {
-                console.log(e.features[0]);
-
+                const pointId = e.features[0].properties.id;
                 const coordinates = e.features[0].geometry.coordinates.slice();
                 const address = `${e.features[0].properties.address}<br>${JSON.parse(e.features[0].properties.area).ward}, ${JSON.parse(e.features[0].properties.area).district}`;
                 const imgUrl = `https://drive.google.com/uc?id=${e.features[0].properties.picturePoint}`;
@@ -374,6 +363,12 @@ function setupMap(center) {
                 map.easeTo({
                     center: coordinates,
                 });
+
+                fetch(`http://localhost:3500/api/panel/getListPanel/${pointId}`)
+                    .then((response) => response.json())
+                    .then((data) => {
+                        console.log(data);
+                    });
             });
 
             // map.on("mouseleave", ["unclustered-point", "unclustered-point-reported"], () => {
