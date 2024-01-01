@@ -381,6 +381,25 @@ function setupMap(center) {
                 map.getCanvas().style.cursor = "";
                 popup.remove();
             });
+
+            map.on("click", (e) => {
+                const feature = map.queryRenderedFeatures(e.point);
+        
+                feature.forEach((f) => {
+                  console.log(f.layer.source);
+                });
+        
+                if (
+                  feature.length === 0 ||
+                  feature[0].layer.source !== "billboardPos"
+                ) {
+                  const placeInfoPaneHeader =
+                    '<h5 class="alert-heading"><i class="bi bi-check2-circle"></i> Thông tin địa điểm</h5>';
+                  document.getElementById(
+                    "place-info-pane"
+                  ).innerHTML = `${placeInfoPaneHeader}Chưa có dữ liệu.`;
+                }
+              });
         })();
     });
 }
