@@ -10,18 +10,12 @@
         referrerpolicy="origin"></script>
     <script>
         tinymce.init({
-
             selector: '#content',  // Replace the textarea with id="myTextarea" with TinyMCE
             height: 300,
-            plugins: [
-                'advlist autolink lists link image charmap print preview anchor',
-                'searchreplace visualblocks code fullscreen',
-                'insertdatetime media table paste code help wordcount'
-            ],
             toolbar: 'undo redo | formatselect | ' +
                 'bold italic backcolor | alignleft aligncenter ' +
                 'alignright alignjustify | bullist numlist outdent indent | ' +
-                'removeformat | help'
+                'removeformat'
         });
     </script>
     <style>
@@ -40,15 +34,17 @@
 <body>
     <div class="container mt-5">
         <h2 class="mb-4">Report</h2>
-        <form action="index.html" method="post">
+        <p class="mb-4">Địa điểm: {{location}}</p>
+        <form action="/api/report/createReport" method="post" novalidate>
             <!-- Input fields for new report information -->
+            <input type="hidden" name="location" value="{{location}}">
             <div class="form-group">
                 <label for="ads-form">Hình thức quảng cáo:</label>
-                <select class="form-control" id="ads-form">
-                    <option>Tố giác sai phạm</option>
-                    <option>Đăng ký nội dung</option>
-                    <option>Đóng góp ý kiến</option>
-                    <option>Giải đáp thắc mắc</option>
+                <select class="form-control" id="ads-form" name="adsForm">
+                    <option value=1>Tố giác sai phạm</option>
+                    <option value=2>Đăng ký nội dung</option>
+                    <option value=3>Đóng góp ý kiến</option>
+                    <option value=4>Giải đáp thắc mắc</option>
                 </select>
             </div>
             <div class="form-group">
@@ -68,15 +64,22 @@
                 <div id="content-container"><textarea class="form-control" id="content" name="content"
                         required></textarea></div>
             </div>
-        <div class="form-group">
-        <label for="image">Ảnh chụp bảng quảng cáo:</label>
-        <input type="file" class="form-control" id="image" name="image" multiple required>
-        <small class="form-text text-muted">Chọn một hoặc nhiều file.</small>
-      </div>
-            <button type="submit" class="btn btn-primary" onclick="window.history.back()">Back to Map</button>
-            <button type="submit" class="btn btn-primary">Create Report</button>
+            <div class="form-group">
+                <label for="image">Ảnh chụp bảng quảng cáo:</label>
+                <input type="file" class="form-control" id="image" name="image" multiple>
+                <small class="form-text text-muted">Chọn một hoặc nhiều file.</small>
+            </div>
+            <button type="submit" class="btn btn-primary" onclick="window.history.back()">Trở về Bản Đồ</button>
+            <button type="submit" class="btn btn-primary" onclick="postContent()">Tạo báo cáo</button>
         </form>
     </div>
+    <script>
+        function postContent() {
+            var postContent = tinymce.activeEditor.getContent();
+            document.querySelector('#content').value = postContent;
+            console.log(postContent);
+        }
+    </script>
 </body>
 
 </html>
