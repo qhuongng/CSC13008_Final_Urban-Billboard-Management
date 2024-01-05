@@ -2,10 +2,10 @@ const PointService = require("../Services/point.services");
 
 const createPoint = async (req, res) => {
     try {
-        const { name, address, area, locate, positionType, formAdvertising, picturePoint, isZoning } = req.body;
+        const { _id, name, address, area, locate, positionType, formAdvertising, picturePoint, isZoning } = req.body;
         const reg = /\/d\/(.+?)\//;
         const IDPicture = picturePoint.match(reg);
-        if (!name || !address || !area || !locate || !positionType || !formAdvertising || !IDPicture || isZoning == null) {
+        if (!_id || !name || !address || !area || !locate || !positionType || !formAdvertising || !IDPicture || isZoning == null) {
             return res.status(404).json({
                 status: "ERR",
                 message: "The input is required",
