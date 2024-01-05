@@ -1,5 +1,6 @@
 const Panel = require("../Models/Panel");
 const Point = require("../Models/Point");
+const panelTypeService = require("../Services/panelType.services")
 
 const createPanel = (newPanel)=>{
     return new Promise(async(resolve, reject)=>{
@@ -20,7 +21,6 @@ const createPanel = (newPanel)=>{
                     message: 'The Point is not zoning'
                 })
             }
-            console.log(123);
             if(checkPoint !== null){
                 const newPanelData = {
                     idPoint, 
@@ -31,7 +31,6 @@ const createPanel = (newPanel)=>{
                     expDate
                 };
                 const newPanel = await Panel.create(newPanelData);
-                console.log(newPanel);
                 if (newPanel) {
                     resolve({
                         status: 'OK',
@@ -50,10 +49,17 @@ const getAllPanel = ()=>{
     return new Promise(async(resolve, reject)=>{
         try{
             const allPanel = await Panel.find();
+            const updatePanels = await Promise.all(
+                allPanel.map(async(panel)=>{
+                    const newPanel = { ...panel.toObject()};
+                    newPanel.Paneltype = (await panelTypeService.getPanelTypeName(newPanel.Paneltype)).data;
+                    return newPanel;
+                })
+            )
             resolve({
                 status: 'OK',
                 message: 'SUCCESS',
-                data: allPanel
+                data: updatePanels
 
             })
         }catch(e){
@@ -78,8 +84,6 @@ const getDetailsPanel = (id)=>{
             const listPanel = await Panel.find({
                 idPoint : id
             })
-            console.log(1);
-            console.log(listPanel);
             if(listPanel === null){
                 resolve({
                     status: 'OK',
