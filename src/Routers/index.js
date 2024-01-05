@@ -6,6 +6,7 @@ const PanelTypeRouter = require("./panelType.routes");
 const AdsFormRouter = require("./adsForm.routes");
 const PanelRouter = require("./panel.routes");
 const ReportTypeRouter = require("./reportType.routes");
+const reportRouter = require("./report.routes");
 
 const routes = (app) => {
     // đường dẫn dùng cho citizen
@@ -17,6 +18,7 @@ const routes = (app) => {
     app.use("/api/adsForm", AdsFormRouter);
     app.use("/api/panel", PanelRouter);
     app.use("/api/reportType", ReportTypeRouter);
+    app.use("/api/report", reportRouter);
 };
 
 module.exports = routes;

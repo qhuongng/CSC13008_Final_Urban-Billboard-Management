@@ -406,7 +406,7 @@ function setupMap(center) {
         const placeInfoPaneHeader =
           '<h5 class="alert-heading"><i class="bi bi-check2-circle"></i> Thông tin địa điểm</h5>';
         const reportButton =
-          '<button type="button" class="btn btn-outline-danger"><i class="bi bi-exclamation-octagon-fill"></i> BÁO CÁO VI PHẠM</button>';
+          `<a class="btn btn-outline-danger" href="/api/report/${0}?lng=${coordinates[0]}&lat=${coordinates[1]}"><i class="bi bi-exclamation-octagon-fill"></i> BÁO CÁO VI PHẠM</a>`;
 
         document.getElementById(
           "place-info-pane"
@@ -415,7 +415,7 @@ function setupMap(center) {
         map.easeTo({
           center: coordinates,
         });
-
+        console.log(pointId);
         fetch(`http://localhost:3500/api/panel/getListPanel/${pointId}`)
           .then((response) => response.json())
           .then((data) => {
@@ -457,12 +457,13 @@ function reverseGeocode(lngLat) {
   fetch(url)
     .then((response) => response.json())
     .then((data) => {
+      console.log(lngLat.lng);
       if (data.features && data.features.length > 0) {
         const address = data.features[0].place_name;
         const placeInfoPaneHeader =
           '<h5 class="alert-heading"><i class="bi bi-check2-circle"></i> Thông tin địa điểm</h5>';
         const reportButton =
-          '<button type="button" class="btn btn-outline-danger"><i class="bi bi-exclamation-octagon-fill"></i> BÁO CÁO VI PHẠM</button>';
+          `<a class="btn btn-outline-danger" href="/api/report/${0}?lng=${lngLat.lng}&lat=${lngLat.lat}"><i class="bi bi-exclamation-octagon-fill"></i> BÁO CÁO VI PHẠM</a>`;
 
         document.getElementById(
           "place-info-pane"
