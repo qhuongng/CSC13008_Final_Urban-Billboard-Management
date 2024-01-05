@@ -1,7 +1,6 @@
 const mongoose = require('mongoose')
 const reportSchema = new mongoose.Schema(
     {
-        idReport:  {type: String, require:true},
         idPanel: {type: String},// có thể có hoặc không
         // kinh - vĩ độ
         locate: {type: Array, require: true},
@@ -14,7 +13,7 @@ const reportSchema = new mongoose.Schema(
         // nội dung báo cáo
         content: {type: String, require: true},
         //dùng multer để lưu về máy
-        ReportPicture: {type: String, require: true},
+        reportPicture: {type: String, require: true},
 
         state: {type: Number, default: 0},// chưa xử lí
     },
