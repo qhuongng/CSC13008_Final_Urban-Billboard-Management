@@ -1,21 +1,21 @@
 <html lang="en">
 
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Create New Report</title>
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Create New Report</title>
 
     <script src="https://cdn.tiny.cloud/1/ezd73nxbzc7bu6e86g2l82jbbffke0mwevwrnyvc5q8h89j6/tinymce/6/tinymce.min.js"
-  referrerpolicy="origin"></script>
+        referrerpolicy="origin"></script>
     <script>
-    tinymce.init({
-        selector: '#content',
-        menubar: false,
-        plugins: 'paste image link autolink lists table media',
-        toolbar: [
-        'undo redo | bold italic underline strikethrough | numlist bullist | alignleft aligncenter alignright | forecolor backcolor | table link image media',
-        ],
-    });
+        tinymce.init({
+            selector: '#content',
+            menubar: false,
+            plugins: 'paste image link autolink lists table media',
+            toolbar: [
+                'undo redo | bold italic underline strikethrough | numlist bullist | alignleft aligncenter alignright | forecolor backcolor | table link image media',
+            ],
+        });
     </script>
         <style>
             #content-container { border: 1px solid #ccc; padding: 10px;
@@ -38,9 +38,8 @@
              }
         </style>
     </head>
-
 <body>
-    <div class="container mt-5">
+    <div class="container mt-5 mb-5">
         <h2 class="mb-4">Report</h2>
         <p class="mb-4">Địa điểm: {{address}}</p>
         <form action="" method="post" enctype="multipart/form-data">
