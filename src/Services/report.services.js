@@ -38,15 +38,55 @@ const createReport = (newReport) => {
     })
 }
 
-const getAllReport = () => {
+// const getNewReport = () => {
+//     return new Promise(async (resolve, reject) => {
+//         try {
+//             const getNewReport = await Report.find({
+//                 state: 0
+//             })
+//             if(getNewReport){
+//                 resolve({
+//                     status: "OK",
+//                     message: "SUCCESS",
+//                     data: getNewReport
+//                 })
+//             }
+//         } catch (e) {
+//             reject(e)
+//         }
+//     })
+// }
+
+// const getAllReport = () => {
+//     return new Promise(async (resolve, reject) => {
+//         try {
+            
+//         } catch (e) {
+//             reject(e);
+//         }
+//     })
+// }
+
+const showReport = () => {
     return new Promise(async (resolve, reject) => {
         try {
-            
+            const showReport = await Report.find({
+                state: 0
+            })
+            if(showReport){
+                resolve({
+                    status: "OK",
+                    message: "SUCCESS",
+                    data: showReport
+                })
+            }
         } catch (e) {
-            reject(e);
+            reject(e)
         }
     })
 }
+
 module.exports = {
-    createReport
+    createReport,
+    showReport
 }

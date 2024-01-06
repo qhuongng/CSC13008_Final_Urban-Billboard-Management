@@ -103,6 +103,7 @@ function setupMap(center) {
     center: center,
     zoom: 13,
     maxBounds: bounds,
+    language: "vi-VN",
   });
 
   map.addControl(new mapboxgl.NavigationControl());
@@ -119,7 +120,6 @@ function setupMap(center) {
 
   map.on("style.load", () => {
     map.on("click", (e) => {
-
       var features = map.queryRenderedFeatures(e.point);
 
       if (
@@ -142,8 +142,9 @@ function setupMap(center) {
               const address = data.features[0].place_name;
               const placeInfoPaneHeader =
                 '<h5 class="alert-heading"><i class="bi bi-check2-circle"></i> Thông tin địa điểm</h5>';
-              const reportButton =
-                '<button type="button" class="btn btn-outline-danger"><i class="bi bi-exclamation-octagon-fill"></i> BÁO CÁO VI PHẠM</button>';
+              const reportButton = `<a href="/api/report?location=${encodeURIComponent(
+                address
+              )}" class="btn btn-sm btn-outline-danger"><i class="bi bi-exclamation-octagon-fill"></i> BÁO CÁO VI PHẠM</a>`;
 
               document.getElementById(
                 "place-info-pane"
@@ -405,8 +406,10 @@ function setupMap(center) {
         const imgUrl = `https://drive.google.com/uc?id=${e.features[0].properties.picturePoint}`;
         const placeInfoPaneHeader =
           '<h5 class="alert-heading"><i class="bi bi-check2-circle"></i> Thông tin địa điểm</h5>';
+        
         const reportButton =
           `<a class="btn btn-outline-danger" href="/api/report/${0}?lng=${coordinates[0]}&lat=${coordinates[1]}"><i class="bi bi-exclamation-octagon-fill"></i> BÁO CÁO VI PHẠM</a>`;
+
 
         document.getElementById(
           "place-info-pane"
@@ -459,15 +462,21 @@ function reverseGeocode(lngLat) {
     .then((data) => {
       console.log(lngLat.lng);
       if (data.features && data.features.length > 0) {
-        const address = data.features[0].place_name;
+        const [name, ...addressParts] = data.features[0].place_name.split(",");
+        const address = addressParts.join(",").trim();
+
         const placeInfoPaneHeader =
           '<h5 class="alert-heading"><i class="bi bi-check2-circle"></i> Thông tin địa điểm</h5>';
+
         const reportButton =
           `<a class="btn btn-outline-danger" href="/api/report/${0}?lng=${lngLat.lng}&lat=${lngLat.lat}"><i class="bi bi-exclamation-octagon-fill"></i> BÁO CÁO VI PHẠM</a>`;
 
+
         document.getElementById(
           "place-info-pane"
-        ).innerHTML = `${placeInfoPaneHeader}<br><strong>${address}</strong><br><br>${reportButton}`;
+        ).innerHTML = `${placeInfoPaneHeader}<br><strong>${name}</strong><br>${address}<br><br>${reportButton}`;
+
+        localStorage.setItem("placeName", name);
 
         // map.easeTo({
         //   center: lngLat,

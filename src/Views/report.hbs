@@ -11,18 +11,12 @@
         ></script> --}}
         {{! <script>
         tinymce.init({
-
             selector: '#content',  // Replace the textarea with id="myTextarea" with TinyMCE
             height: 300,
-            plugins: [
-                'advlist autolink lists link image charmap print preview anchor',
-                'searchreplace visualblocks code fullscreen',
-                'insertdatetime media table paste code help wordcount'
-            ],
             toolbar: 'undo redo | formatselect | ' +
                 'bold italic backcolor | alignleft aligncenter ' +
                 'alignright alignjustify | bullist numlist outdent indent | ' +
-                'removeformat | help'
+                'removeformat'
         });
     </script> }}
     <script src="https://cdn.tiny.cloud/1/ezd73nxbzc7bu6e86g2l82jbbffke0mwevwrnyvc5q8h89j6/tinymce/6/tinymce.min.js"
@@ -44,85 +38,56 @@
         </style>
     </head>
 
-    <body>
-        <div class="container mt-5">
-            <h2 class="mb-4">Report</h2>
-            <form action="" method="post">
-                <!-- Input fields for new report information -->
-                <div class="form-group">
-                    <label for="ads-form">Hình thức quảng cáo:</label>
-                    <select class="form-control" id="ads-form">
-                        <option>Tố giác sai phạm</option>
-                        <option>Đăng ký nội dung</option>
-                        <option>Đóng góp ý kiến</option>
-                        <option>Giải đáp thắc mắc</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="name">Họ và tên người báo cáo:</label>
-                    <input
-                        type="text"
-                        class="form-control"
-                        id="name"
-                        name="name"
-                        required
-                    />
-                </div>
-                <div class="form-group">
-                    <label for="longitude">Email:</label>
-                    <input
-                        type="email"
-                        class="form-control"
-                        id="email"
-                        name="email"
-                        required
-                    />
-                </div>
-                <div class="form-group">
-                    <label for="phone">Điện thoại liên lạc:</label>
-                    <input
-                        type="tel"
-                        class="form-control"
-                        id="phone"
-                        name="phone"
-                        pattern="[0-9]{10}"
-                        required
-                    />
-                </div>
-                {{!-- <div class="form-group">
-                    <label for="content">Nội dung báo cáo:</label>
-                    <div id="content-container"><textarea
-                            class="form-control"
-                            id="content"
-                            name="txtcontent"
-                            required
-                        ></textarea></div>
-                </div> --}}
-                <div class="form-group">
-                    <label for="content">Nội dung báo cáo:</label>
-                    <textarea name="txtcontent" id="content">Welcome, TinyMCE!</textarea>
-                </div>
-                <div class="form-group">
-                    <label for="image">Ảnh chụp bảng quảng cáo:</label>
-                    <input
-                        type="file"
-                        class="form-control"
-                        id="image"
-                        name="image"
-                        multiple
-                        required
-                    />
-                    <small class="form-text text-muted">Chọn một hoặc nhiều
-                        file.</small>
-                </div>
-                <button
-                    type="button"
-                    class="btn btn-primary"
-                    onclick="window.history.back()"
-                >Back to Map</button>
-                <button type="submit" class="btn btn-primary">Create Report</button>
-            </form>
-        </div>
-    </body>
+<body>
+    <div class="container mt-5">
+        <h2 class="mb-4">Report</h2>
+        <p class="mb-4">Địa điểm: {{location}}</p>
+        <form action="/api/report/createReport" method="post" novalidate>
+            <!-- Input fields for new report information -->
+            <input type="hidden" name="location" value="{{location}}">
+            <div class="form-group">
+                <label for="ads-form">Hình thức quảng cáo:</label>
+                <select class="form-control" id="ads-form" name="adsForm">
+                    <option value=1>Tố giác sai phạm</option>
+                    <option value=2>Đăng ký nội dung</option>
+                    <option value=3>Đóng góp ý kiến</option>
+                    <option value=4>Giải đáp thắc mắc</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="name">Họ và tên người báo cáo:</label>
+                <input type="text" class="form-control" id="name" name="name" required>
+            </div>
+            <div class="form-group">
+                <label for="longitude">Email:</label>
+                <input type="email" class="form-control" id="email" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="phone">Điện thoại liên lạc:</label>
+                <input type="tel" class="form-control" id="phone" name="phone" pattern="[0-9]{10}" required>
+            </div>
+            <div class="form-group">
+                <label for="content">Nội dung báo cáo:</label>
+                <div id="content-container"><textarea class="form-control" id="content" name="content"
+                        required></textarea></div>
+            </div>
+            <div class="form-group">
+                <label for="image">Ảnh chụp bảng quảng cáo:</label>
+                <input type="file" class="form-control" id="image" name="image" multiple>
+                <small class="form-text text-muted">Chọn một hoặc nhiều file.</small>
+            </div>
+            <button type="submit" class="btn btn-primary" onclick="window.history.back()">Trở về Bản Đồ</button>
+            <button type="submit" class="btn btn-primary" onclick="postContent()">Tạo báo cáo</button>
+        </form>
+    </div>
+    <script>
+        function postContent() {
+            var postContent = tinymce.activeEditor.getContent();
+            document.querySelector('#content').value = postContent;
+            console.log(postContent);
+        }
+    </script>
+</body>
+
 
 </html>
