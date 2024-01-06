@@ -8,6 +8,8 @@ const PanelRouter = require("./panel.routes");
 const ReportTypeRouter = require("./reportType.routes");
 const ReportRouter = require("./report.routes");
 
+const UserRouter = require("./user.routes");
+
 const routes = (app) => {
   // đường dẫn dùng cho citizen
   app.use("/api/point", PointRouter);
@@ -18,6 +20,8 @@ const routes = (app) => {
   app.use("/api/panel", PanelRouter);
   app.use("/api/reportType", ReportTypeRouter);
   app.use("/api/report", ReportRouter);
+
+  app.use('/api/user', UserRouter);
 };
 
 module.exports = routes;

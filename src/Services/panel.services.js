@@ -71,16 +71,6 @@ const getAllPanel = () => {
 const getDetailsPanel = (id) => {
     return new Promise(async (resolve, reject) => {
         try {
-            // const CheckPoint = await Point.findOne({
-            //     _id : new ObjectId(id)
-            // })
-            // console.log(CheckPoint);
-            // if(CheckPoint === null){
-            //     resolve({
-            //         status: 'ERR',
-            //         message: 'The point is not defined'
-            //     })
-            // }
             const listPanel = await Panel.find({
                 idPoint: id
             })
@@ -90,10 +80,17 @@ const getDetailsPanel = (id) => {
                     message: 'The point contains no panels'
                 })
             }
+            const updatePanels = await Promise.all(
+                listPanel.map(async (panel) => {
+                    const newPanel = { ...panel.toObject() };
+                    newPanel.Paneltype = (await panelTypeService.getPanelTypeName(newPanel.Paneltype)).data;
+                    return newPanel;
+                })
+            )
             resolve({
                 status: 'OK',
                 message: 'SUCCESS',
-                data: listPanel
+                data: updatePanels
             })
         } catch (e) {
             reject(e)
