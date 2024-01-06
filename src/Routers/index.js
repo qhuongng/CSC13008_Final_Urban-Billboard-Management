@@ -2,6 +2,7 @@ const PointRouter = require("./point.routes");
 const WardRouter = require("./ward.routes");
 const DistrictRouter = require("./district.routes");
 const PositionTypeRouter = require("./positionType.routes");
+const PanelTypeRouter = require("./panelType.routes");
 const AdsFormRouter = require("./adsForm.routes");
 const PanelRouter = require("./panel.routes");
 const ReportTypeRouter = require("./reportType.routes");

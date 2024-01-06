@@ -61,5 +61,6 @@ const getPositionName = (posId) => {
 }
 
 module.exports = {
-    createTypePos,getPositionName
+    createTypePos,
+    getPositionName
 }
