@@ -76,7 +76,7 @@
                 <input type="file" class="form-control" id="image" name="image" multiple>
                 <small class="form-text text-muted">Chọn một hoặc nhiều file.</small>
             </div>
-            <button type="submit" class="btn btn-primary" onclick="window.history.back()">Trở về Bản Đồ</button>
+            <button type="button" class="btn btn-primary" onclick="window.history.back()">Trở về Bản Đồ</button>
             <button type="submit" class="btn btn-primary" onclick="postContent(event)">Tạo báo cáo</button>
         </form>
     </div>
@@ -91,10 +91,8 @@
             document.getElementById('noticePopup').style.display = 'block';
             setTimeout(function() {
                 document.getElementById('noticePopup').style.display = 'none';
-                time = 1;
-            }, 2000);
-            if(time == 1)
                 document.querySelector('form').submit();
+            }, 2000);
         }
     </script>
 </body>
