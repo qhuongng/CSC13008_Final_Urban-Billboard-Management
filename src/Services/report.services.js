@@ -1,5 +1,5 @@
 const Report = require('../Models/Report');
-const ReportType = require('../Models/ReportType');
+const reportTypeService = require('./reportType.services');
 
 const createReport = (idPanel, locate, newReport, pathImg) => {
     return new Promise(async (resolve, reject) => {
@@ -13,7 +13,8 @@ const createReport = (idPanel, locate, newReport, pathImg) => {
                 phone: newReport.phone,
                 content: newReport.content,
                 reportPicture: pathImg,
-                state: 0
+                state: 0,
+                actionHandler: "Chưa xử lí"
             })
             if (createReport) {
                 resolve({
@@ -27,56 +28,56 @@ const createReport = (idPanel, locate, newReport, pathImg) => {
         }
     })
 }
-
-// const getNewReport = () => {
-//     return new Promise(async (resolve, reject) => {
-//         try {
-//             const getNewReport = await Report.find({
-//                 state: 0
-//             })
-//             if(getNewReport){
-//                 resolve({
-//                     status: "OK",
-//                     message: "SUCCESS",
-//                     data: getNewReport
-//                 })
-//             }
-//         } catch (e) {
-//             reject(e)
-//         }
-//     })
-// }
-
-// const getAllReport = () => {
-//     return new Promise(async (resolve, reject) => {
-//         try {
-
-//         } catch (e) {
-//             reject(e);
-//         }
-//     })
-// }
-
-const showReport = () => {
+const getAllReport = () => {
     return new Promise(async (resolve, reject) => {
         try {
-            const showReport = await Report.find({
-                state: 0
-            })
-            if (showReport) {
-                resolve({
-                    status: "OK",
-                    message: "SUCCESS",
-                    data: showReport
+            const report = await Report.find();
+            if (!report) {
+                reject({
+                    status: 'ERR',
+                    message: 'listReport is empty'
                 })
             }
+            const reportList = await Promise.all(
+                report.map(async (rp) => {
+                    const newRp = { ...rp.toObject() };
+                    newRp.reportType = (await reportTypeService.getReportTypeName(newRp.reportType)).data;
+                    return newRp
+                })
+            )
+            resolve({
+                status: 'OK',
+                message: 'SUCCESS',
+                data: reportList
+
+            })
         } catch (e) {
             reject(e)
         }
     })
 }
 
+const updateAction = (reportId, state, action) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const thisReport = await Report.findById(reportId);
+            if (!thisReport) {
+                reject({
+                    status: 'ERR',
+                    message: 'reportId does not exist'
+                })
+            }
+            thisReport.state = state
+            thisReport.actionHandler = action
+            await thisReport.save();
+        } catch (e) {
+            reject(e)
+        }
+    })
+}
+
+
 module.exports = {
     createReport,
-    showReport
+    getAllReport
 }

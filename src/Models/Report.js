@@ -16,6 +16,7 @@ const reportSchema = new mongoose.Schema(
         reportPicture: { type: Array, require: true },
 
         state: { type: Number, default: 0 },// chưa xử lí
+        actionHandler: { type: String, default: "Chưa xử lí" }
     },
     {
         timestamps: true,

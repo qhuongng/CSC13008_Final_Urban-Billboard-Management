@@ -17,24 +17,32 @@
             ],
         });
     </script>
-    <style>
-        #content-container {
-            border: 1px solid #ccc;
-            padding: 10px;
-            border-radius: 5px;
-        }
-
-        .tox-statusbar__path-item {
-            display: none !important;
-        }
-    </style>
-</head>
-
+        <style>
+            #content-container { border: 1px solid #ccc; padding: 10px;
+            border-radius: 5px; } .tox-statusbar__path-item { display: none
+            !important; }
+             #noticePopup {
+                width: 250px;
+                font-size: 20px;
+                text-align: center;
+                display: none;
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                padding: 10px;
+                background-color: #f0f0f0;
+                border: 1px solid #000000;
+                border-radius: 5px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+             }
+        </style>
+    </head>
 <body>
     <div class="container mt-5 mb-5">
         <h2 class="mb-4">Report</h2>
         <p class="mb-4">Địa điểm: {{address}}</p>
-        <form action="" method="post" novalidate enctype="multipart/form-data">
+        <form action="" method="post" enctype="multipart/form-data">
             <!-- Input fields for new report information -->
             <div class="form-group">
                 <label for="ads-form">Hình thức quảng cáo:</label>
@@ -67,15 +75,23 @@
                 <input type="file" class="form-control" id="image" name="image" multiple>
                 <small class="form-text text-muted">Chọn một hoặc nhiều file.</small>
             </div>
-            <button type="submit" class="btn btn-primary" onclick="window.history.back()">Trở về Bản Đồ</button>
-            <button type="submit" class="btn btn-primary" onclick="postContent()">Tạo báo cáo</button>
+            <button type="button" class="btn btn-primary" onclick="window.history.back()">Trở về Bản Đồ</button>
+            <button type="submit" class="btn btn-primary" onclick="postContent(event)">Tạo báo cáo</button>
         </form>
     </div>
+    <div id="noticePopup">Báo cáo đã được gửi!</div>
     <script>
-        function postContent() {
+        function postContent(event) {
+            var time = 0;
+            event.preventDefault();
             var postContent = tinymce.activeEditor.getContent();
             document.querySelector('#content').value = postContent;
-            console.log(postContent);
+
+            document.getElementById('noticePopup').style.display = 'block';
+            setTimeout(function() {
+                document.getElementById('noticePopup').style.display = 'none';
+                document.querySelector('form').submit();
+            }, 2000);
         }
     </script>
 </body>
