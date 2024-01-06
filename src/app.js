@@ -6,11 +6,16 @@ const bodyParser = require("body-parser");
 const path = require("path");
 const handlebars = require("express-handlebars");
 const session = require("express-session");
+const cors = require('cors');
 //---------
 dotenv.config();
 
 const app = express();
-
+const corsOption = {
+  origin: "http://localhost:3200",
+  credentials: true
+}
+app.use(cors(corsOption));// sau này chỉnh lại thành đg dẫn mặc định
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(bodyParser.json());
