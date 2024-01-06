@@ -21,35 +21,40 @@
     type="text/css" />
 
   <link href="/styles.css" rel="stylesheet" />
-  <script src="/map.js" defer></script>
 </head>
 
-<body></body>
-<div class="container-fluid">
-  <div class="row">
-    <div class="col-md-9 px-0">
-      <div id="map"></div>
-      <div class="bottom-bar" id="bottom-bar"></div>
-    </div>
-    <div class="col-md-3 py-3">
-      <div class="alert alert-success" role="alert" id="place-info-pane">
-        <h5 class="alert-heading">
-          <i class="bi bi-check2-circle"></i>
-          Thông tin địa điểm
-        </h5>
-        Chưa có dữ liệu.
+<body>
+  <div class="container-fluid">
+    <div class="row" id="main-container">
+      <div class="col-md-9 mt-3 px-0">
+        <div id="map"></div>
+        <div class="bottom-bar" id="bottom-bar"></div>
       </div>
-      <div class="alert alert-info" role="alert" id="billboard-info-pane">
-        <h5 class="alert-heading">
-          <i class="bi bi-info-circle"></i>
-          Thông tin bảng quảng cáo
-        </h5>
-        Chưa có dữ liệu.
+      <div class="col-md-3 py-3" id="info-panel">
+        <div class="place-container">
+          <div class="alert alert-success" role="alert" id="place-info-pane">
+            <h5 class="alert-heading">
+              <i class="bi bi-check2-circle"></i>
+              Thông tin địa điểm
+            </h5>
+            Chưa có dữ liệu.
+          </div>
+        </div>
+        <div id="billboard-container">
+          <div class="alert alert-info" role="alert" id="billboard-info-pane">
+            <h5 class="alert-heading">
+              <i class="bi bi-info-circle"></i>
+              Thông tin bảng quảng cáo
+            </h5>
+            Chưa có dữ liệu.
+          </div>
+        </div>
       </div>
     </div>
   </div>
-</div>
+</body>
 
+<script src="/map.js" defer></script>
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
   integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.3/dist/umd/popper.min.js"

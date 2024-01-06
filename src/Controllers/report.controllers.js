@@ -25,8 +25,8 @@ const createReport = async (req, res) => {
         }
         const pathImg = req.files.map(file => 'img/' + file.filename);
         const report = await reportService.createReport(panelId, locate, req.body, pathImg);
-
-        res.render("index");
+        //res.status(200).json(report);
+        res.redirect("/");
     } catch (e) {
         return res.status(404).json({
             message: e
