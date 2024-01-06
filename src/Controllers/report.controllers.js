@@ -25,7 +25,8 @@ const createReport = async (req, res) => {
         }
         const pathImg = req.files.map(file => 'img/' + file.filename);
         const report = await reportService.createReport(panelId, locate, req.body, pathImg);
-        res.status(200).json({ report });
+
+        res.render("index");
     } catch (e) {
         return res.status(404).json({
             message: e
@@ -33,10 +34,10 @@ const createReport = async (req, res) => {
     }
 };
 
-const getNewReport = async (req, res) => {
+const getAllReport = async (req, res) => {
     try {
-        const report = await reportService.getNewReport();
-        res.status(200).json({ report });
+        const report = await reportService.getAllReport();
+        res.status(200).json(report);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -48,6 +49,6 @@ const showReport = async (req, res) => {
 
 module.exports = {
     createReport,
-    getNewReport,
+    getAllReport,
     showReport,
 };

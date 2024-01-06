@@ -6,5 +6,5 @@ const reportTypeSchema = new mongoose.Schema(
     }
 );
 
-const PositionType = mongoose.model("reportType", reportTypeSchema);
-module.exports = PositionType;
+const reportType = mongoose.model("reportType", reportTypeSchema);
+module.exports = reportType;
