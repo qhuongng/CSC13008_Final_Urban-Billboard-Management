@@ -104,6 +104,14 @@ function setupMap(center) {
         zoom: 13,
         maxBounds: bounds,
     });
+    map = new mapboxgl.Map({
+        container: "map",
+        style: "mapbox://styles/mapbox/streets-v12",
+        center: center,
+        zoom: 13,
+        maxBounds: bounds,
+        language: "vi-VN",
+    });
 
     map.addControl(new mapboxgl.NavigationControl());
 
@@ -121,357 +129,425 @@ function setupMap(center) {
         map.on("click", (e) => {
 
             var features = map.queryRenderedFeatures(e.point);
+            map.on("style.load", () => {
+                map.on("click", (e) => {
+                    var features = map.queryRenderedFeatures(e.point);
 
-            if (
-                features[0] !== undefined &&
-                features[0].properties.name !== undefined
-            ) {
-                if (
-                    features[0].layer.id == "unclustered-point" ||
-                    features[0].layer.id == "unclustered-point-label"
-                ) {
-                    return;
-                }
-
-                var url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${features[0].properties.name}.json?access_token=${mapboxgl.accessToken}`;
-
-                fetch(url)
-                    .then((response) => response.json())
-                    .then((data) => {
-                        if (data.features && data.features.length > 0) {
-                            const address = data.features[0].place_name;
-                            const placeInfoPaneHeader =
-                                '<h5 class="alert-heading"><i class="bi bi-check2-circle"></i> Thông tin địa điểm</h5>';
-                            const reportButton =
-                                '<button type="button" class="btn btn-outline-danger"><i class="bi bi-exclamation-octagon-fill"></i> BÁO CÁO VI PHẠM</button>';
-
-                            document.getElementById(
-                                "place-info-pane"
-                            ).innerHTML = `${placeInfoPaneHeader}<br><strong>${features[0].properties.name}</strong><br>${address}<br><br>${reportButton}`;
-
-                            map.easeTo({
-                                center: e.lngLat,
-                            });
-                        } else {
-                            console.log("No address found");
+                    if (
+                        features[0] !== undefined &&
+                        features[0].properties.name !== undefined
+                    ) {
+                        if (
+                            features[0].layer.id == "unclustered-point" ||
+                            features[0].layer.id == "unclustered-point-label"
+                        ) {
+                            return;
                         }
-                    })
-                    .catch((error) => {
-                        console.log("Error:", error);
+
+                        var url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${features[0].properties.name}.json?access_token=${mapboxgl.accessToken}`;
+
+                        fetch(url)
+                            .then((response) => response.json())
+                            .then((data) => {
+                                if (data.features && data.features.length > 0) {
+                                    const address = data.features[0].place_name;
+                                    const placeInfoPaneHeader =
+                                        '<h5 class="alert-heading"><i class="bi bi-check2-circle"></i> Thông tin địa điểm</h5>';
+                                    const reportButton =
+                                        '<button type="button" class="btn btn-outline-danger"><i class="bi bi-exclamation-octagon-fill"></i> BÁO CÁO VI PHẠM</button>';
+                                    fetch(url)
+                                        .then((response) => response.json())
+                                        .then((data) => {
+                                            if (data.features && data.features.length > 0) {
+                                                const address = data.features[0].place_name;
+                                                const placeInfoPaneHeader =
+                                                    '<h5 class="alert-heading"><i class="bi bi-check2-circle"></i> Thông tin địa điểm</h5>';
+                                                const reportButton = `<a href="/api/report?location=${encodeURIComponent(
+                                                    address
+                                                )}" class="btn btn-sm btn-outline-danger"><i class="bi bi-exclamation-octagon-fill"></i> BÁO CÁO VI PHẠM</a>`;
+
+                                                document.getElementById(
+                                                    "place-info-pane"
+                                                ).innerHTML = `${placeInfoPaneHeader}<br><strong>${features[0].properties.name}</strong><br>${address}<br><br>${reportButton}`;
+
+                                                map.easeTo({
+                                                    center: e.lngLat,
+                                                });
+                                            } else {
+                                                console.log("No address found");
+                                            }
+                                        })
+                                        .catch((error) => {
+                                            console.log("Error:", error);
+                                        });
+                                } else {
+                                    const placeInfoPaneHeader =
+                                        '<h5 class="alert-heading"><i class="bi bi-check2-circle"></i> Thông tin địa điểm</h5>';
+                                    document.getElementById(
+                                        "place-info-pane"
+                                    ).innerHTML = `${placeInfoPaneHeader}Chưa có dữ liệu.`;
+                                }
+                            });
                     });
-            } else {
-                const placeInfoPaneHeader =
-                    '<h5 class="alert-heading"><i class="bi bi-check2-circle"></i> Thông tin địa điểm</h5>';
-                document.getElementById(
-                    "place-info-pane"
-                ).innerHTML = `${placeInfoPaneHeader}Chưa có dữ liệu.`;
-            }
-        });
-    });
 
-    map.on("load", () => {
-        //add bottomController
-        bottomController();
+                map.on("load", () => {
+                    //add bottomController
+                    bottomController();
 
-        let pointJson;
-        (async () => {
-            let data = await loadPoints();
+                    let pointJson;
+                    (async () => {
+                        let data = await loadPoints();
 
-            pointJson = {
-                features: [],
-            };
+                        pointJson = {
+                            features: [],
+                        };
 
-            for (let i = 0; i < data.length; i++) {
-                let point = {
-                    type: "Feature",
-                    geometry: {
-                        type: "Point",
-                        coordinates: [data[i].locate[0], data[i].locate[1]],
-                    },
-                    properties: {
-                        id: data[i]._id,
-                        name: data[i].name,
-                        billboardType: data[i].formAdvertising,
-                        positionType: data[i].positionType,
-                        address: data[i].address,
-                        area: {
-                            ward: data[i].area.ward,
-                            district: data[i].area.district,
-                        },
-                        isZoning: data[i].isZoning,
-                        picturePoint: data[i].picturePoint,
-                    },
-                };
+                        for (let i = 0; i < data.length; i++) {
+                            let point = {
+                                type: "Feature",
+                                geometry: {
+                                    type: "Point",
+                                    coordinates: [data[i].locate[0], data[i].locate[1]],
+                                },
+                                properties: {
+                                    id: data[i]._id,
+                                    name: data[i].name,
+                                    billboardType: data[i].formAdvertising,
+                                    positionType: data[i].positionType,
+                                    address: data[i].address,
+                                    area: {
+                                        ward: data[i].area.ward,
+                                        district: data[i].area.district,
+                                    },
+                                    isZoning: data[i].isZoning,
+                                    picturePoint: data[i].picturePoint,
+                                },
+                            };
 
-                pointJson.features.push(point);
-            }
+                            pointJson.features.push(point);
+                        }
 
-            map.addSource("billboardPos", {
-                type: "geojson",
-                data: pointJson,
-                cluster: true,
-                clusterMaxZoom: 14, // Max zoom to cluster points on
-                clusterRadius: 50, // Radius of each cluster when clustering points (defaults to 50)
-            });
-
-            map.addLayer({
-                id: "clusters",
-                type: "circle",
-                source: "billboardPos",
-                filter: ["has", "point_count"],
-                paint: {
-                    "circle-color": [
-                        "step",
-                        ["get", "point_count"],
-                        "#51bbd6",
-                        3,
-                        "#f1f075",
-                        6,
-                        "#f28cb1",
-                    ],
-                    "circle-radius": ["step", ["get", "point_count"], 20, 3, 30, 6, 40],
-                    "circle-stroke-width": 2,
-                    "circle-stroke-color": "#ffffff",
-                },
-            });
-
-            map.addLayer({
-                id: "cluster-count",
-                type: "symbol",
-                source: "billboardPos",
-                filter: ["has", "point_count"],
-                layout: {
-                    "text-field": ["get", "point_count_abbreviated"],
-                    "text-font": ["DIN Offc Pro Medium", "Arial Unicode MS Bold"],
-                    "text-size": 12,
-                },
-            });
-
-            // unclustered-point-label
-            map.addLayer({
-                id: "unclustered-point-label",
-                type: "symbol",
-                source: "billboardPos",
-                // filter: ["all", ["!", ["has", "point_count"]], ["==", ["get", "reported"], 1]],
-                filter: [
-                    "all",
-                    ["!", ["has", "point_count"]],
-                    ["==", ["get", "isZoning"], true],
-                ],
-                // filter: ["!", ["has", "point_count"]],
-                layout: {
-                    "text-field": "QC",
-                    "text-font": ["DIN Offc Pro Medium", "Arial Unicode MS Regular"],
-                    "text-size": 10,
-                },
-                paint: {
-                    "text-color": "#ffffff",
-                },
-            });
-
-            // unclustered-point-label-reported
-            // map.addLayer({
-            //     id: "unclustered-point-label-reported",
-            //     type: "symbol",
-            //     source: "billboardPos",
-            //     filter: ["all", ["!", ["has", "point_count"]], ["==", ["get", "reported"], 0]],
-            //     layout: {
-            //         "text-field": "QC",
-            //         "text-font": ["DIN Offc Pro Medium", "Arial Unicode MS Regular"],
-            //         "text-size": 10,
-            //     },
-            //     paint: {
-            //         "text-color": "#ffffff",
-            //     },
-            // });
-
-            map.addLayer(
-                {
-                    id: "unclustered-point",
-                    type: "circle",
-                    source: "billboardPos",
-                    //filter: ["all", ["!", ["has", "point_count"]], ["==", ["get", "reported"], 1]],
-                    filter: ["!", ["has", "point_count"]],
-                    paint: {
-                        // "circle-color": ["match", ["get", "reported"], 1, "#0000ff", "#ffffff"],
-                        "circle-color": "#0000ff",
-                        "circle-radius": 10,
-                        "circle-stroke-width": 1,
-                        "circle-stroke-color": "#ffffff",
-                    },
-                },
-
-                "unclustered-point-label"
-            );
-
-            // map.addLayer(
-            //     {
-            //         id: "unclustered-point-reported",
-            //         type: "circle",
-            //         source: "billboardPos",
-            //         filter: ["all", ["!", ["has", "point_count"]], ["==", ["get", "reported"], 0]],
-            //         paint: {
-            //             "circle-color": ["match", ["get", "reported"], 0, "#ff0000", "#ffffff"],
-            //             "circle-radius": 10,
-            //             "circle-stroke-width": 1,
-            //             "circle-stroke-color": "#ffffff",
-            //         },
-            //     },
-            //     "unclustered-point-label-reported"
-            // );
-
-            map.addLayer(
-                {
-                    id: "billboard",
-                    type: "circle",
-                    source: "billboardPos",
-                    filter: [
-                        "all",
-                        ["!", ["has", "point_count"]],
-                        ["==", ["get", "reported"], 1],
-                    ],
-                },
-                "unclustered-point"
-            );
-
-            // map.addLayer(
-            //     {
-            //         id: "report-violation",
-            //         type: "circle",
-            //         source: "billboardPos",
-            //         filter: ["all", ["!", ["has", "point_count"]], ["==", ["get", "reported"], 0]],
-            //     },
-            //     "unclustered-point-reported"
-            // );
-
-            // inspect a cluster on click
-            map.on("click", "clusters", (e) => {
-                const features = map.queryRenderedFeatures(e.point, {
-                    layers: ["clusters"],
-                });
-                const clusterId = features[0].properties.cluster_id;
-                map
-                    .getSource("billboardPos")
-                    .getClusterExpansionZoom(clusterId, (err, zoom) => {
-                        if (err) return;
-
-                        map.easeTo({
-                            center: features[0].geometry.coordinates,
-                            zoom: zoom,
+                        map.addSource("billboardPos", {
+                            type: "geojson",
+                            data: pointJson,
+                            cluster: true,
+                            clusterMaxZoom: 14, // Max zoom to cluster points on
+                            clusterRadius: 50, // Radius of each cluster when clustering points (defaults to 50)
                         });
-                    });
-            });
 
-            const popup = new mapboxgl.Popup({
-                closeButton: false,
-                closeOnClick: false,
-            });
+                        map.addLayer({
+                            id: "clusters",
+                            type: "circle",
+                            source: "billboardPos",
+                            filter: ["has", "point_count"],
+                            paint: {
+                                "circle-color": [
+                                    "step",
+                                    ["get", "point_count"],
+                                    "#51bbd6",
+                                    3,
+                                    "#f1f075",
+                                    6,
+                                    "#f28cb1",
+                                ],
+                                "circle-radius": ["step", ["get", "point_count"], 20, 3, 30, 6, 40],
+                                "circle-stroke-width": 2,
+                                "circle-stroke-color": "#ffffff",
+                            },
+                        });
 
-            // map.on("mouseenter", ["unclustered-point", "unclustered-point-reported"], (e) => {
-            map.on("mouseenter", "unclustered-point", (e) => {
-                const coordinates = e.features[0].geometry.coordinates.slice();
-                const isZoning =
-                    e.features[0].properties.isZoning === true
-                        ? "ĐÃ QUY HOẠCH"
-                        : "CHƯA QUY HOẠCH";
-                const description = `<strong>${e.features[0].properties.billboardType
-                    }</strong><br>
-                              ${e.features[0].properties.positionType}<br>
-                              ${e.features[0].properties.address}<br>
-                              ${JSON.parse(e.features[0].properties.area).ward
-                    }, ${JSON.parse(e.features[0].properties.area).district
-                    }<br>
-                              <strong><em>${isZoning}</em></strong>`;
+                        map.addLayer({
+                            id: "cluster-count",
+                            type: "symbol",
+                            source: "billboardPos",
+                            filter: ["has", "point_count"],
+                            layout: {
+                                "text-field": ["get", "point_count_abbreviated"],
+                                "text-font": ["DIN Offc Pro Medium", "Arial Unicode MS Bold"],
+                                "text-size": 12,
+                            },
+                        });
+
+                        // unclustered-point-label
+                        map.addLayer({
+                            id: "unclustered-point-label",
+                            type: "symbol",
+                            source: "billboardPos",
+                            // filter: ["all", ["!", ["has", "point_count"]], ["==", ["get", "reported"], 1]],
+                            filter: [
+                                "all",
+                                ["!", ["has", "point_count"]],
+                                ["==", ["get", "isZoning"], true],
+                            ],
+                            // filter: ["!", ["has", "point_count"]],
+                            layout: {
+                                "text-field": "QC",
+                                "text-font": ["DIN Offc Pro Medium", "Arial Unicode MS Regular"],
+                                "text-size": 10,
+                            },
+                            paint: {
+                                "text-color": "#ffffff",
+                            },
+                        });
+
+                        // unclustered-point-label-reported
+                        // map.addLayer({
+                        //     id: "unclustered-point-label-reported",
+                        //     type: "symbol",
+                        //     source: "billboardPos",
+                        //     filter: ["all", ["!", ["has", "point_count"]], ["==", ["get", "reported"], 0]],
+                        //     layout: {
+                        //         "text-field": "QC",
+                        //         "text-font": ["DIN Offc Pro Medium", "Arial Unicode MS Regular"],
+                        //         "text-size": 10,
+                        //     },
+                        //     paint: {
+                        //         "text-color": "#ffffff",
+                        //     },
+                        // });
+
+                        map.addLayer(
+                            {
+                                id: "unclustered-point",
+                                type: "circle",
+                                source: "billboardPos",
+                                //filter: ["all", ["!", ["has", "point_count"]], ["==", ["get", "reported"], 1]],
+                                filter: ["!", ["has", "point_count"]],
+                                paint: {
+                                    // "circle-color": ["match", ["get", "reported"], 1, "#0000ff", "#ffffff"],
+                                    "circle-color": "#0000ff",
+                                    "circle-radius": 10,
+                                    "circle-stroke-width": 1,
+                                    "circle-stroke-color": "#ffffff",
+                                },
+                            },
+
+                            "unclustered-point-label"
+                        );
+
+                        // map.addLayer(
+                        //     {
+                        //         id: "unclustered-point-reported",
+                        //         type: "circle",
+                        //         source: "billboardPos",
+                        //         filter: ["all", ["!", ["has", "point_count"]], ["==", ["get", "reported"], 0]],
+                        //         paint: {
+                        //             "circle-color": ["match", ["get", "reported"], 0, "#ff0000", "#ffffff"],
+                        //             "circle-radius": 10,
+                        //             "circle-stroke-width": 1,
+                        //             "circle-stroke-color": "#ffffff",
+                        //         },
+                        //     },
+                        //     "unclustered-point-label-reported"
+                        // );
+
+                        map.addLayer(
+                            {
+                                id: "billboard",
+                                type: "circle",
+                                source: "billboardPos",
+                                filter: [
+                                    "all",
+                                    ["!", ["has", "point_count"]],
+                                    ["==", ["get", "reported"], 1],
+                                ],
+                            },
+                            "unclustered-point"
+                        );
+
+                        // map.addLayer(
+                        //     {
+                        //         id: "report-violation",
+                        //         type: "circle",
+                        //         source: "billboardPos",
+                        //         filter: ["all", ["!", ["has", "point_count"]], ["==", ["get", "reported"], 0]],
+                        //     },
+                        //     "unclustered-point-reported"
+                        // );
+
+                        // inspect a cluster on click
+                        map.on("click", "clusters", (e) => {
+                            const features = map.queryRenderedFeatures(e.point, {
+                                layers: ["clusters"],
+                            });
+                            const clusterId = features[0].properties.cluster_id;
+                            map
+                                .getSource("billboardPos")
+                                .getClusterExpansionZoom(clusterId, (err, zoom) => {
+                                    if (err) return;
+
+                                    map.easeTo({
+                                        center: features[0].geometry.coordinates,
+                                        zoom: zoom,
+                                    });
+                                });
+                        });
+
+                        const popup = new mapboxgl.Popup({
+                            closeButton: false,
+                            closeOnClick: false,
+                        });
+
+                        // map.on("mouseenter", ["unclustered-point", "unclustered-point-reported"], (e) => {
+                        map.on("mouseenter", "unclustered-point", (e) => {
+                            const coordinates = e.features[0].geometry.coordinates.slice();
+                            const isZoning =
+                                e.features[0].properties.isZoning === true
+                                    ? "ĐÃ QUY HOẠCH"
+                                    : "CHƯA QUY HOẠCH";
+                            const description = `<strong>${e.features[0].properties.billboardType
+                                }</strong><br>
+      // map.on("mouseenter", ["unclustered-point", "unclustered-point-reported"], (e) => {
+      map.on("mouseenter", "unclustered-point", (e) => {
+        const coordinates = e.features[0].geometry.coordinates.slice();
+        const isZoning =
+          e.features[0].properties.isZoning === true
+            ? "ĐÃ QUY HOẠCH"
+            : "CHƯA QUY HOẠCH";
+        const description = `< strong > ${ e.features[0].properties.billboardType
+                                }</strong> <br>
+                                    ${e.features[0].properties.positionType}<br>
+                                        ${e.features[0].properties.address}<br>
+                                            ${JSON.parse(e.features[0].properties.area).ward
+                                            }, ${JSON.parse(e.features[0].properties.area).district
+                                            }<br>
+                                                ${JSON.parse(e.features[0].properties.area).ward
+                                                }, ${JSON.parse(e.features[0].properties.area).district
+                                                }<br>
+                                                    <strong><em>${isZoning}</em></strong>`;
 
                 // Ensure that if the map is zoomed out such that
                 // multiple copies of the feature are visible, the
                 // popup appears over the copy being pointed to.
                 while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
-                    coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+                                                        coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
                 }
 
-                popup.setLngLat(coordinates).setHTML(description).addTo(map);
+                                                    popup.setLngLat(coordinates).setHTML(description).addTo(map);
             });
 
             map.on("click", "unclustered-point", (e) => {
                 const pointId = e.features[0].properties.id;
-                const coordinates = e.features[0].geometry.coordinates.slice();
-                const address = `${e.features[0].properties.address}<br>${JSON.parse(e.features[0].properties.area).ward
-                    }, ${JSON.parse(e.features[0].properties.area).district}`;
-                const imgUrl = `https://drive.google.com/uc?id=${e.features[0].properties.picturePoint}`;
-                const placeInfoPaneHeader =
-                    '<h5 class="alert-heading"><i class="bi bi-check2-circle"></i> Thông tin địa điểm</h5>';
-                const reportButton =
-                    '<button type="button" class="btn btn-outline-danger"><i class="bi bi-exclamation-octagon-fill"></i> BÁO CÁO VI PHẠM</button>';
+                                                    const coordinates = e.features[0].geometry.coordinates.slice();
+                                                    const address = `${e.features[0].properties.address}<br>${JSON.parse(e.features[0].properties.area).ward
+                                                    }, ${JSON.parse(e.features[0].properties.area).district}`;
+                                                        const imgUrl = `https://drive.google.com/uc?id=${e.features[0].properties.picturePoint}`;
+                                                        const placeInfoPaneHeader =
+                                                        '<h5 class="alert-heading"><i class="bi bi-check2-circle"></i> Thông tin địa điểm</h5>';
+                                                        const reportButton =
+                                                        '<button type="button" class="btn btn-outline-danger"><i class="bi bi-exclamation-octagon-fill"></i> BÁO CÁO VI PHẠM</button>';
+      map.on("click", "unclustered-point", (e) => {
+        const pointId = e.features[0].properties.id;
+                                                        const coordinates = e.features[0].geometry.coordinates.slice();
+                                                        const address = `${e.features[0].properties.address}<br>${JSON.parse(e.features[0].properties.area).ward
+                                                        }, ${JSON.parse(e.features[0].properties.area).district}`;
+                                                            const addressURL = `${e.features[0].properties.address}, ${JSON.parse(e.features[0].properties.area).ward
+                                                            }, ${JSON.parse(e.features[0].properties.area).district}`;
+                                                            const imgUrl = `https://drive.google.com/uc?id=${e.features[0].properties.picturePoint}`;
+                                                            const placeInfoPaneHeader =
+                                                            '<h5 class="alert-heading"><i class="bi bi-check2-circle"></i> Thông tin địa điểm</h5>';
 
-                document.getElementById(
-                    "place-info-pane"
-                ).innerHTML = `${placeInfoPaneHeader}<br><strong>${e.features[0].properties.name}</strong><br>${address}<br><br><img class="img-fluid" src=${imgUrl} alt=""><br><br>${reportButton}`;
+                                                            const reportButton =
+                                                            `<a class="btn btn-outline-danger" href="/api/report/${0}?address=${addressURL}&lng=${coordinates[0]}&lat=${coordinates[1]}"><i class="bi bi-exclamation-octagon-fill"></i> BÁO CÁO VI PHẠM</a>`;
 
-                map.easeTo({
-                    center: coordinates,
+
+                                                            document.getElementById(
+                                                            "place-info-pane"
+                                                            ).innerHTML = `${placeInfoPaneHeader}<br><strong>${e.features[0].properties.name}</strong><br>${address}<br><br><img class="img-fluid" src=${imgUrl} alt=""><br><br>${reportButton}`;
+
+                                                                map.easeTo({
+                                                                    center: coordinates,
                 });
 
-                fetch(`http://localhost:3500/api/panel/getListPanel/${pointId}`)
+                                                                fetch(`http://localhost:3500/api/panel/getListPanel/${pointId}`)
                     .then((response) => response.json())
                     .then((data) => {
-                        console.log(data);
+                                                                    console.log(data);
                     });
             });
+                                                                map.easeTo({
+                                                                    center: coordinates,
+        });
+                                                                console.log(pointId);
+                                                                fetch(`http://localhost:3500/api/panel/getListPanel/${pointId}`)
+          .then((response) => response.json())
+          .then((data) => {
+                                                                    console.log(data);
+          });
+      });
 
             // map.on("mouseleave", ["unclustered-point", "unclustered-point-reported"], () => {
-            map.on("mouseleave", "unclustered-point", () => {
-                map.getCanvas().style.cursor = "";
-                popup.remove();
-            });
+                                                                    map.on("mouseleave", "unclustered-point", () => {
+                                                                        map.getCanvas().style.cursor = "";
+                                                                        popup.remove();
+                                                                    });
 
             map.on("click", (e) => {
                 const feature = map.queryRenderedFeatures(e.point);
 
-                if (
-                    feature.length === 0 ||
-                    feature[0].layer.source !== "billboardPos"
-                ) {
+                                                                if (
+                                                                feature.length === 0 ||
+                                                                feature[0].layer.source !== "billboardPos"
+                                                                ) {
                     if (marker) {
-                        marker.remove();
+                                                                    marker.remove();
                     }
 
-                    marker = new mapboxgl.Marker({ color: "#0000ff" })
-                        .setLngLat(e.lngLat)
-                        .addTo(map);
+                                                                marker = new mapboxgl.Marker({color: "#0000ff" })
+                                                                .setLngLat(e.lngLat)
+                                                                .addTo(map);
 
-                    reverseGeocode(e.lngLat);
+                                                                reverseGeocode(e.lngLat);
                 }
             });
         })();
     });
 }
 
-function reverseGeocode(lngLat) {
+                                                                function reverseGeocode(lngLat) {
     const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${lngLat.lng},${lngLat.lat}.json?access_token=${mapboxgl.accessToken}`;
 
-    fetch(url)
+                                                                fetch(url)
         .then((response) => response.json())
         .then((data) => {
             if (data.features && data.features.length > 0) {
                 const address = data.features[0].place_name;
-                const placeInfoPaneHeader =
-                    '<h5 class="alert-heading"><i class="bi bi-check2-circle"></i> Thông tin địa điểm</h5>';
-                const reportButton =
-                    '<button type="button" class="btn btn-outline-danger" href="/olala"><i class="bi bi-exclamation-octagon-fill"></i> BÁO CÁO VI PHẠM</button>';
+                                                                const placeInfoPaneHeader =
+                                                                '<h5 class="alert-heading"><i class="bi bi-check2-circle"></i> Thông tin địa điểm</h5>';
+                                                                const reportButton =
+                                                                '<button type="button" class="btn btn-outline-danger" href="/olala"><i class="bi bi-exclamation-octagon-fill"></i> BÁO CÁO VI PHẠM</button>';
+                                                                fetch(url)
+    .then((response) => response.json())
+    .then((data) => {
+                                                                    console.log(lngLat.lng);
+      if (data.features && data.features.length > 0) {
+        const [name, ...addressParts] = data.features[0].place_name.split(",");
+                                                                const address = addressParts.join(",").trim();
 
-                document.getElementById(
-                    "place-info-pane"
-                ).innerHTML = `${placeInfoPaneHeader}<br><strong>${address}</strong><br><br>${reportButton}`;
+                                                                const placeInfoPaneHeader =
+                                                                '<h5 class="alert-heading"><i class="bi bi-check2-circle"></i> Thông tin địa điểm</h5>';
+
+                                                                const reportButton =
+                                                                `<a class="btn btn-outline-danger" href="/api/report/${0}?address=${data.features[0].place_name}&lng=${lngLat.lng}&lat=${lngLat.lat}"><i class="bi bi-exclamation-octagon-fill"></i> BÁO CÁO VI PHẠM</a>`;
+
+
+                                                                document.getElementById(
+                                                                "place-info-pane"
+                                                                ).innerHTML = `${placeInfoPaneHeader}<br><strong>${address}</strong><br><br>${reportButton}`;
+                                                                    document.getElementById(
+                                                                    "place-info-pane"
+                                                                    ).innerHTML = `${placeInfoPaneHeader}<br><strong>${name}</strong><br>${address}<br><br>${reportButton}`;
+
+                                                                        localStorage.setItem("placeName", name);
 
                 // map.easeTo({
-                //   center: lngLat,
-                // });
-            } else {
-                console.log("No address found");
+                                                                            //   center: lngLat,
+                                                                            // });
+                                                                        } else {
+                                                                            console.log("No address found");
             }
         })
         .catch((error) => {
-            console.log("Error:", error);
+                                                                            console.log("Error:", error);
         });
 }

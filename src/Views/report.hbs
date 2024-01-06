@@ -1,54 +1,42 @@
-<!DOCTYPE html>
 <html lang="en">
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create New Report</title>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Create New Report</title>
 
-    <script src="https://cdn.tiny.cloud/1/5g6xzyhpro9zvlir37isxfsb34o6zzm0iza7tj6mvmvlwtne/tinymce/6/tinymce.min.js"
-        referrerpolicy="origin"></script>
+    <script src="https://cdn.tiny.cloud/1/ezd73nxbzc7bu6e86g2l82jbbffke0mwevwrnyvc5q8h89j6/tinymce/6/tinymce.min.js"
+  referrerpolicy="origin"></script>
     <script>
-        tinymce.init({
-
-            selector: '#content',  // Replace the textarea with id="myTextarea" with TinyMCE
-            height: 300,
-            plugins: [
-                'advlist autolink lists link image charmap print preview anchor',
-                'searchreplace visualblocks code fullscreen',
-                'insertdatetime media table paste code help wordcount'
-            ],
-            toolbar: 'undo redo | formatselect | ' +
-                'bold italic backcolor | alignleft aligncenter ' +
-                'alignright alignjustify | bullist numlist outdent indent | ' +
-                'removeformat | help'
-        });
+    tinymce.init({
+        selector: '#content',
+        menubar: false,
+        plugins: 'paste image link autolink lists table media',
+        toolbar: [
+        'undo redo | bold italic underline strikethrough | numlist bullist | alignleft aligncenter alignright | forecolor backcolor | table link image media',
+        ],
+    });
     </script>
-    <style>
-        #content-container {
-            border: 1px solid #ccc;
-            padding: 10px;
-            border-radius: 5px;
-        }
-
-        .tox-statusbar__path-item {
-            display: none !important;
-        }
-    </style>
-</head>
+        <style>
+            #content-container { border: 1px solid #ccc; padding: 10px;
+            border-radius: 5px; } .tox-statusbar__path-item { display: none
+            !important; }
+        </style>
+    </head>
 
 <body>
     <div class="container mt-5">
         <h2 class="mb-4">Report</h2>
-        <form action="index.html" method="post">
+        <p class="mb-4">Địa điểm: {{address}}</p>
+        <form action="" method="post" novalidate enctype="multipart/form-data">
             <!-- Input fields for new report information -->
             <div class="form-group">
                 <label for="ads-form">Hình thức quảng cáo:</label>
-                <select class="form-control" id="ads-form">
-                    <option>Tố giác sai phạm</option>
-                    <option>Đăng ký nội dung</option>
-                    <option>Đóng góp ý kiến</option>
-                    <option>Giải đáp thắc mắc</option>
+                <select class="form-control" id="ads-form" name="reportType">
+                    <option value="R01">Tố giác sai phạm</option>
+                    <option value="R02">Đăng ký nội dung</option>
+                    <option value="R03">Đóng góp ý kiến</option>
+                    <option value="R04">Giải đáp thắc mắc</option>
                 </select>
             </div>
             <div class="form-group">
@@ -68,15 +56,23 @@
                 <div id="content-container"><textarea class="form-control" id="content" name="content"
                         required></textarea></div>
             </div>
-        <div class="form-group">
-        <label for="image">Ảnh chụp bảng quảng cáo:</label>
-        <input type="file" class="form-control" id="image" name="image" multiple required>
-        <small class="form-text text-muted">Chọn một hoặc nhiều file.</small>
-      </div>
-            <button type="submit" class="btn btn-primary" onclick="window.history.back()">Back to Map</button>
-            <button type="submit" class="btn btn-primary">Create Report</button>
+            <div class="form-group">
+                <label for="image">Ảnh chụp bảng quảng cáo:</label>
+                <input type="file" class="form-control" id="image" name="image" multiple>
+                <small class="form-text text-muted">Chọn một hoặc nhiều file.</small>
+            </div>
+            <button type="submit" class="btn btn-primary" onclick="window.history.back()">Trở về Bản Đồ</button>
+            <button type="submit" class="btn btn-primary" onclick="postContent()">Tạo báo cáo</button>
         </form>
     </div>
+    <script>
+        function postContent() {
+            var postContent = tinymce.activeEditor.getContent();
+            document.querySelector('#content').value = postContent;
+            console.log(postContent);
+        }
+    </script>
 </body>
+
 
 </html>

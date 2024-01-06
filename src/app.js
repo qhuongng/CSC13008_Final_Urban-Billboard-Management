@@ -11,29 +11,37 @@ dotenv.config();
 
 const app = express();
 
+app.use(bodyParser.urlencoded({ extended: true }));
+
 app.use(bodyParser.json());
 app.use(express.static(__dirname + "/public"));
-app.use('/static', express.static('static'));
+//app.use("/static", express.static("static"));
 
 routes(app);
 
-app.engine('hbs', handlebars.engine({
-    extname: 'hbs'
-}));
+app.engine(
+  "hbs",
+  handlebars.engine({
+    extname: "hbs",
+  })
+);
 
-app.set('view engine', 'hbs');
+app.set("view engine", "hbs");
 app.set("views", path.join(__dirname, "Views"));
 
 app.get("/", (req, res) => {
-    res.render("index");
+  res.render("index");
 });
 
-mongoose.connect(`${process.env.MONGO_URL}`).then(() => {
+mongoose
+  .connect(`${process.env.MONGO_URL}`)
+  .then(() => {
     console.log("Connect DB success");
-}).catch((err) => {
+  })
+  .catch((err) => {
     console.log(err);
-});
+  });
 
 app.listen(process.env.PORT, () => {
-    console.log(`Server is running on http://localhost:${process.env.PORT}`);
+  console.log(`Server is running on http://localhost:${process.env.PORT}`);
 });
