@@ -1,10 +1,11 @@
-const User = require("../models/Users")
+const User = require("../Models/Users")
+const { generalAccessToken } = require("./JwtService")
 const bcrypt = require("bcrypt")
 
 
 const createUser = (newUser)=>{
     return new Promise(async(resolve, reject)=>{
-        const {name, email, password, phone } = newUser
+        const {name, email, password, phone, role } = newUser
 
         try{
             const checkUser = await User.findOne({
@@ -22,7 +23,8 @@ const createUser = (newUser)=>{
                     name,
                     email, 
                     password: hash, 
-                    phone
+                    phone,
+                    role
                 })
                 if(createUser){
                     resolve({
@@ -55,9 +57,6 @@ const loginUser = (userLogin)=>{
             }
             const user_id = checkUser._id
             const access_token = await generalAccessToken({
-                id: checkUser.id
-            })
-            const refresh_token = await generalRefreshToken({
                 id: checkUser.id
             })
 
