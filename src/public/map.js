@@ -375,16 +375,13 @@ function setupMap(center) {
           e.features[0].properties.isZoning === true
             ? "ĐÃ QUY HOẠCH"
             : "CHƯA QUY HOẠCH";
-        const description = `<strong>${
-          e.features[0].properties.billboardType
-        }</strong><br>
+        const description = `<strong>${e.features[0].properties.billboardType
+          }</strong><br>
                               ${e.features[0].properties.positionType}<br>
                               ${e.features[0].properties.address}<br>
-                              ${
-                                JSON.parse(e.features[0].properties.area).ward
-                              }, ${
-          JSON.parse(e.features[0].properties.area).district
-        }<br>
+                              ${JSON.parse(e.features[0].properties.area).ward
+          }, ${JSON.parse(e.features[0].properties.area).district
+          }<br>
                               <strong><em>${isZoning}</em></strong>`;
 
         // Ensure that if the map is zoomed out such that
@@ -400,15 +397,16 @@ function setupMap(center) {
       map.on("click", "unclustered-point", (e) => {
         const pointId = e.features[0].properties.id;
         const coordinates = e.features[0].geometry.coordinates.slice();
-        const address = `${e.features[0].properties.address}<br>${
-          JSON.parse(e.features[0].properties.area).ward
-        }, ${JSON.parse(e.features[0].properties.area).district}`;
+        const address = `${e.features[0].properties.address}<br>${JSON.parse(e.features[0].properties.area).ward
+          }, ${JSON.parse(e.features[0].properties.area).district}`;
+        const addressURL = `${e.features[0].properties.address}, ${JSON.parse(e.features[0].properties.area).ward
+          }, ${JSON.parse(e.features[0].properties.area).district}`;
         const imgUrl = `https://drive.google.com/uc?id=${e.features[0].properties.picturePoint}`;
         const placeInfoPaneHeader =
           '<h5 class="alert-heading"><i class="bi bi-check2-circle"></i> Thông tin địa điểm</h5>';
-        
+
         const reportButton =
-          `<a class="btn btn-outline-danger" href="/api/report/${0}?lng=${coordinates[0]}&lat=${coordinates[1]}"><i class="bi bi-exclamation-octagon-fill"></i> BÁO CÁO VI PHẠM</a>`;
+          `<a class="btn btn-outline-danger" href="/api/report/${0}?address=${addressURL}&lng=${coordinates[0]}&lat=${coordinates[1]}"><i class="bi bi-exclamation-octagon-fill"></i> BÁO CÁO VI PHẠM</a>`;
 
 
         document.getElementById(
@@ -469,7 +467,7 @@ function reverseGeocode(lngLat) {
           '<h5 class="alert-heading"><i class="bi bi-check2-circle"></i> Thông tin địa điểm</h5>';
 
         const reportButton =
-          `<a class="btn btn-outline-danger" href="/api/report/${0}?lng=${lngLat.lng}&lat=${lngLat.lat}"><i class="bi bi-exclamation-octagon-fill"></i> BÁO CÁO VI PHẠM</a>`;
+          `<a class="btn btn-outline-danger" href="/api/report/${0}?address=${data.features[0].place_name}&lng=${lngLat.lng}&lat=${lngLat.lat}"><i class="bi bi-exclamation-octagon-fill"></i> BÁO CÁO VI PHẠM</a>`;
 
 
         document.getElementById(
