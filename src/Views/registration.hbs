@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .gradient-custom {
+            background: linear-gradient(90deg, #00C9FF 0%, #92FE9D 100%);
+        }
+
+        .card-registration .select-input.form-control[readonly]:not([disabled]) {
+            font-size: 1rem;
+            line-height: 2.15;
+            padding-left: .75em;
+            padding-right: .75em;
+        }
+
+        .card-registration .select-arrow {
+            top: 13px;
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <section class="vh-100 gradient-custom">
+        <div class="container py-5 h-100">
+            <div class="row d-flex justify-content-center align-items-center h-100">
+                <div class="card-body bg-white p-5">
+                    <h2 class="text-uppercase text-center mb-5">Create an account</h2>
+                    <form action="/api/user/register" method="post" class="w-100 h-100">
+                        <div class="card card-registration my-4 form-group">
+                            {{!-- Họ và tên, Email, Password, Confirm password, Phone , Submit button --}}
+                            <label for="name">Name:</label>
+                            <input type="text" class="form-control form-control-lg" id="name" name="name" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="email">Email:</label>
+                            <input type="email" class="form-control form-control-lg" id="email" name="email" required>
+                        </div>
+
+                        <div class="from-group">
+                            <label for="password">Password:</label>
+                            <input type="password" class="form-control form-control-lg" id="password" name="password"
+                                required>
+                        </div>
+
+                        <div class="from-group">
+                            <label for="confirmPassword">Confirm Password:</label>
+                            <input type="password" class="form-control form-control-lg" id="confirmPassword"
+                                name="confirmPassword" required>
+                        </div>
+                        <div class="from-group">
+                            <label for="phone">Phone:</label>
+                            <input type="text" class="form-control form-control-lg" id="phone" name="phone" required>
+                        </div>
+                        <div class="from-group m-3 text-center">
+                            <input class="from-control form-check-input" type="checkbox" id="checkbox"
+                                name="term-service" required>
+                            <label for="term-service">
+                                I agree all statements in
+                                <a href="#" class="text-body"><u>Terms of service</u></a>
+                            </label>
+                        </div>
+                        <input type="hidden" name="role" value="Ward">
+
+                       <div class="m-auto d-flex justify-content-center align-items-center"><button type="submit" class="btn btn-primary mx-auto w-100">Submit</button></div>
+                    </form>
+                    <p class="text-center text-muted mt-2 mb-0">Have already an account? <a href="#!"
+                            class="fw-bold text-body"><u>Login here</u></a></p>
+                </div>
+            </div>
+        </div>
+        </div>
+        </div>
+        </div>
+    </section>
+
+</body>
+
+</html>
