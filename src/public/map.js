@@ -377,7 +377,7 @@ function setupMap(center) {
                 const positionType = e.features[0].properties.positionType;
                 const coordinates = e.features[0].geometry.coordinates.slice();
                 const address = `${e.features[0].properties.address}<br>${JSON.parse(e.features[0].properties.area).ward}, ${JSON.parse(e.features[0].properties.area).district}`;
-                const addressURL = `${e.features[0].properties.address}, ${JSON.parse(e.features[0].properties.area).ward}, ${JSON.parse(e.features[0].properties.area).district}`;
+                const addressURL = `${e.features[0].properties.address.trim()}, ${JSON.parse(e.features[0].properties.area).ward}, ${JSON.parse(e.features[0].properties.area).district}`;
                 const imgUrl = `https://drive.google.com/uc?id=${e.features[0].properties.picturePoint}`;
                 const placeInfoPaneHeader =
                     '<h5 class="alert-heading"><i class="bi bi-check2-circle"></i> Thông tin địa điểm</h5>';
@@ -386,7 +386,11 @@ function setupMap(center) {
                     `<a class="btn btn-outline-danger" href="/api/report/${0}?address=${addressURL}&lng=${coordinates[0]}&lat=${coordinates[1]}"><i class="bi bi-exclamation-octagon-fill"></i> BÁO CÁO VI PHẠM</a>`;
 
 
-                document.getElementById("place-info-pane").innerHTML = `${placeInfoPaneHeader}<br><strong>${e.features[0].properties.name}</strong><br>${address}<br><br><img class="img-fluid" src=${imgUrl} alt=""><br><br>${reportButton}`;
+                document.getElementById("place-info-pane").innerHTML = `${placeInfoPaneHeader}<br>
+                                                                        <strong>${e.features[0].properties.name}</strong><br>
+                                                                        ${address}<br><br>
+                                                                        <img class="img-fluid" src=${imgUrl} alt=""><br><br>
+                                                                        ${reportButton}`;
 
                 map.easeTo({
                     center: coordinates,
@@ -398,17 +402,42 @@ function setupMap(center) {
                         if (data.data && data.data.length > 0) {
                             console.log(data.data);
 
-                            document.getElementById("billboard-info-pane").remove();
+                            // check if default info pane ("chưa có dữ liệu") exists
+                            var billboardInfoPaneExists = document.getElementById("billboard-info-pane");
 
-                            let html = "";
+                            // remove it
+                            if (billboardInfoPaneExists) {
+                                document.getElementById("billboard-info-pane").remove();
+                            }
+
+                            // clear all the info panes if they exist
+                            document.getElementById("billboard-container").innerHTML = "";
+
+
+                            let cardHtml = "";
 
                             data.data.map((item, index) => {
                                 const panelId = item._id;
                                 const reportButton = `<a class="btn btn-outline-danger float-right" href="/api/report/${panelId}?address=${address}&lng=${coordinates[0]}&lat=${coordinates[1]}">
                                                         <i class="bi bi-exclamation-octagon-fill"></i> BÁO CÁO VI PHẠM
                                                         </a>`;
+                                const info = {
+                                    Paneltype: item.Paneltype,
+                                    address: addressURL,
+                                    size: item.size,
+                                    amount: item.amount,
+                                    billboardType: billboardType,
+                                    positionType: positionType,
+                                    expDate: item.expDate,
+                                    picturePanel: item.picturePanel,
+                                    panelId: item._id,
+                                    long: coordinates[0],
+                                    lat: coordinates[1]
+                                };
 
-                                html += `<div class="card mb-3" id="billboard-info" key=${index}>
+                                console.log(info);
+
+                                cardHtml += `<div class="card mb-3" id="billboard-info" key=${index}>
                                             <div class="card-body">
                                                 <h5 class="card-title">${item.Paneltype}</h5>
                                                 <h6 class="card-subtitle mb-2 text-muted">${address}</h6>
@@ -416,7 +445,7 @@ function setupMap(center) {
                                                     Số lượng: ${item.amount}<br>
                                                     Hình thức: <b>${billboardType}</b><br>
                                                     Phân loại: <b>${positionType}</b></p>
-                                                <a href="#">
+                                                <a href="#" data-toggle="modal" data-target="#info-modal" onclick="loadPanelDetail('${JSON.stringify(info).replace(/"/g, '&quot;')}')">
                                                     <i class="bi bi-info-circle"></i>
                                                 </a>
                                                 ${reportButton}
@@ -424,7 +453,27 @@ function setupMap(center) {
                                         </div>`
                             })
 
-                            document.getElementById("billboard-container").innerHTML = html;
+                            document.getElementById("billboard-container").innerHTML = cardHtml;
+                        }
+                        else {
+                            // clear all the info panes if they exist
+                            document.getElementById("billboard-container").innerHTML = "";
+                            var billboardInfoPaneExists = document.getElementById("billboard-info-pane");
+
+                            if (!billboardInfoPaneExists) {
+                                const div = document.createElement("div");
+                                div.setAttribute("id", "billboard-info-pane");
+                                div.setAttribute("class", "alert alert-info");
+                                div.setAttribute("role", "alert");
+
+                                document.getElementById("billboard-container").appendChild(div);
+                            }
+
+                            document.getElementById("billboard-info-pane").innerHTML = `<h5 class="alert-heading">
+                                                                                            <i class="bi bi-info-circle"></i>
+                                                                                            Thông tin bảng quảng cáo
+                                                                                        </h5>
+                                                                                        Chưa có dữ liệu.`
                         }
                     });
             });
