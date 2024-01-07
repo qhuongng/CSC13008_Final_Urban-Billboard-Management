@@ -118,7 +118,7 @@
         var reportId = document.getElementById('id').value;
         var reportLng = document.getElementById('lng').value;
         var reportLat = document.getElementById('lat').value;
-        fetch(`http://localhost:3200/api/report/${reportId}?lng=${reportLng}&lat=${reportLat}`, {
+        fetch(`http://localhost:3500/api/report/${reportId}?lng=${reportLng}&lat=${reportLat}`, {
             method: 'POST',
             body: formData,
         })
