@@ -1,7 +1,7 @@
 const Report = require('../Models/Report');
 const reportTypeService = require('./reportType.services');
 
-const createReport = (idPanel, locate, newReport, pathImg) => {
+const createReport = (idPanel, locate, newReport, imgId) => {
     return new Promise(async (resolve, reject) => {
         try {
             const createReport = await Report.create({
@@ -12,7 +12,7 @@ const createReport = (idPanel, locate, newReport, pathImg) => {
                 email: newReport.email,
                 phone: newReport.phone,
                 content: newReport.content,
-                reportPicture: pathImg,
+                reportPicture: imgId,
                 state: 0,
                 actionHandler: "Chưa xử lí"
             })

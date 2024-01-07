@@ -8,14 +8,7 @@ const multer = require('multer');
 //--------------------------
 router.get('/getAllReport', reportController.getAllReport);
 router.get('/:id', reportController.showReport);
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, './src/public/img')
-    },
-    filename: function (req, file, cb) {
-        cb(null, file.originalname)
-    }
-});
+const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
 router.post('/:id', upload.array('image', 2), reportController.createReport);

@@ -1,7 +1,18 @@
 const reportService = require("../Services/report.services");
+const reportImgService = require("../Services/reportImg.services");
+const reportImg = require('../Models/Image.js');
 
 const createReport = async (req, res) => {
     try {
+        //lưu ảnh lên mongoo
+        const files = req.files.map(file => {
+            return {
+                data: file.buffer,
+                contentType: file.mimetype,
+            }
+        })
+        const savedFile = (await reportImgService.sendReportImg(files)).data;
+
         const panelId = req.params.id;
         if (!panelId) {
             return res.status(404).json({
@@ -13,7 +24,7 @@ const createReport = async (req, res) => {
         if (!locate) {
             return res.status(404).json({
                 status: "ERR",
-                message: "The loacte is required",
+                message: "The locate is required",
             });
         }
         const { reportType, name, email, phone, content } = req.body
@@ -23,10 +34,9 @@ const createReport = async (req, res) => {
                 message: "The input is required",
             });
         }
-        const pathImg = req.files.map(file => 'img/' + file.filename);
-        const report = await reportService.createReport(panelId, locate, req.body, pathImg);
-        //res.status(200).json(report);
-        res.redirect("/");
+        const imgId = savedFile.map(file => file._id);
+        const report = await reportService.createReport(panelId, locate, req.body, imgId);
+        res.status(200).json(report.data);
     } catch (e) {
         return res.status(404).json({
             message: e
