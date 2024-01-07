@@ -3,30 +3,30 @@ const { generalAccessToken } = require("./JwtService")
 const bcrypt = require("bcrypt")
 
 
-const createUser = (newUser)=>{
-    return new Promise(async(resolve, reject)=>{
-        const {name, email, password, phone, role } = newUser
+const createUser = (newUser) => {
+    return new Promise(async (resolve, reject) => {
+        const { name, email, password, phone, role } = newUser
 
-        try{
+        try {
             const checkUser = await User.findOne({
                 email: email
             })
 
-            if(checkUser!==null){
+            if (checkUser !== null) {
                 reject('The email is already');
             }
 
             const hash = bcrypt.hashSync(password, 10)
 
-            if(checkUser===null){
+            if (checkUser === null) {
                 const createUser = await User.create({
                     name,
-                    email, 
-                    password: hash, 
+                    email,
+                    password: hash,
                     phone,
                     role
                 })
-                if(createUser){
+                if (createUser) {
                     resolve({
                         status: 'OK',
                         message: 'SUCCESS',
@@ -34,25 +34,25 @@ const createUser = (newUser)=>{
                     })
                 }
             }
-        }catch(e){
+        } catch (e) {
             reject(e)
         }
     })
 }
 
-const loginUser = (userLogin)=>{
-    return new Promise(async(resolve, reject)=>{
-        const {email, password} = userLogin
-        try{
+const loginUser = (userLogin) => {
+    return new Promise(async (resolve, reject) => {
+        const { email, password } = userLogin
+        try {
             const checkUser = await User.findOne({
                 email: email
             })
 
-            if(checkUser === null){
+            if (checkUser === null) {
                 reject('The user is not defined');
             }
             const comparePassword = bcrypt.compareSync(password, checkUser.password)
-            if(!comparePassword){
+            if (!comparePassword) {
                 reject('The password or username is incorrect');
             }
             const user_id = checkUser._id
@@ -64,43 +64,42 @@ const loginUser = (userLogin)=>{
                 status: 'OK',
                 message: 'SUCCESS',
                 user_id,
-                access_token, 
-                refresh_token
+                access_token
             })
-        }catch(e){
+        } catch (e) {
             reject(e)
         }
     })
 }
 
-const updateUser = (id, data)=>{
-    return new Promise(async(resolve, reject)=>{
-        try{
+const updateUser = (id, data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
             const checkUser = await User.findOne({
                 _id: id
             })
-            if(checkUser === null){
+            if (checkUser === null) {
                 reject('The user is not defined');
             }
-           const updatedUser = await User.findByIdAndUpdate(id, data, {new: true})
+            const updatedUser = await User.findByIdAndUpdate(id, data, { new: true })
             resolve({
                 status: 'OK',
                 message: 'Update user success',
                 data: updatedUser
             })
-        }catch(e){
+        } catch (e) {
             reject(e)
         }
     })
 }
 
-const deleteUser = (id)=>{
-    return new Promise(async(resolve, reject)=>{
-        try{
+const deleteUser = (id) => {
+    return new Promise(async (resolve, reject) => {
+        try {
             const checkUser = await User.findOne({
                 _id: id
             })
-            if(checkUser === null){
+            if (checkUser === null) {
                 reject('The user is not defined');
             }
             await User.findByIdAndDelete(id)
@@ -108,15 +107,15 @@ const deleteUser = (id)=>{
                 status: 'OK',
                 message: 'Delete user success',
             })
-        }catch(e){
+        } catch (e) {
             reject(e)
         }
     })
 }
 
-const getAllUser = ()=>{
-    return new Promise(async(resolve, reject)=>{
-        try{
+const getAllUser = () => {
+    return new Promise(async (resolve, reject) => {
+        try {
             const allUser = await User.find()
             resolve({
                 status: 'OK',
@@ -124,19 +123,19 @@ const getAllUser = ()=>{
                 data: allUser
 
             })
-        }catch(e){
+        } catch (e) {
             reject(e)
         }
     })
 }
 
-const getDetailsUser = (id)=>{
-    return new Promise(async(resolve, reject)=>{
-        try{
+const getDetailsUser = (id) => {
+    return new Promise(async (resolve, reject) => {
+        try {
             const user = await User.findOne({
                 _id: id
             })
-            if(user === null){
+            if (user === null) {
                 reject('The user is not defined');
             }
             resolve({
@@ -144,7 +143,7 @@ const getDetailsUser = (id)=>{
                 message: 'SUCCESS',
                 data: user
             })
-        }catch(e){
+        } catch (e) {
             reject(e)
         }
     })
