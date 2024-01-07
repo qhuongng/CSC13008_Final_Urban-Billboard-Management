@@ -439,14 +439,16 @@ function setupMap(center) {
                 const positionType = e.features[0].properties.positionType;
                 const long = e.features[0].properties.long;
                 const lat = e.features[0].properties.lat;
-                const address = `${e.features[0].properties.address}<br>${JSON.parse(e.features[0].properties.area).ward}, ${JSON.parse(e.features[0].properties.area).district}`;
-                const addressURL = `${e.features[0].properties.address.trim()}, ${JSON.parse(e.features[0].properties.area).ward}, ${JSON.parse(e.features[0].properties.area).district}`;
+                const district = JSON.parse(e.features[0].properties.area).district;
+                const ward = JSON.parse(e.features[0].properties.area).ward;
+                const address = `${e.features[0].properties.address}<br>${ward}, ${district}`;
+                const addressURL = `${e.features[0].properties.address.trim()}, ${ward}, ${district}`;
                 const imgUrl = `https://drive.google.com/uc?id=${e.features[0].properties.picturePoint}`;
                 const placeInfoPaneHeader =
                     '<h5 class="alert-heading"><i class="bi bi-check2-circle"></i> Thông tin địa điểm</h5>';
 
                 const reportButton =
-                    `<a class="btn btn-outline-danger" href="/api/report/${1}?address=${addressURL}&lng=${long}&lat=${lat}"><i class="bi bi-exclamation-octagon-fill"></i> BÁO CÁO VI PHẠM</a>`;
+                    `<a class="btn btn-outline-danger" href="/api/report/${1}?address=${addressURL}&lng=${long}&lat=${lat}&district=${district}&ward=${ward}"><i class="bi bi-exclamation-octagon-fill"></i> BÁO CÁO VI PHẠM</a>`;
 
                 document.getElementById("place-info-pane").innerHTML = `${placeInfoPaneHeader}<br>
                                                                         <strong>${e.features[0].properties.name}</strong><br>
@@ -480,7 +482,7 @@ function setupMap(center) {
 
                             data.data.map((item, index) => {
                                 const panelId = item._id;
-                                const reportButton = `<a class="btn btn-outline-danger float-right" href="/api/report/${panelId}?address=${addressURL}&lng=${long}&lat=${lat}">
+                                const reportButton = `<a class="btn btn-outline-danger float-right" href="/api/report/${panelId}?address=${addressURL}&lng=${long}&lat=${lat}&district=${district}&ward=${ward}">
                                                         <i class="bi bi-exclamation-octagon-fill"></i> BÁO CÁO VI PHẠM
                                                         </a>`;
 
@@ -579,7 +581,7 @@ function reverseGeocode(lngLat) {
 
                 const placeInfoPaneHeader = '<h5 class="alert-heading"><i class="bi bi-check2-circle"></i> Thông tin địa điểm</h5>';
 
-                const reportButton = `<a class="btn btn-outline-danger" href="/api/report/${0}?address=${data.features[0].place_name}&lng=${lngLat.lng}&lat=${lngLat.lat}"><i class="bi bi-exclamation-octagon-fill"></i> BÁO CÁO VI PHẠM</a>`;
+                const reportButton = `<a class="btn btn-outline-danger" href="/api/report/${0}?address=${data.features[0].place_name}&lng=${lngLat.lng}&lat=${lngLat.lat}&district=0&ward=0"><i class="bi bi-exclamation-octagon-fill"></i> BÁO CÁO VI PHẠM</a>`;
 
 
                 document.getElementById("place-info-pane").innerHTML = `${placeInfoPaneHeader}<br><strong>${address}</strong><br><br>${reportButton}`;
