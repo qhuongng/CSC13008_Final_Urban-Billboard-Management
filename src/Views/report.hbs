@@ -39,6 +39,15 @@
         </style>
     </head>
 <body>
+    {{#if id}}
+        <input type="hidden" id="id" value="{{id}}">
+    {{/if}}
+    {{#if lng}}
+        <input type="hidden" id="lng" value="{{lng}}">
+    {{/if}}
+    {{#if lat}}
+        <input type="hidden" id="lat" value="{{lat}}">
+    {{/if}}
     <div class="container mt-5 mb-5">
         <h2 class="mb-4">Report</h2>
         <p class="mb-4">Địa điểm: {{address}}</p>
@@ -80,20 +89,60 @@
         </form>
     </div>
     <div id="noticePopup">Báo cáo đã được gửi!</div>
-    <script>
+    {{!-- <script>
         function postContent(event) {
             var time = 0;
             event.preventDefault();
             var postContent = tinymce.activeEditor.getContent();
             document.querySelector('#content').value = postContent;
-
+            
             document.getElementById('noticePopup').style.display = 'block';
             setTimeout(function() {
                 document.getElementById('noticePopup').style.display = 'none';
                 document.querySelector('form').submit();
             }, 2000);
         }
-    </script>
+    </script> --}}
+    <script>
+    function postContent(event) {
+        event.preventDefault();
+        var postContent = tinymce.activeEditor.getContent();
+        document.querySelector('#content').value = postContent;
+
+        // Lấy form và dữ liệu từ form
+        var form = document.querySelector('form');
+        console.log(form)
+        var formData = new FormData(form);
+
+        // Gửi request POST đến máy chủ
+        var reportId = document.getElementById('id').value;
+        var reportLng = document.getElementById('lng').value;
+        var reportLat = document.getElementById('lat').value;
+        fetch(`http://localhost:3500/api/report/${reportId}?lng=${reportLng}&lat=${reportLat}`, {
+            method: 'POST',
+            body: formData,
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data)
+            // Xử lý response và lưu vào localStorage
+            localStorage.setItem(data._id, JSON.stringify(data));
+
+            // Hiển thị thông báo
+            document.getElementById('noticePopup').style.display = 'block';
+
+            // Sau 2 giây, ẩn thông báo và chuyển hướng hoặc thực hiện các thao tác khác nếu cần
+            setTimeout(function () {
+                document.getElementById('noticePopup').style.display = 'none';
+                window.location.href = '/';
+            }, 2000);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    }
+</script>
+
 </body>
 
 
