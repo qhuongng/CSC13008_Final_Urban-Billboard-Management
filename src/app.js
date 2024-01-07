@@ -6,6 +6,7 @@ const bodyParser = require("body-parser");
 const path = require("path");
 const handlebars = require("express-handlebars");
 const session = require("express-session");
+const reportImg = require('./Models/Image');
 //---------
 dotenv.config();
 
@@ -32,6 +33,24 @@ app.set("views", path.join(__dirname, "Views"));
 app.get("/", (req, res) => {
   res.render("index");
 });
+
+// app.get('/images/:id', async (req, res) => {
+//   const imageId = req.params.id;
+
+//   try {
+//     const image = await reportImg.findById(imageId);
+
+//     if (!image) {
+//       return res.status(404).send('Image not found');
+//     }
+
+//     res.contentType(image.contentType);
+//     res.send(image.data);
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).send('Internal Server Error');
+//   }
+// });
 
 mongoose
   .connect(`${process.env.MONGO_URL}`)

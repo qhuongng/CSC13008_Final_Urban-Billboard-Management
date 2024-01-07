@@ -49,11 +49,52 @@
             Chưa có dữ liệu.
           </div>
         </div>
+        <div id="billboard-detail-container">
+          <div class="modal fade" id="info-modal" tabindex="-1" role="dialog" aria-labelledby="info-modal-title"
+            aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="info-modal-title">Chi tiết bảng quảng cáo</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body" id="modal-body">
+                </div>
+                <div class="modal-footer" id="modal-footer">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </body>
+<script>
+  function loadPanelDetail(item) {
+    const info = JSON.parse(item);
 
+    let bodyHtml = `<h5 class="card-title">${info.Paneltype}</h5>
+                <h6 class="card-subtitle mb-2 text-muted">${info.address}</h6>
+                <p class="card-text">Kích thước: ${info.size}<br>
+                                      Số lượng: ${info.amount}<br>
+                                      Hình thức: <b>${info.billboardType}</b><br>
+                                      Phân loại: <b>${info.positionType}</b><br>
+                                      Ngày hết hạn: <b>${info.expDate.slice(0, 10)}</p>
+                                      <img class="img-fluid" src="https://drive.google.com/uc?id=${info.picturePanel}"" alt=""><br>`
+
+    let footerHtml = `<button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Quay lại</button>
+                      <a class="btn btn-outline-danger float-right" id="detail-report-button"
+                        href="/api/report/${info.panelId}?address=${info.address}&lng=${info.long}&lat=${info.lat}">
+                          <i class="bi bi-exclamation-octagon-fill"></i> BÁO CÁO VI PHẠM
+                      </a>`;
+
+    document.getElementById("modal-body").innerHTML = bodyHtml;
+    document.getElementById("modal-footer").innerHTML = footerHtml;
+  }
+</script>
 <script src="/map.js" defer></script>
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
   integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
