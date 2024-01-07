@@ -2,10 +2,20 @@ body {
     margin: 0;
 }
 
-#map {
+#main-container {
     height: 100vh;
+    overflow-y: hidden;
+}
+
+#map {
+    height: 96vh;
     width: 100%;
     border-radius: 5px;
+}
+
+#info-panel {
+    height: 100%;
+    overflow-y: scroll;
 }
 
 .bottom-bar {

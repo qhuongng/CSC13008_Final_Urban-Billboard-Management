@@ -1,21 +1,18 @@
 const express = require("express");
 const router = express.Router();
-
 const reportController = require("../Controllers/report.controllers");
+const multer = require('multer');
 
-router.post("/createReport", reportController.createReport);
-router.get("/getNewReport", reportController.getNewReport);
-router.get("/", reportController.showReport);
-router.get("/showReport", reportController.showReport);
-//---------------------------
-router.get('/:id', (req, res) => {
-    //param trả về panelId
-    //console.log(req.query); sẽ trả về kinh độ vĩ độ
-    res.render('report')
-})
+// router.get("/", reportController.showReport);
+// router.get("/showReport", reportController.showReport);
+//--------------------------
+router.get('/getAllReport', reportController.getAllReport);
+router.get('/:id', reportController.showReport);
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
 
-router.post('/:id', (req, res) => {
-    console.log(req.body);
-})
+router.post('/:id', upload.array('image', 2), reportController.createReport);
+//đường dẫn để xem 1 file ảnh: /img/filepath
+
 module.exports = router;
 

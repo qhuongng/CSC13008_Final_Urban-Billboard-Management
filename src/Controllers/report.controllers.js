@@ -1,32 +1,66 @@
-const { report } = require("../Routers/report.routes");
 const reportService = require("../Services/report.services");
+const reportImgService = require("../Services/reportImg.services");
+const reportImg = require('../Models/Image.js');
 
 const createReport = async (req, res) => {
-  try {
-    console.log(req.body);
-    const report = await reportService.createReport(req.body);
-    res.status(200).json({ report });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
+    try {
+        //lưu ảnh lên mongoo
+        const files = req.files.map(file => {
+            return {
+                data: file.buffer,
+                contentType: file.mimetype,
+            }
+        })
+        const savedFile = (await reportImgService.sendReportImg(files)).data;
+
+        const panelId = req.params.id;
+        if (!panelId) {
+            return res.status(404).json({
+                status: "ERR",
+                message: "The panelId is required",
+            });
+        }
+        const locate = [req.query.lng, req.query.lat];
+        if (!locate) {
+            return res.status(404).json({
+                status: "ERR",
+                message: "The locate is required",
+            });
+        }
+        const district = req.query.district
+        const ward = req.query.ward
+        const { reportType, name, email, phone, content } = req.body
+        if (!reportType || !name || !email || !phone || !content || !district || !ward) {
+            return res.status(404).json({
+                status: "ERR",
+                message: "The input is required",
+            });
+        }
+        const imgId = savedFile.map(file => file._id);
+        const report = await reportService.createReport(panelId, locate, req.body, imgId, district, ward);
+        res.status(200).json(report.data);
+    } catch (e) {
+        return res.status(404).json({
+            message: e
+        });
+    }
 };
 
-const getNewReport = async (req, res) => {
-  try {
-    const report = await reportService.getNewReport();
-    res.status(200).json({ report });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
+const getAllReport = async (req, res) => {
+    try {
+        const report = await reportService.getAllReport();
+        res.status(200).json(report);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
 };
 
 const showReport = async (req, res) => {
-  const location = req.query.location;
-  res.render("report", { location });
+    res.render("report", { address: req.query.address });
 };
 
 module.exports = {
-  createReport,
-  getNewReport,
-  showReport,
+    createReport,
+    getAllReport,
+    showReport,
 };
