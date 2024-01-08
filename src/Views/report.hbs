@@ -42,6 +42,9 @@
     {{#if id}}
     <input type="hidden" id="id" value="{{id}}">
     {{/if}}
+    {{#if address}}
+    <input type="hidden" id="address" value="{{address}}">
+    {{/if}}
     {{#if lng}}
     <input type="hidden" id="lng" value="{{lng}}">
     {{/if}}
@@ -99,13 +102,14 @@
         async function postContent(event) {
             event.preventDefault();
 
-            // Verify reCAPTCHA
+            // lấy token reCAPTCHA
             var recaptchaResponse = grecaptcha.getResponse();
             if (!recaptchaResponse) {
                 toastr.error("Vui lòng xác nhận reCAPTCHA.");
                 return;
             }
 
+            // gửi request API đến Google để lấy kết quả verify reCAPTCHA
             try {
                 const response = await fetch('http://localhost:3200/verify-recaptcha', {
                     method: 'POST',
@@ -118,30 +122,31 @@
                 const result = await response.json();
 
                 if (result.success) {
-                    // reCAPTCHA verification successful
                     console.log('reCAPTCHA verification successful');
 
-
+                    // lấy content từ editor TinyMCE đưa vào textarea gốc
                     var postContent = tinymce.activeEditor.getContent();
                     document.querySelector('#content').value = postContent;
 
                     // Lấy form và dữ liệu từ form
                     var form = document.querySelector('form');
+                    console.log(form);
                     var formData = new FormData(form);
 
                     // Gửi request POST đến máy chủ
                     var reportId = document.getElementById('id').value;
+                    var reportAddress = document.getElementById('address').value;
                     var reportLng = document.getElementById('lng').value;
                     var reportLat = document.getElementById('lat').value;
                     var reportDistrict = document.getElementById('district').value;
                     var reportWard = document.getElementById('ward').value;
 
-                    fetch(`http://localhost:3500/api/report/${reportId}?lng=${reportLng}&lat=${reportLat}&district=${reportDistrict}&ward=${reportWard}`,
+                    fetch(`http://localhost:3500/api/report/${reportId}?address=${encodeURIComponent(reportAddress)}&lng=${reportLng}&lat=${reportLat}&district=${encodeURIComponent(reportDistrict)}&ward=${encodeURIComponent(reportWard)}`,
                         {
                             method: 'POST',
                             body: formData,
                         }).then(response => response.json()).then(data => {
-                            console.log(data)
+                            // console.log(data)
                             // Xử lý response và lưu vào localStorage
                             localStorage.setItem(data._id, JSON.stringify(data));
 
@@ -164,7 +169,7 @@
                                 "hideMethod": "fadeOut"
                             }
 
-                            toastr.options.onHidden = () => { window.location.href = '/'; }
+                            // toastr.options.onHidden = () => { window.location.href = '/'; }
                             toastr.success("Báo cáo đã được gửi thành công.");
                         }).catch(error => {
                             console.error('Error:', error);

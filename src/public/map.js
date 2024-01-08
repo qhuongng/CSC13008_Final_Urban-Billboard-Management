@@ -135,7 +135,7 @@ function setupMap(center) {
                         if (data.features && data.features.length > 0) {
                             const address = data.features[0].place_name;
                             const placeInfoPaneHeader = '<h5 class="alert-heading"><i class="bi bi-check2-circle"></i> Thông tin địa điểm</h5>';
-                            const reportButton = `<a href="/api/report?location=${encodeURIComponent(address)}" class="btn btn-sm btn-outline-danger"><i class="bi bi-exclamation-octagon-fill"></i> BÁO CÁO VI PHẠM</a>`;
+                            const reportButton = `<a href="/api/report?address=${encodeURIComponent(address)}" class="btn btn-sm btn-outline-danger"><i class="bi bi-exclamation-octagon-fill"></i> BÁO CÁO VI PHẠM</a>`;
 
                             document.getElementById("place-info-pane").innerHTML = `${placeInfoPaneHeader}<br><strong>${features[0].properties.name}</strong><br>${address}<br><br>${reportButton}`;
 
@@ -580,11 +580,8 @@ function reverseGeocode(lngLat) {
                 const placeInfoPaneHeader = '<h5 class="alert-heading"><i class="bi bi-check2-circle"></i> Thông tin địa điểm</h5>';
                 const reportButton = `<a class="btn btn-outline-danger" href="/api/report/${0}?address=${data.features[0].place_name}&lng=${lngLat.lng}&lat=${lngLat.lat}&district=${data.features[0].context[2].text}&ward=${data.features[0].context[0].text}"><i class="bi bi-exclamation-octagon-fill"></i> BÁO CÁO VI PHẠM</a>`;
 
-
                 document.getElementById("place-info-pane").innerHTML = `${placeInfoPaneHeader}<br><strong>${address}</strong><br><br>${reportButton}`;
                 document.getElementById("place-info-pane").innerHTML = `${placeInfoPaneHeader}<br><strong>${name}</strong><br>${address}<br><br>${reportButton}`;
-
-                localStorage.setItem("placeName", name);
             } else {
                 console.log("No address found");
             }
