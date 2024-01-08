@@ -23,6 +23,7 @@ const routes = (app) => {
   app.use("/api/report", ReportRouter);
   app.use("/api/reportImg", ReportImgRouter);
   app.use('/api/user', UserRouter);
+
 };
 
 module.exports = routes;

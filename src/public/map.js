@@ -512,7 +512,7 @@ function reverseGeocode(lngLat) {
     fetch(url)
         .then((response) => response.json())
         .then((data) => {
-            console.log(lngLat.lng);
+            console.log(data);
             if (data.features && data.features.length > 0) {
                 const [name, ...addressParts] = data.features[0].place_name.split(",");
                 const address = addressParts.join(",").trim();
