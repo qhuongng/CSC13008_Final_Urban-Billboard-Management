@@ -122,15 +122,12 @@
                 const result = await response.json();
 
                 if (result.success) {
-                    console.log('reCAPTCHA verification successful');
-
                     // lấy content từ editor TinyMCE đưa vào textarea gốc
                     var postContent = tinymce.activeEditor.getContent();
                     document.querySelector('#content').value = postContent;
 
                     // Lấy form và dữ liệu từ form
                     var form = document.querySelector('form');
-                    console.log(form);
                     var formData = new FormData(form);
 
                     // Gửi request POST đến máy chủ
@@ -146,7 +143,6 @@
                             method: 'POST',
                             body: formData,
                         }).then(response => response.json()).then(data => {
-                            // console.log(data)
                             // Xử lý response và lưu vào localStorage
                             localStorage.setItem(data._id, JSON.stringify(data));
 
@@ -169,7 +165,7 @@
                                 "hideMethod": "fadeOut"
                             }
 
-                            // toastr.options.onHidden = () => { window.location.href = '/'; }
+                            toastr.options.onHidden = () => { window.location.href = '/'; }
                             toastr.success("Báo cáo đã được gửi thành công.");
                         }).catch(error => {
                             console.error('Error:', error);
