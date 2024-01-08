@@ -16,6 +16,7 @@ const reportSchema = new mongoose.Schema(
         reportPicture: { type: Array, require: true },
         district: { type: String, require: true },
         ward: { type: String, require: true },
+        address: { type: String, require: true },
         state: { type: Number, default: 0 },// chưa xử lí
         actionHandler: { type: String, default: "Chưa xử lí" }
     },

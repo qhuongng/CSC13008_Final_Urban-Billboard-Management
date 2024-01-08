@@ -12,7 +12,7 @@ const transporter = nodemailer.createTransport({
     }
 });
 
-const createReport = (idPanel, locate, newReport, imgId, district, ward) => {
+const createReport = (idPanel, locate, newReport, imgId, district, ward, address) => {
     return new Promise(async (resolve, reject) => {
         try {
             const createReport = await Report.create({
@@ -26,6 +26,7 @@ const createReport = (idPanel, locate, newReport, imgId, district, ward) => {
                 reportPicture: imgId,
                 district: district,
                 ward: ward,
+                address: address,
                 state: 0,
                 actionHandler: "Chưa xử lí"
             })
@@ -34,7 +35,32 @@ const createReport = (idPanel, locate, newReport, imgId, district, ward) => {
                     from: 'Admin Map Application',
                     to: createReport.email,
                     subject: 'Báo cáo đã được gửi thành công',
-                    html: `<h3>Xin chào ${createReport.name}</h3><p>Chúng tôi đã nhận được báo cáo của bạn. Báo cáo sẽ được xử lí và thông báo sau</p><table><tr><td><h4>Tình trạng xử lí: </h4></td><td></td><td></td><td></td><td style="color: red;"><h4>Chưa xử lí</h4></td></tr><tr><td><h4>Cách thức xử lí: </h4></td><td></td><td></td><td></td><td style="color: red;"><h4>Chưa xử lí</h4></td></tr></table>`
+                    html: `
+                    <h3>Xin chào ${createReport.name}</h3>
+                    <p>Chúng tôi đã nhận được báo cáo của bạn. Báo cáo sẽ được xử lí và thông báo sau</p>
+                    <table>
+                        <tr>
+                            <td><h4>Địa chỉ: </h4></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td style="color: yellow;"><h4>${createReport.address}</h4></td>
+                        </tr>   
+                        <tr>
+                            <td><h4>Tình trạng xử lí: </h4></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td style="color: red;"><h4>Chưa xử lí</h4></td>
+                        </tr>
+                        <tr>
+                            <td><h4>Cách thức xử lí: </h4></td>
+                            <td></td>
+                            <td></td>
+                            <td></td><td style="color: red;"><h4>Chưa xử lí</h4></td>
+                        </tr>
+                    </table>
+                    `
                 };
                 transporter.sendMail(mailOptions, (error, info) => {
                     if (error) {
