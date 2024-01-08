@@ -120,41 +120,57 @@ function setupMap(center) {
             // clear all the info panes if they exist
             document.getElementById("billboard-container").innerHTML = "";
 
+            if (marker) {
+                marker.remove();
+            }
+
+            marker = new mapboxgl.Marker({ color: "#0000ff" })
+                .setLngLat(e.lngLat)
+                .addTo(map);
+
+            map.easeTo({
+                center: e.lngLat,
+            });
+
+            var billboardInfoPaneExists = document.getElementById("billboard-info-pane");
+
+            if (!billboardInfoPaneExists) {
+                const div = document.createElement("div");
+                div.setAttribute("id", "billboard-info-pane");
+                div.setAttribute("class", "card border-info text-info mb-3");
+
+                document.getElementById("billboard-container").appendChild(div);
+            }
+
+            document.getElementById("billboard-info-pane").innerHTML = `<div class="card-body">
+                                                                                            <h5 class="card-title">
+                                                                                            <i class="bi bi-info-circle"></i>
+                                                                                             Thông tin bảng quảng cáo
+                                                                                            </h5>
+                                                                                            <p class="card-text">Chưa có dữ liệu.</p>
+                                                                                        </div>`;
+
             var features = map.queryRenderedFeatures(e.point);
+            var isFreeReportedPoint = false;
 
             if (features[0] !== undefined && features[0].properties.name !== undefined) {
-                if (features[0].layer.id == "unclustered-point" || features[0].layer.id == "unclustered-point-label" || features[0].layer.id == "free-point") {
+                if (features[0].layer.id == "unclustered-point" || features[0].layer.id == "unclustered-point-label") {
                     return;
                 }
 
-                var url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${features[0].properties.name}.json?access_token=${mapboxgl.accessToken}`;
+                if (features[0].layer.id == "free-point") {
+                    isFreeReportedPoint = true;
+                }
 
-                fetch(url)
-                    .then((response) => response.json())
-                    .then((data) => {
-                        if (data.features && data.features.length > 0) {
-                            const address = data.features[0].place_name;
-                            const placeInfoPaneHeader = '<h5 class="alert-heading"><i class="bi bi-check2-circle"></i> Thông tin địa điểm</h5>';
-                            const reportButton = `<a href="/api/report?address=${encodeURIComponent(address)}" class="btn btn-sm btn-outline-danger"><i class="bi bi-exclamation-octagon-fill"></i> BÁO CÁO VI PHẠM</a>`;
-
-                            document.getElementById("place-info-pane").innerHTML = `${placeInfoPaneHeader}<br><strong>${features[0].properties.name}</strong><br>${address}<br><br>${reportButton}`;
-
-                            map.easeTo({
-                                center: e.lngLat,
-                            });
-                        } else {
-                            console.log("No address found");
-                        }
-                    })
-                    .catch((error) => {
-                        console.log("Error:", error);
-                    });
+                reverseGeocode(e.lngLat, isFreeReportedPoint);
             } else {
-                const placeInfoPaneHeader =
-                    '<h5 class="alert-heading"><i class="bi bi-check2-circle"></i> Thông tin địa điểm</h5>';
-                document.getElementById(
-                    "place-info-pane"
-                ).innerHTML = `${placeInfoPaneHeader}Chưa có dữ liệu.`;
+                document.getElementById("place-info-pane").innerHTML = `<div class="card-body">
+                                                                            <h5 class="card-title">
+                                                                            <i class="bi bi-info-circle"></i>
+                                                                             Thông tin địa điểm
+                                                                            </h5>
+                                                                            <p class="card-text">Chưa có dữ liệu.</p>
+                                                                        </div>`;
             }
         });
     });
@@ -165,6 +181,7 @@ function setupMap(center) {
 
         let dbPointJson;
         let freePointJson;
+        let reportIds = [];
 
         (async () => {
             let pointData = await loadPoints();
@@ -179,20 +196,24 @@ function setupMap(center) {
             };
 
             for (let i = 0; i < pointData.length; i++) {
-                let reported = false;
+                let report;
                 let coords = [pointData[i].locate[0], pointData[i].locate[1]];
 
                 for (let j = 0; j < reportData.length; j++) {
                     if (reportData[j]) {
-                        let report = localStorage.getItem(reportData[j]._id);
+                        report = localStorage.getItem(reportData[j]._id);
+                        reportIds.push(reportData[j]._id);
 
                         if (report) {
                             if (JSON.parse(report).locate[0] == coords[0] && JSON.parse(report).locate[1] == coords[1]) {
-                                reported = true;
+                                // update tình trạng xử lí                            
+                                localStorage.setItem(JSON.parse(report)._id, report);
                                 break;
                             }
                         }
                     }
+
+                    report = null;
                 }
 
                 let point = {
@@ -215,7 +236,7 @@ function setupMap(center) {
                         picturePoint: pointData[i].picturePoint,
                         long: pointData[i].locate[0],
                         lat: pointData[i].locate[1],
-                        isReported: (reported === true) ? 1 : 0
+                        pointReport: (report !== null) ? report : 0
                     },
                 };
 
@@ -246,7 +267,10 @@ function setupMap(center) {
                                 content: reportJson.content,
                                 reportPicture: reportJson.reportPicture,
                                 state: reportJson.state,
-                                actionHandler: reportJson.actionHandler
+                                actionHandler: reportJson.actionHandler,
+                                address: reportJson.address,
+                                district: reportJson.district,
+                                ward: reportJson.ward
                             },
                         };
 
@@ -345,7 +369,7 @@ function setupMap(center) {
                 source: "billboardPos",
                 filter: ["!", ["has", "point_count"]],
                 paint: {
-                    "circle-color": ["match", ["get", "isReported"], 0, "#0000ff", "#ff0000"],
+                    "circle-color": ["match", ["get", "pointReport"], 0, "#0000ff", "#ff0000"],
                     "circle-radius": 10,
                     "circle-stroke-width": 1,
                     "circle-stroke-color": "#ffffff",
@@ -412,27 +436,70 @@ function setupMap(center) {
             });
 
             map.on("click", "unclustered-point", (e) => {
-                const pointId = e.features[0].properties.id;
-                const billboardType = e.features[0].properties.billboardType;
-                const positionType = e.features[0].properties.positionType;
-                const long = e.features[0].properties.long;
-                const lat = e.features[0].properties.lat;
-                const district = JSON.parse(e.features[0].properties.area).district;
-                const ward = JSON.parse(e.features[0].properties.area).ward;
-                const address = `${e.features[0].properties.address}<br>${ward}, ${district}`;
-                const addressURL = `${e.features[0].properties.address.trim()}, ${ward}, ${district}`;
-                const imgUrl = `https://drive.google.com/uc?id=${e.features[0].properties.picturePoint}`;
-                const placeInfoPaneHeader =
-                    '<h5 class="alert-heading"><i class="bi bi-check2-circle"></i> Thông tin địa điểm</h5>';
+                const props = e.features[0].properties;
 
-                const reportButton =
-                    `<a class="btn btn-outline-danger" href="/api/report/${1}?address=${addressURL}&lng=${long}&lat=${lat}&district=${district}&ward=${ward}"><i class="bi bi-exclamation-octagon-fill"></i> BÁO CÁO VI PHẠM</a>`;
+                const pointId = props.id;
+                const billboardType = props.billboardType;
+                const positionType = props.positionType;
+                const long = props.long;
+                const lat = props.lat;
+                const district = JSON.parse(props.area).district;
+                const ward = JSON.parse(props.area).ward;
+                const address = `${props.address}<br>${ward}, ${district}`;
+                const addressURL = `${props.address.trim()}, ${ward}, ${district}`;
+                const imgUrl = `https://drive.google.com/uc?id=${props.picturePoint}`;
+                const placeInfoPaneHeader = `<div class="card-body">
+                                                <h5 class="card-title">
+                                                    <i class="bi bi-info-circle"></i>
+                                                     Thông tin địa điểm
+                                                </h5>`
 
-                document.getElementById("place-info-pane").innerHTML = `${placeInfoPaneHeader}<br>
-                                                                        <strong>${e.features[0].properties.name}</strong><br>
+                if (e.features[0].properties.pointReport === 0) {
+                    const reportButton =
+                        `<a class="btn btn-outline-danger float-right" href="/api/report/${1}?address=${addressURL}&lng=${long}&lat=${lat}&district=${district}&ward=${ward}">
+                            <i class="bi bi-exclamation-octagon-fill"></i>
+                            BÁO CÁO VI PHẠM
+                         </a>`;
+
+                    document.getElementById("place-info-pane").innerHTML = `${placeInfoPaneHeader}
+                                                                            <p class="card-text">
+                                                                                <strong>${props.name}</strong><br>
+                                                                                ${address}<br><br>
+                                                                                <img class="img-fluid" src=${imgUrl} alt=""><br><br>
+                                                                                ${reportButton}
+                                                                            </p>`;
+
+                }
+                else {
+                    // lấy report
+                    let pointReport = JSON.parse(props.pointReport);
+
+                    const reportInfo = {
+                        name: pointReport.name,
+                        email: pointReport.email,
+                        phone: pointReport.phone,
+                        reportType: pointReport.reportType,
+                        reportImgId: pointReport.reportPicture,
+                        content: pointReport.content,
+                        address: pointReport.address,
+                        state: pointReport.state,
+                        actionHandler: pointReport.actionHandler
+                    };
+
+                    const viewReportButton =
+                        `<button class="btn btn-outline-primary float-right" data-toggle="modal" data-target="#report-info-modal" onclick="loadReportDetail('${JSON.stringify(reportInfo).replace(/"/g, '&quot;')}')">
+                            <i class="bi bi-exclamation-octagon-fill"></i>
+                            XEM BÁO CÁO
+                        </button>`;
+
+                    document.getElementById("place-info-pane").innerHTML = `${placeInfoPaneHeader}<br>
+                                                                        <strong>${props.name}</strong><br>
                                                                         ${address}<br><br>
                                                                         <img class="img-fluid" src=${imgUrl} alt=""><br><br>
-                                                                        ${reportButton}`;
+                                                                        <p style="color:red"><em>Điểm này đã được báo cáo.</em></p>
+                                                                        ${viewReportButton}`;
+                }
+
 
                 map.easeTo({
                     center: [long, lat],
@@ -442,8 +509,6 @@ function setupMap(center) {
                     .then((response) => response.json())
                     .then((data) => {
                         if (data.data && data.data.length > 0) {
-                            console.log(data.data);
-
                             // check if default info pane ("chưa có dữ liệu") exists
                             var billboardInfoPaneExists = document.getElementById("billboard-info-pane");
 
@@ -460,9 +525,6 @@ function setupMap(center) {
 
                             data.data.map((item, index) => {
                                 const panelId = item._id;
-                                const reportButton = `<a class="btn btn-outline-danger float-right" href="/api/report/${panelId}?address=${addressURL}&lng=${long}&lat=${lat}&district=${district}&ward=${ward}">
-                                                        <i class="bi bi-exclamation-octagon-fill"></i> BÁO CÁO VI PHẠM
-                                                        </a>`;
 
                                 const info = {
                                     Paneltype: item.Paneltype,
@@ -475,10 +537,26 @@ function setupMap(center) {
                                     picturePanel: item.picturePanel,
                                     panelId: item._id,
                                     long: long,
-                                    lat: lat
+                                    lat: lat,
+                                    panelReport: 0
                                 };
 
-                                cardHtml += `<div class="card mb-3" id="billboard-info" key=${index}>
+                                for (let i = 0; i < reportIds.length; i++) {
+                                    const report = localStorage.getItem(reportIds[i]);
+
+                                    if (report) {
+                                        if (JSON.parse(report).idPanel == info.panelId) {
+                                            info.panelReport = report;
+                                        }
+                                    }
+                                }
+
+                                if (info.panelReport === 0) {
+                                    const reportButton = `<a id="panel-report-button" class="btn btn-outline-danger float-right" href="/api/report/${panelId}?address=${addressURL}&lng=${long}&lat=${lat}&district=${district}&ward=${ward}">
+                                    <i class="bi bi-exclamation-octagon-fill"></i> BÁO CÁO VI PHẠM
+                                    </a>`;
+
+                                    cardHtml += `<div class="card mb-3" id="billboard-info" key=${index}>
                                             <div class="card-body">
                                                 <h5 class="card-title">${item.Paneltype}</h5>
                                                 <h6 class="card-subtitle mb-2 text-muted">${address}</h6>
@@ -486,12 +564,51 @@ function setupMap(center) {
                                                     Số lượng: ${item.amount}<br>
                                                     Hình thức: <b>${billboardType}</b><br>
                                                     Phân loại: <b>${positionType}</b></p>
-                                                <a href="#" data-toggle="modal" data-target="#info-modal" onclick="loadPanelDetail('${JSON.stringify(info).replace(/"/g, '&quot;')}')">
+                                                <a href="#" data-toggle="modal" data-target="#billboard-info-modal" onclick="loadPanelDetail('${JSON.stringify(info).replace(/"/g, '&quot;')}')">
                                                     <i class="bi bi-info-circle"></i>
                                                 </a>
                                                 ${reportButton}
                                             </div>
                                         </div>`
+                                }
+                                else {
+                                    // lấy report
+                                    let panelReport = JSON.parse(info.panelReport);
+
+                                    const reportInfo = {
+                                        name: panelReport.name,
+                                        email: panelReport.email,
+                                        phone: panelReport.phone,
+                                        reportType: panelReport.reportType,
+                                        reportImgId: panelReport.reportPicture,
+                                        content: panelReport.content,
+                                        address: panelReport.address,
+                                        state: panelReport.state,
+                                        actionHandler: panelReport.actionHandler
+                                    };
+
+                                    const viewReportButton =
+                                        `<button class="btn btn-outline-primary float-right" data-toggle="modal" data-target="#report-info-modal" onclick="loadReportDetail('${JSON.stringify(reportInfo).replace(/"/g, '&quot;')}')">
+                                            <i class="bi bi-exclamation-octagon-fill"></i>
+                                            XEM BÁO CÁO
+                                        </button>`;
+
+                                    cardHtml += `<div class="card mb-3" id="billboard-info" key=${index}>
+                                                    <div class="card-body">
+                                                        <h5 class="card-title">${item.Paneltype}</h5>
+                                                        <h6 class="card-subtitle mb-2 text-muted">${address}</h6>
+                                                        <p class="card-text">Kích thước: ${item.size}<br>
+                                                            Số lượng: ${item.amount}<br>
+                                                            Hình thức: <b>${billboardType}</b><br>
+                                                            Phân loại: <b>${positionType}</b></p>
+                                                            <p style="color:red"><em>Bảng quảng cáo này đã được báo cáo.</em></p>
+                                                        <a href="#" data-toggle="modal" data-target="#billboard-info-modal" onclick="loadPanelDetail('${JSON.stringify(info).replace(/"/g, '&quot;')}')">
+                                                            <i class="bi bi-info-circle"></i>
+                                                        </a>
+                                                        ${viewReportButton}
+                                                    </div>
+                                                </div>`
+                                }
                             })
 
                             document.getElementById("billboard-container").innerHTML = cardHtml;
@@ -499,22 +616,24 @@ function setupMap(center) {
                         else {
                             // clear all the info panes if they exist
                             document.getElementById("billboard-container").innerHTML = "";
+
                             var billboardInfoPaneExists = document.getElementById("billboard-info-pane");
 
                             if (!billboardInfoPaneExists) {
                                 const div = document.createElement("div");
                                 div.setAttribute("id", "billboard-info-pane");
-                                div.setAttribute("class", "alert alert-info");
-                                div.setAttribute("role", "alert");
+                                div.setAttribute("class", "card border-info text-info mb-3");
 
                                 document.getElementById("billboard-container").appendChild(div);
                             }
 
-                            document.getElementById("billboard-info-pane").innerHTML = `<h5 class="alert-heading">
+                            document.getElementById("billboard-info-pane").innerHTML = `<div class="card-body">
+                                                                                            <h5 class="card-title">
                                                                                             <i class="bi bi-info-circle"></i>
-                                                                                            Thông tin bảng quảng cáo
-                                                                                        </h5>
-                                                                                        Chưa có dữ liệu.`
+                                                                                             Thông tin bảng quảng cáo
+                                                                                            </h5>
+                                                                                            <p class="card-text">Chưa có dữ liệu.</p>
+                                                                                        </div>`;
                         }
                     });
             });
@@ -543,45 +662,71 @@ function setupMap(center) {
                 popup.setLngLat(coordinates).setHTML(description).addTo(map);
             });
 
+            map.on("click", "free-point", (e) => {
+                const props = e.features[0].properties;
+
+                const reportInfo = {
+                    name: props.name,
+                    email: props.email,
+                    phone: props.phone,
+                    reportType: props.reportType,
+                    reportImgId: JSON.parse(props.reportPicture),
+                    content: props.content,
+                    address: props.address,
+                    state: props.state,
+                    actionHandler: props.actionHandler
+                };
+
+                $('#report-info-modal').on('shown.bs.modal', function () {
+                    loadReportDetail(JSON.stringify(reportInfo).replace(/"/g, '&quot;'));
+                });
+
+                $('#report-info-modal').modal('show');
+            });
+
             map.on("mouseleave", "free-point", () => {
                 map.getCanvas().style.cursor = "";
                 popup.remove();
-            });
-
-            map.on("click", (e) => {
-                const feature = map.queryRenderedFeatures(e.point);
-
-                if (feature.length === 0 || feature[0].layer.source !== "billboardPos") {
-                    if (marker) {
-                        marker.remove();
-                    }
-
-                    marker = new mapboxgl.Marker({ color: "#0000ff" })
-                        .setLngLat(e.lngLat)
-                        .addTo(map);
-
-                    reverseGeocode(e.lngLat);
-                }
             });
         })();
     });
 }
 
-function reverseGeocode(lngLat) {
+function reverseGeocode(lngLat, isFreeReportedPoint) {
     const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${lngLat.lng},${lngLat.lat}.json?access_token=${mapboxgl.accessToken}`;
 
     fetch(url)
         .then((response) => response.json())
         .then((data) => {
-            console.log(lngLat.lng);
             if (data.features && data.features.length > 0) {
                 const [name, ...addressParts] = data.features[0].place_name.split(",");
                 const address = addressParts.join(",").trim();
-                const placeInfoPaneHeader = '<h5 class="alert-heading"><i class="bi bi-check2-circle"></i> Thông tin địa điểm</h5>';
-                const reportButton = `<a class="btn btn-outline-danger" href="/api/report/${0}?address=${data.features[0].place_name}&lng=${lngLat.lng}&lat=${lngLat.lat}&district=${data.features[0].context[2].text}&ward=${data.features[0].context[0].text}"><i class="bi bi-exclamation-octagon-fill"></i> BÁO CÁO VI PHẠM</a>`;
+                const placeInfoPaneHeader = `<div class="card-body">
+                                                <h5 class="card-title">
+                                                    <i class="bi bi-info-circle"></i>
+                                                    Thông tin địa điểm
+                                                </h5>`;
 
-                document.getElementById("place-info-pane").innerHTML = `${placeInfoPaneHeader}<br><strong>${address}</strong><br><br>${reportButton}`;
-                document.getElementById("place-info-pane").innerHTML = `${placeInfoPaneHeader}<br><strong>${name}</strong><br>${address}<br><br>${reportButton}`;
+                if (!isFreeReportedPoint) {
+                    const reportButton = `<a id="free-point-report-button float-right" class="btn btn-outline-danger float-right" href="/api/report/${0}?address=${data.features[0].place_name}&lng=${lngLat.lng}&lat=${lngLat.lat}&district=${data.features[0].context[2].text}&ward=${data.features[0].context[0].text}">
+                                            <i class="bi bi-exclamation-octagon-fill"></i> BÁO CÁO VI PHẠM</a>`;
+
+                    document.getElementById("place-info-pane").innerHTML = `${placeInfoPaneHeader}
+                                                                            <p class="card-text">
+                                                                                <strong>${name}</strong><br>
+                                                                                ${address}<br><br>
+                                                                                ${reportButton}
+                                                                            </p>
+                                                                            `;
+                } else {
+                    document.getElementById("place-info-pane").innerHTML = `${placeInfoPaneHeader}
+                                                                                <p class="card-text">
+                                                                                <strong>${name}</strong><br>
+                                                                                ${address}<br><br>
+                                                                                <em style="color:red">Điểm này đã được báo cáo.</em>
+                                                                            </p>`;
+                }
+
             } else {
                 console.log("No address found");
             }
