@@ -1,244 +1,175 @@
-<link href="dashboard.css" rel="stylesheet">
-<button type="button" class="btn btn-sm btn-outline-secondary sidebar-toggle">
-  <span data-feather="menu">Menu</span>
-</button>
-<div class="container-fluid">
-  <div class="row">
-    <div class="container-fluid">
-  <div class="row">
-    <nav class="col-md-2 d-none d-md-block bg-light sidebar">
-      <div class="sidebar-sticky">
-        <ul class="nav flex-column">
-          <li class="nav-item">
-            <a class="nav-link side-link active" href="#">
-              <span data-feather="home"></span>
-              Dashboard <span class="sr-only">(current)</span>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link side-link" href="#">
-              <span data-feather="file"></span>
-              Quản lí điểm đặt
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link side-link" href="#">
-              <span data-feather="shopping-cart"></span>
-              Quản lí bảng quảng cáo
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link side-link" href="#">
-              <span data-feather="users"></span>
-              Quản lí loại hình quảng cáo
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link side-link" href="#">
-              <span data-feather="bar-chart-2"></span>
-              Quản lí cấp phép quảng cáo
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link side-link" href="#">
-              <span data-feather="layers"></span>
-              Quản lí báo cáo
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link side-link" href="#">
-              <span data-feather="layers"></span>
-              Quản lí hình thức báo cáo
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link side-link" href="#">
-              <span data-feather="layers"></span>
-              Quản lí Quận, Phường
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link side-link" href="#">
-              <span data-feather="layers"></span>
-              Tạo tài khoản cán bộ
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link side-link" href="#">
-              <span data-feather="layers"></span>
-              Quản lí cán bộ
-            </a>
-          </li>
-        </ul>
+<main role="main" class="main pt-0">
+  <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Dashboard</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+      <div class="btn-group mr-2">
+        <button type="button" class="btn btn-sm btn-outline-secondary">Share</button>
+        <button type="button" class="btn btn-sm btn-outline-secondary">Export</button>
       </div>
-    </nav>
-
-    <main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-0">
-      <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-        <h1 class="h2">Dashboard</h1>
-        <div class="btn-toolbar mb-2 mb-md-0">
-          <div class="btn-group mr-2">
-            <button type="button" class="btn btn-sm btn-outline-secondary">Share</button>
-            <button type="button" class="btn btn-sm btn-outline-secondary">Export</button>
-          </div>
-          <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle">
-            <span data-feather="calendar"></span>
-            This week
-          </button>
-        </div>
-      </div>
-
-      <h2>Section title</h2>
-      <div class="table-responsive">
-        <table class="table table-striped table-sm">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Header</th>
-              <th>Header</th>
-              <th>Header</th>
-              <th>Header</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>1,001</td>
-              <td>Lorem</td>
-              <td>ipsum</td>
-              <td>dolor</td>
-              <td>sit</td>
-            </tr>
-            <tr>
-              <td>1,002</td>
-              <td>amet</td>
-              <td>consectetur</td>
-              <td>adipiscing</td>
-              <td>elit</td>
-            </tr>
-            <tr>
-              <td>1,003</td>
-              <td>Integer</td>
-              <td>nec</td>
-              <td>odio</td>
-              <td>Praesent</td>
-            </tr>
-            <tr>
-              <td>1,003</td>
-              <td>libero</td>
-              <td>Sed</td>
-              <td>cursus</td>
-              <td>ante</td>
-            </tr>
-            <tr>
-              <td>1,004</td>
-              <td>dapibus</td>
-              <td>diam</td>
-              <td>Sed</td>
-              <td>nisi</td>
-            </tr>
-            <tr>
-              <td>1,005</td>
-              <td>Nulla</td>
-              <td>quis</td>
-              <td>sem</td>
-              <td>at</td>
-            </tr>
-            <tr>
-              <td>1,006</td>
-              <td>nibh</td>
-              <td>elementum</td>
-              <td>imperdiet</td>
-              <td>Duis</td>
-            </tr>
-            <tr>
-              <td>1,007</td>
-              <td>sagittis</td>
-              <td>ipsum</td>
-              <td>Praesent</td>
-              <td>mauris</td>
-            </tr>
-            <tr>
-              <td>1,008</td>
-              <td>Fusce</td>
-              <td>nec</td>
-              <td>tellus</td>
-              <td>sed</td>
-            </tr>
-            <tr>
-              <td>1,009</td>
-              <td>augue</td>
-              <td>semper</td>
-              <td>porta</td>
-              <td>Mauris</td>
-            </tr>
-            <tr>
-              <td>1,010</td>
-              <td>massa</td>
-              <td>Vestibulum</td>
-              <td>lacinia</td>
-              <td>arcu</td>
-            </tr>
-            <tr>
-              <td>1,011</td>
-              <td>eget</td>
-              <td>nulla</td>
-              <td>Class</td>
-              <td>aptent</td>
-            </tr>
-            <tr>
-              <td>1,012</td>
-              <td>taciti</td>
-              <td>sociosqu</td>
-              <td>ad</td>
-              <td>litora</td>
-            </tr>
-            <tr>
-              <td>1,013</td>
-              <td>torquent</td>
-              <td>per</td>
-              <td>conubia</td>
-              <td>nostra</td>
-            </tr>
-            <tr>
-              <td>1,014</td>
-              <td>per</td>
-              <td>inceptos</td>
-              <td>himenaeos</td>
-              <td>Curabitur</td>
-            </tr>
-            <tr>
-              <td>1,015</td>
-              <td>sodales</td>
-              <td>ligula</td>
-              <td>in</td>
-              <td>libero</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </main>
+      <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle">
+        <span data-feather="calendar"></span>
+        This week
+      </button>
+    </div>
   </div>
+
+  <h2>Section title</h2>
+  <div class="table-responsive">
+    <table class="table table-striped table-sm">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Header</th>
+          <th>Header</th>
+          <th>Header</th>
+          <th>Header</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1,001</td>
+          <td>Lorem</td>
+          <td>ipsum</td>
+          <td>dolor</td>
+          <td>sit</td>
+        </tr>
+        <tr>
+          <td>1,002</td>
+          <td>amet</td>
+          <td>consectetur</td>
+          <td>adipiscing</td>
+          <td>elit</td>
+        </tr>
+        <tr>
+          <td>1,003</td>
+          <td>Integer</td>
+          <td>nec</td>
+          <td>odio</td>
+          <td>Praesent</td>
+        </tr>
+        <tr>
+          <td>1,003</td>
+          <td>libero</td>
+          <td>Sed</td>
+          <td>cursus</td>
+          <td>ante</td>
+        </tr>
+        <tr>
+          <td>1,004</td>
+          <td>dapibus</td>
+          <td>diam</td>
+          <td>Sed</td>
+          <td>nisi</td>
+        </tr>
+        <tr>
+          <td>1,005</td>
+          <td>Nulla</td>
+          <td>quis</td>
+          <td>sem</td>
+          <td>at</td>
+        </tr>
+        <tr>
+          <td>1,006</td>
+          <td>nibh</td>
+          <td>elementum</td>
+          <td>imperdiet</td>
+          <td>Duis</td>
+        </tr>
+        <tr>
+          <td>1,007</td>
+          <td>sagittis</td>
+          <td>ipsum</td>
+          <td>Praesent</td>
+          <td>mauris</td>
+        </tr>
+        <tr>
+          <td>1,008</td>
+          <td>Fusce</td>
+          <td>nec</td>
+          <td>tellus</td>
+          <td>sed</td>
+        </tr>
+        <tr>
+          <td>1,009</td>
+          <td>augue</td>
+          <td>semper</td>
+          <td>porta</td>
+          <td>Mauris</td>
+        </tr>
+        <tr>
+          <td>1,010</td>
+          <td>massa</td>
+          <td>Vestibulum</td>
+          <td>lacinia</td>
+          <td>arcu</td>
+        </tr>
+        <tr>
+          <td>1,011</td>
+          <td>eget</td>
+          <td>nulla</td>
+          <td>Class</td>
+          <td>aptent</td>
+        </tr>
+        <tr>
+          <td>1,012</td>
+          <td>taciti</td>
+          <td>sociosqu</td>
+          <td>ad</td>
+          <td>litora</td>
+        </tr>
+        <tr>
+          <td>1,013</td>
+          <td>torquent</td>
+          <td>per</td>
+          <td>conubia</td>
+          <td>nostra</td>
+        </tr>
+        <tr>
+          <td>1,014</td>
+          <td>per</td>
+          <td>inceptos</td>
+          <td>himenaeos</td>
+          <td>Curabitur</td>
+        </tr>
+        <tr>
+          <td>1,015</td>
+          <td>sodales</td>
+          <td>ligula</td>
+          <td>in</td>
+          <td>libero</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</main>
+</div>
 </div>
 
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
+  document.addEventListener('DOMContentLoaded', function () {
     // Function to handle sidebar toggle
     function toggleSidebar() {
       var sidebar = document.querySelector('.sidebar');
       sidebar.classList.toggle('active');
+      const main = document.querySelector('.main');
+      main.classList.toggle('col-md-9');
+      main.classList.toggle('ml-sm-auto');
+      main.classList.toggle('col-lg-10');
+      main.classList.toggle('w-100');
     }
 
     // Event listener for the sidebar toggle button
     var menuButton = document.querySelector('.sidebar-toggle');
-    menuButton.addEventListener('click', function() {
+    menuButton.addEventListener('click', function () {
       toggleSidebar();
+      //col-md-9 ml-sm-auto col-lg-10
+
     });
 
-    // Add active class to clicked nav-link and remove from others
     var sideLinks = document.querySelectorAll('.side-link');
-    sideLinks.forEach(function(link) {
-      link.addEventListener('click', function() {
-        sideLinks.forEach(function(link) {
+    sideLinks.forEach(function (link) {
+      link.addEventListener('click', function () {
+        sideLinks.forEach(function (link) {
           link.classList.remove('active');
         });
         this.classList.add('active');

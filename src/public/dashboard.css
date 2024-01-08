@@ -12,7 +12,6 @@ body {
  * Sidebar
  */
 
-
 .sidebar {
   position: fixed;
   top: 20px;
@@ -114,4 +113,25 @@ body {
 
 .nav-item {
   margin-top: 10px;
+}
+
+.sidebar-toggle {
+  background-color: #fff;
+  padding: 10px;
+  margin-right: 10px;
+  border: none;
+}
+
+/*  main.classList.toggle('col-md-9');
+      main.classList.toggle('ml-sm-auto');
+      main.classList.toggle('col-lg-10');
+      main.classList.toggle('w-100'); */
+.sidebar ~ .main {
+  width: 100%;
+  transition: all 0.3s ease-in-out;
+}
+.sidebar.active ~ .main {
+  width: calc(100% - 300px);
+  transition: all 0.3s ease-in-out;
+
 }
