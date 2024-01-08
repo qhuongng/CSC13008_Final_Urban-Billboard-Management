@@ -1,4 +1,7 @@
-    <link href="dashboard.css" rel="stylesheet">
+<link href="dashboard.css" rel="stylesheet">
+<button type="button" class="btn btn-sm btn-outline-secondary sidebar-toggle">
+  <span data-feather="menu">Menu</span>
+</button>
 <div class="container-fluid">
   <div class="row">
     <div class="container-fluid">
@@ -7,61 +10,61 @@
       <div class="sidebar-sticky">
         <ul class="nav flex-column">
           <li class="nav-item">
-            <a class="nav-link active" href="#">
+            <a class="nav-link side-link active" href="#">
               <span data-feather="home"></span>
               Dashboard <span class="sr-only">(current)</span>
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#">
+            <a class="nav-link side-link" href="#">
               <span data-feather="file"></span>
               Quản lí điểm đặt
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#">
+            <a class="nav-link side-link" href="#">
               <span data-feather="shopping-cart"></span>
               Quản lí bảng quảng cáo
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#">
+            <a class="nav-link side-link" href="#">
               <span data-feather="users"></span>
               Quản lí loại hình quảng cáo
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#">
+            <a class="nav-link side-link" href="#">
               <span data-feather="bar-chart-2"></span>
               Quản lí cấp phép quảng cáo
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#">
+            <a class="nav-link side-link" href="#">
               <span data-feather="layers"></span>
               Quản lí báo cáo
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#">
+            <a class="nav-link side-link" href="#">
               <span data-feather="layers"></span>
               Quản lí hình thức báo cáo
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#">
+            <a class="nav-link side-link" href="#">
               <span data-feather="layers"></span>
               Quản lí Quận, Phường
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#">
+            <a class="nav-link side-link" href="#">
               <span data-feather="layers"></span>
               Tạo tài khoản cán bộ
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#">
+            <a class="nav-link side-link" href="#">
               <span data-feather="layers"></span>
               Quản lí cán bộ
             </a>
@@ -216,3 +219,30 @@
     </main>
   </div>
 </div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Function to handle sidebar toggle
+    function toggleSidebar() {
+      var sidebar = document.querySelector('.sidebar');
+      sidebar.classList.toggle('active');
+    }
+
+    // Event listener for the sidebar toggle button
+    var menuButton = document.querySelector('.sidebar-toggle');
+    menuButton.addEventListener('click', function() {
+      toggleSidebar();
+    });
+
+    // Add active class to clicked nav-link and remove from others
+    var sideLinks = document.querySelectorAll('.side-link');
+    sideLinks.forEach(function(link) {
+      link.addEventListener('click', function() {
+        sideLinks.forEach(function(link) {
+          link.classList.remove('active');
+        });
+        this.classList.add('active');
+      });
+    });
+  });
+</script>
