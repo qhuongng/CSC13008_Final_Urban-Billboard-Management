@@ -189,6 +189,9 @@ function setupMap(center) {
                         if (report) {
                             if (JSON.parse(report).locate[0] == coords[0] && JSON.parse(report).locate[1] == coords[1]) {
                                 reported = true;
+
+                                // update tình trạng xử lí                            
+                                localStorage.setItem(report._id, JSON.stringify(report));
                                 break;
                             }
                         }
