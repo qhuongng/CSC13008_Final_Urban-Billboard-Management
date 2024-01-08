@@ -53,15 +53,14 @@ const loginUser = (userLogin) => {
             if (!comparePassword) {
                 reject('The password or username is incorrect');
             }
-            const user_id = checkUser._id
-            const access_token = await generalAccessToken({
+            const accessToken = await generalAccessToken({
                 id: checkUser._id
             })
             resolve({
                 status: 'OK',
                 message: 'SUCCESS',
-                user_id,
-                access_token
+                checkUser,
+                accessToken
             })
         } catch (e) {
             reject(e)

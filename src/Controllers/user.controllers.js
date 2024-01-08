@@ -75,8 +75,14 @@ const loginUser = async (req, res) => {
             })
         }
         const response = await UserService.loginUser(req.body)
-        //return res.status(200).json(response)
-        res.redirect('/');
+        const userLogin = response.checkUser;
+        const token = response.accessToken;
+        delete userLogin.password;
+        req.session.auth = true;
+        req.session.authUser = userLogin;
+        req.session.accessToken = token;
+        const url = req.session.retUrl || '/';
+        res.redirect(url);
     } catch (e) {
         return res.status(404).json({
             message: e

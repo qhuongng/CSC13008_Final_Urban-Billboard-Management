@@ -1,35 +1,61 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
 </head>
-<style> 
-  .navbar{
-    top:0px;
-    z-index: 200;
-    position: sticky;
-}
+<style>
+    .navbar {
+        top: 0px;
+        z-index: 200;
+        position: sticky;
+    }
 </style>
+
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
-  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo01" aria-controls="navbarTogglerDemo01" aria-expanded="false" aria-label="Toggle navigation">
-    <span class="navbar-toggler-icon"></span>
-  </button>
-  <div class="collapse navbar-collapse" id="navbar">
-    <a class="navbar-brand" href="/">Hidden brand</a>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo01"
+            aria-controls="navbarTogglerDemo01" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbar">
+            <a class="navbar-brand" href="/">Hidden brand</a>
 
-    <ul class="navbar-nav ml-auto">
-      <li class="nav-item">
-        <a class="nav-link" href="/api/user/login">Login</a>
-      </li>
-    </ul>
-  </div>
-</nav>
-<script>
+            <ul class="navbar-nav ml-auto">
+                {{#if auth}}
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown"
+                        aria-expanded="false">
+                        Hello,
+                        <b>{{authUser.name}}!</b>
+                    </a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="/account/profile">
+                            <i class="bi bi-person"></i>
+                            Profile
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <form id="frmLogout" action="/account/logout" method="post"></form>
+                        <a class="dropdown-item" href="javascript: $('#frmLogout').submit()">
+                            <i class="bi bi-box-arrow-in-left"></i>
+                            Logout
+                        </a>
+                    </div>
+                </li>
+                {{else}}
+                <li class="nav-item">
+                    <a class="nav-link" href="/api/user/login">Login</a>
+                </li>
+                {{/if}}
+            </ul>
+        </div>
+    </nav>
+    <script>
 
-</script>
+    </script>
 </body>
+
 </html>
