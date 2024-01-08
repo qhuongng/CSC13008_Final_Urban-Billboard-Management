@@ -3,17 +3,25 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Create New Report</title>
+    <title>Báo cáo</title>
+
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 
     <script src="https://cdn.tiny.cloud/1/ezd73nxbzc7bu6e86g2l82jbbffke0mwevwrnyvc5q8h89j6/tinymce/6/tinymce.min.js"
         referrerpolicy="origin"></script>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.2/js/toastr.min.js"></script>
+    <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
+
     <script>
         tinymce.init({
             selector: '#content',
             menubar: false,
-            plugins: 'paste image link autolink lists table media',
+            plugins: 'paste link autolink lists',
             toolbar: [
-                'undo redo | bold italic underline strikethrough | numlist bullist | alignleft aligncenter alignright | forecolor backcolor | table link image media',
+                'undo redo | bold italic underline strikethrough | numlist bullist | alignleft aligncenter alignright | forecolor backcolor | link',
             ],
         });
     </script>
@@ -26,22 +34,6 @@
 
         .tox-statusbar__path-item {
             display: none !important;
-        }
-
-        #noticePopup {
-            width: 250px;
-            font-size: 20px;
-            text-align: center;
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            padding: 10px;
-            background-color: #f0f0f0;
-            border: 1px solid #000000;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
         }
     </style>
 </head>
@@ -63,7 +55,7 @@
     <input type="hidden" id="ward" value="{{ward}}">
     {{/if}}
     <div class="container mt-5 mb-5">
-        <h2 class="mb-4">Report</h2>
+        <h2 class="mb-4">Báo cáo</h2>
         <p class="mb-4">Địa điểm: {{address}}</p>
         <form action="" method="post" enctype="multipart/form-data">
             <!-- Input fields for new report information -->
@@ -98,70 +90,95 @@
                 <input type="file" class="form-control" id="image" name="image" multiple>
                 <small class="form-text text-muted">Chọn một hoặc nhiều file.</small>
             </div>
+            <div id="recaptcha" class="g-recaptcha" data-sitekey="6LewcUkpAAAAALnSqF9bYfyG95CVok0OYx9ABAAn"></div><br>
             <button type="button" class="btn btn-primary" onclick="window.history.back()">Trở về Bản Đồ</button>
             <button type="submit" class="btn btn-primary" onclick="postContent(event)">Tạo báo cáo</button>
         </form>
     </div>
-    <div id="noticePopup">Báo cáo đã được gửi!</div>
-    {{!--
-    <script>
-        function postContent(event) {
-            var time = 0;
+    <script defer>
+        async function postContent(event) {
             event.preventDefault();
-            var postContent = tinymce.activeEditor.getContent();
-            document.querySelector('#content').value = postContent;
 
-            document.getElementById('noticePopup').style.display = 'block';
-            setTimeout(function () {
-                document.getElementById('noticePopup').style.display = 'none';
-                document.querySelector('form').submit();
-            }, 2000);
-        }
-    </script> --}}
-    <script>
-        function postContent(event) {
-            event.preventDefault();
-            var postContent = tinymce.activeEditor.getContent();
-            document.querySelector('#content').value = postContent;
+            // Verify reCAPTCHA
+            var recaptchaResponse = grecaptcha.getResponse();
+            if (!recaptchaResponse) {
+                toastr.error("Vui lòng xác nhận reCAPTCHA.");
+                return;
+            }
 
-            // Lấy form và dữ liệu từ form
-            var form = document.querySelector('form');
-            console.log(form)
-            var formData = new FormData(form);
-
-            // Gửi request POST đến máy chủ
-            var reportId = document.getElementById('id').value;
-            var reportLng = document.getElementById('lng').value;
-            var reportLat = document.getElementById('lat').value;
-            var reportDistrict = document.getElementById('district').value;
-            var reportWard = document.getElementById('ward').value;
-
-            fetch(`http://localhost:3500/api/report/${reportId}?lng=${reportLng}&lat=${reportLat}&district=${reportDistrict}&ward=${reportWard}`, {
-                method: 'POST',
-                body: formData,
-            })
-                .then(response => response.json())
-                .then(data => {
-                    console.log(data)
-                    // Xử lý response và lưu vào localStorage
-                    localStorage.setItem(data._id, JSON.stringify(data));
-
-                    // Hiển thị thông báo
-                    document.getElementById('noticePopup').style.display = 'block';
-
-                    // Sau 2 giây, ẩn thông báo và chuyển hướng hoặc thực hiện các thao tác khác nếu cần
-                    setTimeout(function () {
-                        document.getElementById('noticePopup').style.display = 'none';
-                        window.location.href = '/';
-                    }, 2000);
-                })
-                .catch(error => {
-                    console.error('Error:', error);
+            try {
+                const response = await fetch('http://localhost:3200/verify-recaptcha', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ token: recaptchaResponse }),
                 });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // reCAPTCHA verification successful
+                    console.log('reCAPTCHA verification successful');
+
+
+                    var postContent = tinymce.activeEditor.getContent();
+                    document.querySelector('#content').value = postContent;
+
+                    // Lấy form và dữ liệu từ form
+                    var form = document.querySelector('form');
+                    var formData = new FormData(form);
+
+                    // Gửi request POST đến máy chủ
+                    var reportId = document.getElementById('id').value;
+                    var reportLng = document.getElementById('lng').value;
+                    var reportLat = document.getElementById('lat').value;
+                    var reportDistrict = document.getElementById('district').value;
+                    var reportWard = document.getElementById('ward').value;
+
+                    fetch(`http://localhost:3500/api/report/${reportId}?lng=${reportLng}&lat=${reportLat}&district=${reportDistrict}&ward=${reportWard}`,
+                        {
+                            method: 'POST',
+                            body: formData,
+                        }).then(response => response.json()).then(data => {
+                            console.log(data)
+                            // Xử lý response và lưu vào localStorage
+                            localStorage.setItem(data._id, JSON.stringify(data));
+
+                            toastr.options.closeButton = true;
+                            toastr.options = {
+                                "closeButton": true,
+                                "debug": false,
+                                "newestOnTop": false,
+                                "progressBar": false,
+                                "positionClass": "toast-bottom-right",
+                                "preventDuplicates": false,
+                                "onclick": null,
+                                "showDuration": "300",
+                                "hideDuration": "300",
+                                "timeOut": "2000",
+                                "extendedTimeOut": "1000",
+                                "showEasing": "swing",
+                                "hideEasing": "linear",
+                                "showMethod": "fadeIn",
+                                "hideMethod": "fadeOut"
+                            }
+
+                            toastr.options.onHidden = () => { window.location.href = '/'; }
+                            toastr.success("Báo cáo đã được gửi thành công.");
+                        }).catch(error => {
+                            console.error('Error:', error);
+                        });
+                } else {
+                    // reCAPTCHA verification failed
+                    toastr.error('reCAPTCHA verification failed.');
+                }
+            } catch (error) {
+                console.error('Error verifying reCAPTCHA:', error);
+                toastr.error('An error occurred while verifying reCAPTCHA.');
+            }
         }
     </script>
-
 </body>
-
 
 </html>

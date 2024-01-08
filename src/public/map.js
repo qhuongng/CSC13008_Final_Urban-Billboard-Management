@@ -117,10 +117,13 @@ function setupMap(center) {
 
     map.on("style.load", () => {
         map.on("click", (e) => {
+            // clear all the info panes if they exist
+            document.getElementById("billboard-container").innerHTML = "";
+
             var features = map.queryRenderedFeatures(e.point);
 
             if (features[0] !== undefined && features[0].properties.name !== undefined) {
-                if (features[0].layer.id == "unclustered-point" || features[0].layer.id == "unclustered-point-label") {
+                if (features[0].layer.id == "unclustered-point" || features[0].layer.id == "unclustered-point-label" || features[0].layer.id == "free-point") {
                     return;
                 }
 
@@ -387,7 +390,6 @@ function setupMap(center) {
                 closeOnClick: false,
             });
 
-            // map.on("mouseenter", ["unclustered-point", "unclustered-point-reported"], (e) => {
             map.on("mouseenter", "unclustered-point", (e) => {
                 const coordinates = e.features[0].geometry.coordinates.slice();
                 const long = e.features[0].properties.long;
@@ -407,30 +409,6 @@ function setupMap(center) {
                 }
 
                 popup.setLngLat(coordinates).setHTML(description).addTo(map);
-            });
-
-            map.on("mouseenter", "free-point", (e) => {
-                map.getCanvas().style.cursor = "pointer";
-                const coordinates = e.features[0].geometry.coordinates.slice();
-                const long = e.features[0].properties.long;
-                const lat = e.features[0].properties.lat;
-                const description = `<strong>Điểm được bạn báo cáo</strong><br>
-                                        Tình trạng: <b>${e.features[0].properties.actionHandler}</b><br><br>
-                                        <em>Bấm để xem chi tiết</em>`;
-
-                // Ensure that if the map is zoomed out such that
-                // multiple copies of the feature are visible, the
-                // popup appears over the copy being pointed to.
-                while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
-                    coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
-                }
-
-                popup.setLngLat(coordinates).setHTML(description).addTo(map);
-            });
-
-            map.on("mouseleave", "free-point", () => {
-                map.getCanvas().style.cursor = "";
-                popup.remove();
             });
 
             map.on("click", "unclustered-point", (e) => {
@@ -546,13 +524,34 @@ function setupMap(center) {
                 popup.remove();
             });
 
+            map.on("mouseenter", "free-point", (e) => {
+                map.getCanvas().style.cursor = "pointer";
+                const coordinates = e.features[0].geometry.coordinates.slice();
+                const long = e.features[0].properties.long;
+                const lat = e.features[0].properties.lat;
+                const description = `<strong>Điểm được bạn báo cáo</strong><br>
+                                                Tình trạng: <b>${e.features[0].properties.actionHandler}</b><br><br>
+                                                <em>Bấm để xem chi tiết</em>`;
+
+                // Ensure that if the map is zoomed out such that
+                // multiple copies of the feature are visible, the
+                // popup appears over the copy being pointed to.
+                while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+                    coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+                }
+
+                popup.setLngLat(coordinates).setHTML(description).addTo(map);
+            });
+
+            map.on("mouseleave", "free-point", () => {
+                map.getCanvas().style.cursor = "";
+                popup.remove();
+            });
+
             map.on("click", (e) => {
                 const feature = map.queryRenderedFeatures(e.point);
 
-                if (
-                    feature.length === 0 ||
-                    feature[0].layer.source !== "billboardPos"
-                ) {
+                if (feature.length === 0 || feature[0].layer.source !== "billboardPos") {
                     if (marker) {
                         marker.remove();
                     }
@@ -578,10 +577,8 @@ function reverseGeocode(lngLat) {
             if (data.features && data.features.length > 0) {
                 const [name, ...addressParts] = data.features[0].place_name.split(",");
                 const address = addressParts.join(",").trim();
-
                 const placeInfoPaneHeader = '<h5 class="alert-heading"><i class="bi bi-check2-circle"></i> Thông tin địa điểm</h5>';
-
-                const reportButton = `<a class="btn btn-outline-danger" href="/api/report/${0}?address=${data.features[0].place_name}&lng=${lngLat.lng}&lat=${lngLat.lat}&district=0&ward=0"><i class="bi bi-exclamation-octagon-fill"></i> BÁO CÁO VI PHẠM</a>`;
+                const reportButton = `<a class="btn btn-outline-danger" href="/api/report/${0}?address=${data.features[0].place_name}&lng=${lngLat.lng}&lat=${lngLat.lat}&district=${data.features[0].context[2].text}&ward=${data.features[0].context[0].text}"><i class="bi bi-exclamation-octagon-fill"></i> BÁO CÁO VI PHẠM</a>`;
 
 
                 document.getElementById("place-info-pane").innerHTML = `${placeInfoPaneHeader}<br><strong>${address}</strong><br><br>${reportButton}`;
