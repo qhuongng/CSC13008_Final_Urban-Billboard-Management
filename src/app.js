@@ -46,6 +46,7 @@ app.engine(
   "hbs",
   handlebars.engine({
     extname: "hbs",
+    defaultLayout: 'main',
   })
 );
 

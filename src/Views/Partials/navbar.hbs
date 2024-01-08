@@ -2,163 +2,162 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
 </head>
 <style>
-  .navbar {
-    top: 0px;
-    z-index: 200;
-    position: sticky;
-  }
+    .navbar {
+        top: 0px;
+        z-index: 200;
+        position: sticky;
+    }
 </style>
 
 <body>
-  <nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo01"
-      aria-controls="navbarTogglerDemo01" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbar">
-      <button type="button" class="btn btn-sm btn-outline-secondary sidebar-toggle icon-menu">
-        <span data-feather="menu"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"
-            xmlns="http://www.w3.org/2000/svg">
-            <path
-              d="M2 6C2 5.44772 2.44772 5 3 5H21C21.5523 5 22 5.44772 22 6C22 6.55228 21.5523 7 21 7H3C2.44772 7 2 6.55228 2 6Z"
-              fill="currentColor" />
-            <path
-              d="M2 12.0322C2 11.4799 2.44772 11.0322 3 11.0322H21C21.5523 11.0322 22 11.4799 22 12.0322C22 12.5845 21.5523 13.0322 21 13.0322H3C2.44772 13.0322 2 12.5845 2 12.0322Z"
-              fill="currentColor" />
-            <path
-              d="M3 17.0645C2.44772 17.0645 2 17.5122 2 18.0645C2 18.6167 2.44772 19.0645 3 19.0645H21C21.5523 19.0645 22 18.6167 22 18.0645C22 17.5122 21.5523 17.0645 21 17.0645H3Z"
-              fill="currentColor" />
-          </svg></span>
-      </button>
-      <a class="navbar-brand" href="/">Hidden brand</a>
-    </div>
-
-    <ul class="navbar-nav ml-auto">
-      {{#if auth}}
-      <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-expanded="false">
-          Hello,
-          <b>{{authUser.name}}!</b>
-        </a>
-        <div class="dropdown-menu">
-          <a class="dropdown-item" href="/account/profile">
-            <i class="bi bi-person"></i>
-            Profile
-          </a>
-          <div class="dropdown-divider"></div>
-          <form id="frmLogout" action="/account/logout" method="post"></form>
-          <a class="dropdown-item" href="javascript: $('#frmLogout').submit()">
-            <i class="bi bi-box-arrow-in-left"></i>
-            Logout
-          </a>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo01"
+            aria-controls="navbarTogglerDemo01" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbar">
+            <button type="button" class="btn btn-sm btn-outline-secondary sidebar-toggle icon-menu">
+                <span data-feather="menu"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M2 6C2 5.44772 2.44772 5 3 5H21C21.5523 5 22 5.44772 22 6C22 6.55228 21.5523 7 21 7H3C2.44772 7 2 6.55228 2 6Z"
+                            fill="currentColor" />
+                        <path
+                            d="M2 12.0322C2 11.4799 2.44772 11.0322 3 11.0322H21C21.5523 11.0322 22 11.4799 22 12.0322C22 12.5845 21.5523 13.0322 21 13.0322H3C2.44772 13.0322 2 12.5845 2 12.0322Z"
+                            fill="currentColor" />
+                        <path
+                            d="M3 17.0645C2.44772 17.0645 2 17.5122 2 18.0645C2 18.6167 2.44772 19.0645 3 19.0645H21C21.5523 19.0645 22 18.6167 22 18.0645C22 17.5122 21.5523 17.0645 21 17.0645H3Z"
+                            fill="currentColor" />
+                    </svg></span>
+            </button>
+            <a class="navbar-brand" href="/">Hidden brand</a>
         </div>
-      </li>
-      {{else}}
-      <li class="nav-item">
-        <a class="nav-link" href="/api/user/login">Login</a>
-      </li>
-      {{/if}}
-    </ul>
-    </div>
-  </nav>
-    <link href="dashboard.css" rel="stylesheet">
-  <nav class=" bg-light sidebar">
-    <div class="sidebar-sticky">
-      <ul class="nav flex-column">
-        <li class="nav-item">
-          <a class="nav-link side-link" href="#">
-            <span data-feather="home"></span>
-            Dashboard <span class="sr-only"></span>
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link side-link" href="#">
-            <span data-feather="file"></span>
-            Quản lí điểm đặt
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link side-link" href="#">
-            <span data-feather="shopping-cart"></span>
-            Quản lí bảng quảng cáo
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link side-link" href="#">
-            <span data-feather="users"></span>
-            Quản lí loại hình quảng cáo
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link side-link" href="#">
-            <span data-feather="bar-chart-2"></span>
-            Quản lí cấp phép quảng cáo
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link side-link" href="#">
-            <span data-feather="layers"></span>
-            Quản lí báo cáo
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link side-link" href="#">
-            <span data-feather="layers"></span>
-            Quản lí hình thức báo cáo
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link side-link" href="#">
-            <span data-feather="layers"></span>
-            Quản lí Quận, Phường
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link side-link" href="#">
-            <span data-feather="layers"></span>
-            Tạo tài khoản cán bộ
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link side-link" href="#">
-            <span data-feather="layers"></span>
-            Quản lí cán bộ
-          </a>
-        </li>
-      </ul>
-    </div>
-  </nav>
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      // Function to handle sidebar toggle
-      function toggleSidebar() {
-        var sidebar = document.querySelector('.sidebar');
-        sidebar.classList.toggle('active');
-        console.log("click");
-      }
 
-      // Event listener for the sidebar toggle button
-      var menuButton = document.querySelector('.sidebar-toggle');
-      menuButton.addEventListener('click', function () {
-        toggleSidebar();
-      });
+        <ul class="navbar-nav ml-auto">
+            {{#if auth}}
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-expanded="false">
+                    Hello,
+                    <b>{{authUser.name}}!</b>
+                </a>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item" href="/account/profile">
+                        <i class="bi bi-person"></i>
+                        Profile
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <form id="frmLogout" action="/account/logout" method="post"></form>
+                    <a class="dropdown-item" href="javascript: $('#frmLogout').submit()">
+                        <i class="bi bi-box-arrow-in-left"></i>
+                        Logout
+                    </a>
+                </div>
+            </li>
+            {{else}}
+            <li class="nav-item">
+                <a class="nav-link" href="/api/user/login">Login</a>
+            </li>
+            {{/if}}
+        </ul>
+        </div>
+    </nav>
+    <nav class=" bg-light sidebar">
+        <div class="sidebar-sticky">
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link side-link active" href="/">
+                        <span data-feather="home"></span>
+                        Dashboard <span class="sr-only"></span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link side-link" href="/api/demo">
+                        <span data-feather="file"></span>
+                        Quản lí điểm đặt
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link side-link" href="#">
+                        <span data-feather="shopping-cart"></span>
+                        Quản lí bảng quảng cáo
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link side-link" href="#">
+                        <span data-feather="users"></span>
+                        Quản lí loại hình quảng cáo
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link side-link" href="#">
+                        <span data-feather="bar-chart-2"></span>
+                        Quản lí cấp phép quảng cáo
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link side-link" href="#">
+                        <span data-feather="layers"></span>
+                        Quản lí báo cáo
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link side-link" href="#">
+                        <span data-feather="layers"></span>
+                        Quản lí hình thức báo cáo
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link side-link" href="#">
+                        <span data-feather="layers"></span>
+                        Quản lí Quận, Phường
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link side-link" href="#">
+                        <span data-feather="layers"></span>
+                        Tạo tài khoản cán bộ
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link side-link" href="#">
+                        <span data-feather="layers"></span>
+                        Quản lí cán bộ
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Function to handle sidebar toggle
+            function toggleSidebar() {
+                var sidebar = document.querySelector('.sidebar');
+                sidebar.classList.toggle('active');
+                console.log("click");
+            }
 
-      var sideLinks = document.querySelectorAll('.side-link');
-      sideLinks.forEach(function (link) {
-        link.addEventListener('click', function () {
-          sideLinks.forEach(function (link) {
-            link.classList.remove('active');
-          });
-          this.classList.add('active');
+            // Event listener for the sidebar toggle button
+            var menuButton = document.querySelector('.sidebar-toggle');
+            menuButton.addEventListener('click', function () {
+                toggleSidebar();
+            });
+
+            var sideLinks = document.querySelectorAll('.side-link');
+            sideLinks.forEach(function (link) {
+                link.addEventListener('click', function () {
+                    sideLinks.forEach(function (link) {
+                        link.classList.remove('active');
+                    });
+                    this.classList.add('active');
+                });
+            });
         });
-      });
-    });
-  </script>
+    </script>
 </body>
 
 </html>

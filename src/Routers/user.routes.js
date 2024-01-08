@@ -14,7 +14,9 @@ router.get("/getAll-user", userController.getAllUser);
 router.get("/getDetails-user/:id", userController.getDetailsUser);
 
 router.get("/login", (req, res) => {
-  res.render("login");
+  res.render("login", {
+    //Partials: false
+  });
 });
 
 module.exports = router;
