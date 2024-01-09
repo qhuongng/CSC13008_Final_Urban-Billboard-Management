@@ -487,7 +487,7 @@ function setupMap(center) {
                     };
 
                     const viewReportButton =
-                        `<button class="btn btn-outline-primary float-right" data-toggle="modal" data-target="#report-info-modal" onclick="loadReportDetail('${JSON.stringify(reportInfo).replace(/"/g, '&quot;')}')">
+                        `<button class="btn btn-outline-primary float-right" data-toggle="modal" data-target="#report-info-modal" onclick="loadReportDetail('${JSON.stringify(reportInfo).replace(/"/g, '&quot;')}', false)">
                             <i class="bi bi-exclamation-octagon-fill"></i>
                             XEM BÁO CÁO
                         </button>`;
@@ -588,7 +588,7 @@ function setupMap(center) {
                                     };
 
                                     const viewReportButton =
-                                        `<button class="btn btn-outline-primary float-right" data-toggle="modal" data-target="#report-info-modal" onclick="loadReportDetail('${JSON.stringify(reportInfo).replace(/"/g, '&quot;')}')">
+                                        `<button class="btn btn-outline-primary float-right" data-toggle="modal" data-target="#report-info-modal" onclick="loadReportDetail('${JSON.stringify(reportInfo).replace(/"/g, '&quot;')}', false)">
                                             <i class="bi bi-exclamation-octagon-fill"></i>
                                             XEM BÁO CÁO
                                         </button>`;
@@ -677,11 +677,11 @@ function setupMap(center) {
                     actionHandler: props.actionHandler
                 };
 
-                $('#report-info-modal').on('shown.bs.modal', function () {
-                    loadReportDetail(JSON.stringify(reportInfo).replace(/"/g, '&quot;'));
+                $('#free-report-info-modal').on('shown.bs.modal', function () {
+                    loadReportDetail(JSON.stringify(reportInfo).replace(/"/g, '&quot;'), true);
                 });
 
-                $('#report-info-modal').modal('show');
+                $('#free-report-info-modal').modal('show');
             });
 
             map.on("mouseleave", "free-point", () => {
