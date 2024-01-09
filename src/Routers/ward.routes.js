@@ -3,5 +3,7 @@ const router = express.Router()
 const wardController = require('../Controllers/ward.controllers');
 
 router.post('/createWard', wardController.createWard),
+router.put("/update-ward/:id", wardController.updateWard);
+router.delete("/delete-ward/:id", wardController.deleteWard);
 
 module.exports = router
