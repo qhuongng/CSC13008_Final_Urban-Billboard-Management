@@ -19,6 +19,60 @@ const createDistrict= async(req,res)=>{
     }
 }
 
+const updateDistrict = async (req, res) => {
+    try {
+        const districtId = req.params.id
+        const data = req.body
+        if (!districtId) {
+            return res.status(404).json({
+                status: 'ERR',
+                message: 'The DistrictId is required'
+            })
+        }
+
+        const response = await DistrictService.updateDistrict(districtId, data)
+        return res.status(200).json(response)
+    } catch (e) {
+        return res.status(404).json({
+            message: e
+        })
+    }
+}
+
+const deleteDistrict = async (req, res) => {
+    try {
+        const districtId = req.params.id
+        //const token = req.headers
+        if (!districtId) {
+            return res.status(404).json({
+                status: 'ERR',
+                message: 'The DistrictId is required'
+            })
+        }
+
+        const response = await DistrictService.deleteDistrict(districtId)
+        return res.status(200).json(response)
+    } catch (e) {
+        return res.status(404).json({
+            message: e
+        })
+    }
+}
+
+const getAllDis = async (req, res) => {
+    try {
+        const response = await DistrictService.getAllDis()
+        return res.status(200).json(response)
+    } catch (e) {
+        return res.status(404).json({
+            message: e
+        })
+    }
+}
+
 module.exports = {
-    createDistrict
+    createDistrict,
+    updateDistrict,
+    deleteDistrict,
+    getAllDis
 }
