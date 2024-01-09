@@ -24,10 +24,12 @@ const routes = (app) => {
   app.use("/api/report", ReportRouter);
   app.use("/api/reportImg", ReportImgRouter);
   app.use('/api/user', UserRouter);
-  // dùng để debug
+  // dùng để render
   app.use('/api/demo', authLogin, (req, res) => {
     res.render('demo')
   });
+
+
 };
 
 module.exports = routes;

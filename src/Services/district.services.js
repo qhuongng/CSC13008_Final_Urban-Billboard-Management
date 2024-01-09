@@ -57,7 +57,72 @@ const getDistrictName = (disId) => {
         }
     });
 };
+
+const updateDistrict = (disId, data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const checkDis = await District.findOne({
+                disId: disId
+            });
+            if (!checkDis) {
+                reject('The District is not defined');
+            }
+            const updatedDistrict = await District.findOneAndUpdate(
+                { disId: disId },
+                data,
+                { new: true }
+            );
+            resolve({
+                status: 'OK',
+                message: 'Update District success',
+                data: updatedDistrict
+            });
+        } catch (e) {
+            reject(e);
+        }
+    });
+};
+
+const deleteDistrict = (disId) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const checkDis = await District.findOne({
+                disId: disId
+            });
+            if (!checkDis) {
+                reject('The District is not defined');
+            }
+            await District.findOneAndDelete({ disId: disId });
+            resolve({
+                status: 'OK',
+                message: 'Delete District success',
+            });
+        } catch (e) {
+            reject(e);
+        }
+    });
+};
+
+const getAllDis = () => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const allDis = await District.find()
+            resolve({
+                status: 'OK',
+                message: 'SUCCESS',
+                data: allDis
+
+            })
+        } catch (e) {
+            reject(e)
+        }
+    })
+}
+
 module.exports = {
     createDistrict,
     getDistrictName,
+    updateDistrict,
+    deleteDistrict,
+    getAllDis
 };

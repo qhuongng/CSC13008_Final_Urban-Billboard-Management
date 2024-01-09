@@ -43,6 +43,7 @@ const createWard = (newWard) => {
         }
     });
 };
+
 const getWardName = (wardId, districtRefId) => {
     return new Promise(async (resolve, reject) => {
         try {
@@ -67,7 +68,73 @@ const getWardName = (wardId, districtRefId) => {
         }
     });
 };
+
+const updateWard = (wardId, data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const checkWard = await Ward.findOne({
+                wardId: wardId
+            });
+            if (!checkWard) {
+                reject('The Ward is not defined');
+            }
+            const updatedWard = await Ward.findOneAndUpdate(
+                { wardId: wardId },
+                data,
+                { new: true }
+            );
+            resolve({
+                status: 'OK',
+                message: 'Update Ward success',
+                data: updatedWard
+            });
+        } catch (e) {
+            reject(e);
+        }
+    });
+};
+
+const deleteWard = (wardId) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const checkWard = await Ward.findOne({
+                wardId: wardId
+            });
+            if (!checkWard) {
+                reject('The Ward is not defined');
+            }
+            await Ward.findOneAndDelete({ wardId: wardId });
+            resolve({
+                status: 'OK',
+                message: 'Delete Ward success',
+            });
+        } catch (e) {
+            reject(e);
+        }
+    });
+};
+
+const getAllWard = () => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const allWard = await Ward.find()
+            resolve({
+                status: 'OK',
+                message: 'SUCCESS',
+                data: allWard
+
+            })
+        } catch (e) {
+            reject(e)
+        }
+    })
+}
+
+
 module.exports = {
     createWard,
     getWardName,
+    updateWard,
+    deleteWard,
+    getAllWard
 };
