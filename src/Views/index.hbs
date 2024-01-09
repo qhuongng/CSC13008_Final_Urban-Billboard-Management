@@ -31,9 +31,14 @@
         <div class="bottom-bar" id="bottom-bar"></div>
       </div>
       <div class="col-md-3 py-3" id="info-panel">
-        <div class="place-container">
-          <div class="card border-success text-success mb-3" id="place-info-pane">
-            <div class="card-body">
+        <div id="loading-pane" style="display:block">
+          <div class="alert alert-secondary" role="alert">
+            Đang tải dữ liệu...
+          </div>
+        </div>
+        <div id="place-container" style="display:none">
+          <div class=" card border-success text-success mb-3" id="place-info-pane">
+            <div class=" card-body">
               <h5 class="card-title">
                 <i class="bi bi-info-circle"></i>
                 Thông tin địa điểm
@@ -41,7 +46,7 @@
               <p class="card-text">Chưa có dữ liệu.</p>
             </div>
           </div>
-          <div id="billboard-container">
+          <div id="billboard-container" style="display:none">
             <div class="card border-info text-info mb-3" id="billboard-info-pane">
               <div class="card-body">
                 <h5 class="card-title">
