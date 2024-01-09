@@ -17,7 +17,7 @@ function errorLocation() {
 }
 
 function bottomController() {
-    const toggleableLayerIds = ["billboard", "report-violation"];
+    const toggleableLayerIds = ["unclustered-point", "reported-point"];
 
     for (const id of toggleableLayerIds) {
         if (document.getElementById(id)) {
@@ -27,7 +27,7 @@ function bottomController() {
         const link = document.createElement("div");
         link.id = id;
 
-        link.innerHTML = `<label class="switch"><input type="checkbox" id="${id}-checkbox" checked/><span class="slider"></span></label><p>${id === "billboard" ? "BẢNG QUẢNG CÁO" : "BÁO CÁO VI PHẠM"}</p>`;
+        link.innerHTML = `<label class="switch"><input type="checkbox" id="${id}-checkbox" checked/><span class="slider"></span></label><p>${id === "unclustered-point" ? "ĐIỂM ĐẶT BẢNG QUẢNG CÁO" : "BÁO CÁO VI PHẠM"}</p>`;
 
         // Append the link element to the document body or any desired container
         document.body.appendChild(link);
@@ -44,13 +44,11 @@ function bottomController() {
             const visibility = map.getLayoutProperty(clickedLayer, "visibility");
 
             if ((visibility === "visible" || visibility === undefined) && checkbox.checked) {
-                map.setLayoutProperty(clickedLayer, "visibility", "none");
                 checkbox.checked = false; // Uncheck the checkbox
-                toggleUnclusteredPointVisibility(clickedLayer, "none");
+                toggleLayerVisibility(clickedLayer, "none");
             } else {
-                map.setLayoutProperty(clickedLayer, "visibility", "visible");
                 checkbox.checked = true; // Check the checkbox
-                toggleUnclusteredPointVisibility(clickedLayer, "visible");
+                toggleLayerVisibility(clickedLayer, "visible");
             }
 
             map.triggerRepaint();
@@ -58,18 +56,20 @@ function bottomController() {
     }
 }
 
-function toggleUnclusteredPointVisibility(clickedLayer, visibility) {
-    if (clickedLayer === "billboard") {
+function toggleLayerVisibility(clickedLayer, visibility) {
+    if (clickedLayer === "unclustered-point") {
         map.setLayoutProperty("unclustered-point-label", "visibility", visibility);
         map.setLayoutProperty("unclustered-point", "visibility", visibility);
+        map.setLayoutProperty("clusters", "visibility", visibility);
+        map.setLayoutProperty("cluster-count", "visibility", visibility);
     } else {
         map.setLayoutProperty(
-            "unclustered-point-label-reported",
+            "reported-point",
             "visibility",
             visibility
         );
         map.setLayoutProperty(
-            "unclustered-point-reported",
+            "free-point",
             "visibility",
             visibility
         );
@@ -115,6 +115,35 @@ function setupMap(center) {
     map.addControl(geocoder, "top-left");
     map.addControl(new mapboxgl.GeolocateControl());
 
+    geocoder.on('result', (e) => {
+        // clear all the info panes if they exist
+        document.getElementById("billboard-container").innerHTML = "";
+
+        if (marker) {
+            marker.remove();
+        }
+
+        var billboardInfoPaneExists = document.getElementById("billboard-info-pane");
+
+        if (!billboardInfoPaneExists) {
+            const div = document.createElement("div");
+            div.setAttribute("id", "billboard-info-pane");
+            div.setAttribute("class", "card border-info text-info mb-3");
+
+            document.getElementById("billboard-container").appendChild(div);
+        }
+
+        document.getElementById("billboard-info-pane").innerHTML = `<div class="card-body">
+                                                                                        <h5 class="card-title">
+                                                                                        <i class="bi bi-info-circle"></i>
+                                                                                         Thông tin bảng quảng cáo
+                                                                                        </h5>
+                                                                                        <p class="card-text">Chưa có dữ liệu.</p>
+                                                                                    </div>`;
+
+        reverseGeocode({ lng: e.result.center[0], lat: e.result.center[1] }, false);
+    });
+
     map.on("style.load", () => {
         map.on("click", (e) => {
             // clear all the info panes if they exist
@@ -150,11 +179,11 @@ function setupMap(center) {
                                                                                             <p class="card-text">Chưa có dữ liệu.</p>
                                                                                         </div>`;
 
-            var features = map.queryRenderedFeatures(e.point);
+
             var isFreeReportedPoint = false;
 
             if (features[0] !== undefined && features[0].properties.name !== undefined) {
-                if (features[0].layer.id == "unclustered-point" || features[0].layer.id == "unclustered-point-label") {
+                if (features[0].layer.id == "unclustered-point" || features[0].layer.id == "unclustered-point-label" || features[0].layer.id == "reported-point") {
                     return;
                 }
 
@@ -339,11 +368,38 @@ function setupMap(center) {
                 layout: {
                     "text-field": ["get", "point_count_abbreviated"],
                     "text-font": ["DIN Offc Pro Medium", "Arial Unicode MS Bold"],
-                    "text-size": 12,
+                    "text-size": ["step", ["get", "point_count"], 12, 3, 16, 6, 20]
                 },
             });
 
-            // unclustered-point-label
+            map.addLayer({
+                id: "unclustered-point",
+                type: "circle",
+                source: "billboardPos",
+                filter: ["!", ["has", "point_count"]],
+                paint: {
+                    "circle-color": "#0000ff",
+                    "circle-radius": 10,
+                    "circle-stroke-width": 1,
+                    "circle-stroke-color": "#ffffff",
+                },
+            },
+            );
+
+            map.addLayer({
+                id: "reported-point",
+                type: "circle",
+                source: "billboardPos",
+                filter: ["all", ["!", ["has", "point_count"]], ["!=", ["get", "pointReport"], 0]],
+                paint: {
+                    "circle-color": "#ff0000",
+                    "circle-radius": 10,
+                    "circle-stroke-width": 1,
+                    "circle-stroke-color": "#ffffff",
+                },
+            },
+            );
+
             map.addLayer({
                 id: "unclustered-point-label",
                 type: "symbol",
@@ -362,34 +418,6 @@ function setupMap(center) {
                     "text-color": "#ffffff",
                 },
             });
-
-            map.addLayer({
-                id: "unclustered-point",
-                type: "circle",
-                source: "billboardPos",
-                filter: ["!", ["has", "point_count"]],
-                paint: {
-                    "circle-color": ["match", ["get", "pointReport"], 0, "#0000ff", "#ff0000"],
-                    "circle-radius": 10,
-                    "circle-stroke-width": 1,
-                    "circle-stroke-color": "#ffffff",
-                },
-            },
-                "unclustered-point-label"
-            );
-
-            map.addLayer({
-                id: "billboard",
-                type: "circle",
-                source: "billboardPos",
-                filter: [
-                    "all",
-                    ["!", ["has", "point_count"]],
-                    ["==", ["get", "reported"], 1],
-                ],
-            },
-                "unclustered-point"
-            );
 
             // inspect a cluster on click
             map.on("click", "clusters", (e) => {
@@ -435,7 +463,7 @@ function setupMap(center) {
                 popup.setLngLat(coordinates).setHTML(description).addTo(map);
             });
 
-            map.on("click", "unclustered-point", (e) => {
+            map.on("click", ["unclustered-point", "reported-point"], (e) => {
                 const props = e.features[0].properties;
 
                 const pointId = props.id;
