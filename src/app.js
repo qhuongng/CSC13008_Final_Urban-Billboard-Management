@@ -35,7 +35,7 @@ app.set("view engine", "hbs");
 app.set("views", path.join(__dirname, "Views"));
 
 app.get("/", (req, res) => {
-  res.render("index");
+  res.render("department");
 });
 
 mongoose

@@ -18,6 +18,7 @@ const createUser = (newUser) => {
 
             const hash = bcrypt.hashSync(password, 10)
 
+            console.log(hash)
             if (checkUser === null) {
                 const createUser = await User.create({
                     name,
