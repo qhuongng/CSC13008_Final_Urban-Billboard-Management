@@ -17,10 +17,28 @@ const corsOption = {
 }
 app.use(cors(corsOption));// sau này chỉnh lại thành đg dẫn mặc định
 app.use(bodyParser.urlencoded({ extended: true }));
-
 app.use(bodyParser.json());
+
+app.use(session({
+  secret: 'keyboard cat',
+  resave: false,
+  saveUninitialized: true,
+  cookie: {}
+}));
+
 app.use(express.static(__dirname + "/public"));
 //app.use("/static", express.static("static"));
+
+app.use(function (req, res, next) {
+  if (typeof (req.session.auth) === 'undefined') {
+    req.session.auth = false;
+  }
+
+  res.locals.auth = req.session.auth;
+  res.locals.authUser = req.session.authUser;
+  res.locals.token = req.session.token;
+  next();
+});
 
 routes(app);
 
@@ -28,6 +46,7 @@ app.engine(
   "hbs",
   handlebars.engine({
     extname: "hbs",
+    defaultLayout: 'main',
   })
 );
 
@@ -37,7 +56,6 @@ app.set("views", path.join(__dirname, "Views"));
 app.get("/", (req, res) => {
   res.render("department");
 });
-
 mongoose
   .connect(`${process.env.MONGO_URL}`)
   .then(() => {
