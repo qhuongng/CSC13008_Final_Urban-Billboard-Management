@@ -56,6 +56,23 @@ app.set("views", path.join(__dirname, "Views"));
 app.get("/", (req, res) => {
   res.render("wardDistrict");
 });
+
+app.get('/addDistrict', (req, res) => {
+  res.render('addDistrict');
+});
+
+app.get('/addWard', (req, res) => {
+  res.render('addWard');
+});
+
+app.get('/editDistrict', (req, res) => {
+  res.render('editDistrict');
+});
+
+app.get('/editWard', (req, res) => {
+  res.render('editWard');
+});
+
 mongoose
   .connect(`${process.env.MONGO_URL}`)
   .then(() => {
