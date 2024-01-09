@@ -115,6 +115,35 @@ function setupMap(center) {
     map.addControl(geocoder, "top-left");
     map.addControl(new mapboxgl.GeolocateControl());
 
+    geocoder.on('result', (e) => {
+        // clear all the info panes if they exist
+        document.getElementById("billboard-container").innerHTML = "";
+
+        if (marker) {
+            marker.remove();
+        }
+
+        var billboardInfoPaneExists = document.getElementById("billboard-info-pane");
+
+        if (!billboardInfoPaneExists) {
+            const div = document.createElement("div");
+            div.setAttribute("id", "billboard-info-pane");
+            div.setAttribute("class", "card border-info text-info mb-3");
+
+            document.getElementById("billboard-container").appendChild(div);
+        }
+
+        document.getElementById("billboard-info-pane").innerHTML = `<div class="card-body">
+                                                                                        <h5 class="card-title">
+                                                                                        <i class="bi bi-info-circle"></i>
+                                                                                         Thông tin bảng quảng cáo
+                                                                                        </h5>
+                                                                                        <p class="card-text">Chưa có dữ liệu.</p>
+                                                                                    </div>`;
+
+        reverseGeocode({ lng: e.result.center[0], lat: e.result.center[1] }, false);
+    });
+
     map.on("style.load", () => {
         map.on("click", (e) => {
             // clear all the info panes if they exist
