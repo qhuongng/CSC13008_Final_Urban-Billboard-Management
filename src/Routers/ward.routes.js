@@ -6,4 +6,6 @@ router.post('/createWard', wardController.createWard),
 router.put("/update-ward/:id", wardController.updateWard);
 router.delete("/delete-ward/:id", wardController.deleteWard);
 
+router.get("/getAll-ward", wardController.getAllWard);
+
 module.exports = router

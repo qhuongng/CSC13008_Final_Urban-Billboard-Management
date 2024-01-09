@@ -58,8 +58,20 @@ const deleteWard = async (req, res) => {
     }
 }
 
+const getAllWard = async (req, res) => {
+    try {
+        const response = await WardService.getAllWard()
+        return res.status(200).json(response)
+    } catch (e) {
+        return res.status(404).json({
+            message: e
+        })
+    }
+}
+
 module.exports = {
     createWard,
     updateWard,
-    deleteWard
+    deleteWard,
+    getAllWard
 }
