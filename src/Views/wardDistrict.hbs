@@ -7,7 +7,6 @@
     <title>Department Page</title>
     <style>
         body {
-            padding: 20px;
             font-family: Arial, sans-serif;
         }
 
@@ -31,7 +30,8 @@
             width: 100%;
         }
 
-        th, td {
+        th,
+        td {
             border: 1px solid #ddd;
             padding: 8px;
             text-align: left;
@@ -88,7 +88,7 @@
         function showWards(district) {
             // Assuming you have a list of wards for each district
             var wards = getWardsForDistrict(district);
-            
+
             // Display the wards in the #wardTable element
             var wardTable = document.getElementById("wardTable");
             var wardTableBody = wardTable.getElementsByTagName("tbody")[0];
