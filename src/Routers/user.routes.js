@@ -15,7 +15,7 @@ router.get("/getDetails-user/:id", userController.getDetailsUser);
 
 router.get("/login", (req, res) => {
   res.render("login", {
-    //Partials: false
+    layout: false
   });
 });
 

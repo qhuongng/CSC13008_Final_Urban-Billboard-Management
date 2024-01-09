@@ -50,8 +50,6 @@ const createUser = async (req, res) => {
 const loginUser = async (req, res) => {
     try {
         const { email, password } = req.body
-        const reg = /^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/
-        const isCheckEmail = reg.test(email)
 
         if (!email && !password) {
             return res.status(404).json({
@@ -68,13 +66,9 @@ const loginUser = async (req, res) => {
                 status: 'ERR',
                 message: 'Please input your password'
             })
-        } else if (!isCheckEmail) {
-            return res.status(404).json({
-                status: 'ERR',
-                message: 'Email format is invalid. Please check the email and try again.'
-            })
         }
         const response = await UserService.loginUser(req.body)
+
         const userLogin = response.checkUser;
         const token = response.accessToken;
         delete userLogin.password;
@@ -84,9 +78,13 @@ const loginUser = async (req, res) => {
         const url = req.session.retUrl || '/';
         res.redirect(url);
     } catch (e) {
-        return res.status(404).json({
-            message: e
+        return res.render('login', {
+            layout: false,
+            err_message: e
         })
+        // return res.status(404).json({
+        //     message: e
+        // })
     }
 }
 
