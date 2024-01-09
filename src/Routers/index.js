@@ -9,6 +9,7 @@ const ReportTypeRouter = require("./reportType.routes");
 const ReportRouter = require("./report.routes");
 const ReportImgRouter = require("./reportImg.routes");
 const UserRouter = require("./user.routes");
+const { authLogin } = require("../Middleware/authLogin");
 
 const routes = (app) => {
   // đường dẫn dùng cho citizen
@@ -23,6 +24,10 @@ const routes = (app) => {
   app.use("/api/report", ReportRouter);
   app.use("/api/reportImg", ReportImgRouter);
   app.use('/api/user', UserRouter);
+  // dùng để debug
+  app.use('/api/demo', authLogin, (req, res) => {
+    res.render('demo')
+  });
 };
 
 module.exports = routes;

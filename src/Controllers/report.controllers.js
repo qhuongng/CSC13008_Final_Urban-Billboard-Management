@@ -29,15 +29,16 @@ const createReport = async (req, res) => {
         }
         const district = req.query.district
         const ward = req.query.ward
+        const address = req.query.address
         const { reportType, name, email, phone, content } = req.body
-        if (!reportType || !name || !email || !phone || !content || !district || !ward) {
+        if (!reportType || !name || !email || !phone || !content || !district || !ward || !address) {
             return res.status(404).json({
                 status: "ERR",
                 message: "The input is required",
             });
         }
         const imgId = savedFile.map(file => file._id);
-        const report = await reportService.createReport(panelId, locate, req.body, imgId, district, ward);
+        const report = await reportService.createReport(panelId, locate, req.body, imgId, district, ward, address);
         res.status(200).json(report.data);
     } catch (e) {
         return res.status(404).json({

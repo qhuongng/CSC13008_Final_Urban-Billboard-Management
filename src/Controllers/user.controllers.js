@@ -2,12 +2,12 @@ const UserService = require('../Services/user.services');
 
 const createUser = async (req, res) => {
     try {
-        const { name, email, password, confirmPassword, phone, role } = req.body
+        const { name, email, password, phone, role } = req.body
         const reg = /^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/
         const isCheckEmail = reg.test(email)
         const allowedRoles = ['Ward', 'District', 'Department'];
 
-        if (!name && !email && !password && !confirmPassword && !phone && !role) {
+        if (!name && !email && !password && !phone && !role) {
             return res.status(404).json({
                 status: 'ERR',
                 message: 'Please input your information'
@@ -31,11 +31,6 @@ const createUser = async (req, res) => {
             return res.status(404).json({
                 status: 'ERR',
                 message: 'Email format is invalid. Please check the email and try again.'
-            })
-        } else if (password !== confirmPassword) {
-            return res.status(404).json({
-                status: 'ERR',
-                message: `Passwords don't match. Please try again.`
             })
         } else if (!allowedRoles.includes(role)) {
             return res.status(404).json({
@@ -80,7 +75,14 @@ const loginUser = async (req, res) => {
             })
         }
         const response = await UserService.loginUser(req.body)
-        return res.status(200).json(response)
+        const userLogin = response.checkUser;
+        const token = response.accessToken;
+        delete userLogin.password;
+        req.session.auth = true;
+        req.session.authUser = userLogin;
+        req.session.accessToken = token;
+        const url = req.session.retUrl || '/';
+        res.redirect(url);
     } catch (e) {
         return res.status(404).json({
             message: e
