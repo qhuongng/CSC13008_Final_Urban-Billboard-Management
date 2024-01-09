@@ -69,9 +69,22 @@ const getAllWard = async (req, res) => {
     }
 }
 
+const getDetailWard = async (req, res) => {
+    const districtId = req.params.id;
+
+    try {
+        const response = await WardService.getWardsByDistrictId(districtId);
+        return res.status(200).json(response);
+    } catch (e) {
+        return res.status(500).json({ message: e.message });
+    }
+};
+
+
 module.exports = {
     createWard,
     updateWard,
     deleteWard,
-    getAllWard
+    getAllWard,
+    getDetailWard
 }
