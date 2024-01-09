@@ -7,5 +7,6 @@ router.put("/update-ward/:id", wardController.updateWard);
 router.delete("/delete-ward/:id", wardController.deleteWard);
 
 router.get("/getAll-ward", wardController.getAllWard);
+router.get("/getDetail-ward/:id", wardController.getDetailWard);
 
 module.exports = router
