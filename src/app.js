@@ -54,7 +54,7 @@ app.set("view engine", "hbs");
 app.set("views", path.join(__dirname, "Views"));
 
 app.get("/", (req, res) => {
-  res.render("department");
+  res.render("wardDistrict");
 });
 mongoose
   .connect(`${process.env.MONGO_URL}`)
