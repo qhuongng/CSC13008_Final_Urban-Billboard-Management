@@ -7,7 +7,7 @@ const authMiddleware = (allowedRoles) => (req, res, next) => {
     jwt.verify(token, process.env.ACCESS_TOKEN, function (err, user) {
         if (err) {
             return res.status(404).json({
-                message: 'Your access timed out',
+                message: 'Your access is timed out',
                 status: 'ERR'
             })
         }
@@ -25,5 +25,5 @@ const authMiddleware = (allowedRoles) => (req, res, next) => {
 
 
 module.exports = {
-    authMiddleware,
+    authMiddleware
 }

@@ -15,7 +15,7 @@ const createUser = (newUser) => {
                 reject('The email is already');
             }
             const hash = bcrypt.hashSync(password, 10)
-
+            
             if (checkUser === null) {
                 console.log(1);
                 const createUser = await User.create({
