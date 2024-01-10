@@ -54,23 +54,23 @@ app.set("view engine", "hbs");
 app.set("views", path.join(__dirname, "Views"));
 
 app.get("/", (req, res) => {
-  res.render("index");
+  res.render("wardDistrict");
 });
 
 app.get('/addDistrict', (req, res) => {
-  res.render('addDistrict');
+  res.render('Controls/addDistrict');
 });
 
 app.get('/addWard', (req, res) => {
-  res.render('addWard');
+  res.render('Controls/addWard');
 });
 
 app.get('/editDistrict', (req, res) => {
-  res.render('editDistrict');
+  res.render('Controls/editDistrict');
 });
 
 app.get('/editWard', (req, res) => {
-  res.render('editWard');
+  res.render('Controls/editWard');
 });
 
 mongoose

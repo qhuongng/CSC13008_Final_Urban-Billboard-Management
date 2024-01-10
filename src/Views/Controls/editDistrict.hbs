@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    .container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 90vh;
+      margin: 0;
+    }
+
+    .card {
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      margin: 20px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      line-height: 2.15;
+      max-width: 700px;
+      width: 100%;
+    }
+
+    .card-header {
+      text-align: center;
+      background-color: #3498db;
+      color: #ffffff;
+      padding: 15px;
+      border-bottom: 1px solid #ddd;
+      border-radius: 7px 7px 0 0;
+    }
+
+    .card-body {
+      padding: 20px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      color: #333;
+    }
+
+    input.form-control {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      margin-bottom: 10px;
+      box-sizing: border-box;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    .card-footer {
+      border-top: 1px solid #ddd;
+      padding: 15px;
+      text-align: right;
+      border-radius: 0 0 7px 7px;
+    }
+
+    .btn-outline-success {
+      color: #28a745;
+      border: 2px solid #28a745;
+      background-color: #ffffff;
+    }
+
+    .btn-outline-success:hover {
+      background-color: #28a745;
+      color: #ffffff;
+    }
+
+    .btn-primary {
+      background-color: #3498db;
+      color: #ffffff;
+      border: 2px solid #3498db;
+    }
+
+    .btn-primary:hover {
+      background-color: #2e86de;
+      border: 2px solid #2e86de;
+    }
+  </style>
+</head>
+
+<body>
+
+  <form id="editDistrictForm" action="" method="">
+    <div class="container">
+      <div class="card">
+        <h5 class="card-header">
+          Edit District
+        </h5>
+        <div class="card-body">
+          <div class="form-group">
+            <label for="districtId">District ID</label>
+            <input type="text" name="disId" id="districtId" class="form-control" readonly value="{{districtId}}">
+          </div>
+          <div class="form-group">
+            <label for="txtDisName">District Name</label>
+            <input type="text" name="disName" id="txtDisName" class="form-control" placeholder="Quận 1" autofocus
+              value="{{txtDisName}}">
+          </div>
+        </div>
+        <div class="card-footer text-muted">
+          <a class="btn btn-outline-success" href="/" role="button">
+            <i class="bi bi-skip-backward-fill"></i>
+            Back
+          </a>
+          <button type="button" class="btn btn-danger" id="deleteButton">
+            <i class="bi bi-trash-fill"></i>
+            Delete
+          </button>
+          <button type="button" class="btn btn-primary" id="saveButton">
+            <i class="bi bi-check2"></i>
+            Save
+          </button>
+        </div>
+      </div>
+    </div>
+  </form>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const urlParams = new URLSearchParams(window.location.search);
+      const districtId = urlParams.get('districtId');
+      const districtName = urlParams.get('districtName')
+
+      // Set districtId value
+      const districtIdInput = document.getElementById('districtId');
+      if (districtIdInput) {
+        districtIdInput.value = districtId;
+      }
+
+      // Set districtName placeholder
+      const txtDisNameInput = document.getElementById('txtDisName');
+      if (txtDisNameInput) {
+        txtDisNameInput.placeholder = districtName;
+      }
+
+      // Create a notification element for messages
+      const notificationElement = document.createElement('div');
+      notificationElement.id = 'notification';
+      document.body.appendChild(notificationElement);
+
+      // Function to show notification
+      const showNotification = (message, success = true) => {
+        const notification = document.getElementById('notification');
+        notification.textContent = message;
+        notification.style.backgroundColor = success ? '#28a745' : '#dc3545'; // Green for success, red for error
+        notification.style.color = '#ffffff'; // White text color
+        notification.style.padding = '20px';
+        notification.style.position = 'fixed';
+        notification.style.top = '0';
+        notification.style.right = '0';
+        notification.style.zIndex = '1000';
+        notification.style.display = 'block';
+
+        setTimeout(() => {
+          notification.style.display = 'none';
+        }, 3000); // Hide after 3 seconds (adjust as needed)
+      };
+
+      // Function to send PUT request
+      const sendPutRequest = async () => {
+        try {
+          const response = await fetch(`http://localhost:3500/api/district/update-district/${districtId}`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              disName: txtDisNameInput.value
+            }),
+          });
+
+          if (response.ok) {
+            // Handle successful response
+            showNotification('Update successful!', true);
+            setTimeout(() => {
+              window.location.href = '/';
+            }, 2000); // Redirect after 2 seconds (adjust as needed)
+          } else {
+            // Handle error response
+            showNotification('Update failed. Please try again.', false);
+          }
+        } catch (error) {
+          console.error('Error:', error);
+          showNotification('An error occurred. Please try again.', false);
+        }
+      };
+
+      // Function to send DELETE request
+      const sendDeleteRequest = async () => {
+        try {
+          const response = await fetch(`http://localhost:3500/api/district/delete-district/${districtId}`, {
+            method: 'DELETE',
+          });
+
+          if (response.ok) {
+            // Handle successful response
+            showNotification('Delete successful!', true);
+            setTimeout(() => {
+              window.location.href = '/';
+            }, 2000); // Redirect after 2 seconds (adjust as needed)
+          } else {
+            // Handle error response
+            showNotification('Delete failed. Please try again.', false);
+          }
+        } catch (error) {
+          console.error('Error:', error);
+          showNotification('An error occurred. Please try again.', false);
+        }
+      };
+
+      // Add click event listeners to buttons
+      const saveButton = document.getElementById('saveButton');
+      const deleteButton = document.getElementById('deleteButton');
+
+      if (saveButton) {
+        saveButton.addEventListener('click', sendPutRequest);
+      }
+
+      if (deleteButton) {
+        deleteButton.addEventListener('click', sendDeleteRequest);
+      }
+    });
+  </script>
+</body>
+
+</html>
