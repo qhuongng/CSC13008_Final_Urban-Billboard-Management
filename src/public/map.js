@@ -13,7 +13,7 @@ function successLocation(position) {
 }
 
 function errorLocation() {
-    setupMap([106.68247638583301, 10.77121635650299]);
+    setupMap([106.67908367285673, 10.75305989852285]);
 }
 
 function bottomController() {
@@ -66,8 +66,8 @@ function toggleLayerVisibility(clickedLayer, visibility) {
     } else if (clickedLayer === "unclustered-point-zoned") {
         map.setLayoutProperty("unclustered-point-zoned-label", "visibility", visibility);
         map.setLayoutProperty("unclustered-point-zoned", "visibility", visibility);
-        map.setLayoutProperty("clusters", "visibility", visibility);
-        map.setLayoutProperty("cluster-count", "visibility", visibility);
+        map.setLayoutProperty("clusters-zoned", "visibility", visibility);
+        map.setLayoutProperty("cluster-zoned-count", "visibility", visibility);
     }
     else {
         map.setLayoutProperty("reported-point", "visibility", visibility);
@@ -208,6 +208,7 @@ function setupMap(center) {
         bottomController();
 
         let dbPointJson;
+        let dbZonedPointJson;
         let freePointJson;
         let localReports = [];
 
@@ -216,6 +217,10 @@ function setupMap(center) {
             let reportData = await loadReports();
 
             dbPointJson = {
+                features: [],
+            };
+
+            dbZonedPointJson = {
                 features: [],
             };
 
@@ -278,7 +283,11 @@ function setupMap(center) {
                     },
                 };
 
-                dbPointJson.features.push(point);
+                if (point.properties.isZoning === true) {
+                    dbZonedPointJson.features.push(point);
+                } else {
+                    dbPointJson.features.push(point);
+                }
             }
 
             // hide the loading panel and display info panels
@@ -290,14 +299,14 @@ function setupMap(center) {
                 if (reportData[i]) {
                     let report = localStorage.getItem(reportData[i]._id);
 
-                    if (report && JSON.parse(report).idPanel == 0) {
+                    if (report && JSON.parse(report).idPanel == "0") {
                         let reportJson = JSON.parse(report);
 
                         let point = {
                             type: "Feature",
                             geometry: {
                                 type: "Point",
-                                coordinates: reportJson.locate,
+                                coordinates: [parseFloat(reportJson.locate[0]), parseFloat(reportJson.locate[1])]
                             },
                             properties: {
                                 long: reportJson.locate[0],
@@ -307,8 +316,9 @@ function setupMap(center) {
                                 name: reportJson.name,
                                 email: reportJson.email,
                                 phone: reportJson.phone,
-                                content: reportJson.content,
+                                content: reportJson.content.replace(/"/g, '\\"'),
                                 reportPicture: reportJson.reportPicture,
+                                idPanel: reportJson.idPanel,
                                 state: reportJson.state,
                                 actionHandler: reportJson.actionHandler,
                                 address: reportJson.address,
@@ -324,72 +334,40 @@ function setupMap(center) {
 
             map.addSource("billboardPos", {
                 type: "geojson",
+                data: dbZonedPointJson,
+                cluster: true,
+                clusterMaxZoom: 14, // Max zoom to cluster points on
+                clusterRadius: 50, // Radius of each cluster when clustering points (defaults to 50)
+            });
+
+            map.addSource("unzonedPos", {
+                type: "geojson",
                 data: dbPointJson,
                 cluster: true,
                 clusterMaxZoom: 14, // Max zoom to cluster points on
                 clusterRadius: 50, // Radius of each cluster when clustering points (defaults to 50)
             });
 
-            map.loadImage(
-                "/free-point.png",
-                (error, image) => {
-                    if (error) throw error;
-
-                    // Add the image to the map style.
-                    map.addImage('free-point', image);
-
-                    // Add a data source containing one point feature.
-                    map.addSource("freePos", {
-                        type: "geojson",
-                        data: freePointJson,
-                        cluster: true,
-                        clusterMaxZoom: 14, // Max zoom to cluster points on
-                        clusterRadius: 50, // Radius of each cluster when clustering points (defaults to 50)
-                    });
-
-                    // Add a layer to use the image to represent the data.
-                    map.addLayer({
-                        id: "free-point",
-                        type: "symbol",
-                        source: "freePos",
-                        layout: {
-                            "icon-image": 'free-point',
-                            "visibility": "visible"
-                        }
-                    },
-                        "clusters"
-                    );
-                }
-            );
-
             map.addLayer({
-                id: "clusters",
+                id: "unclustered-point",
                 type: "circle",
-                source: "billboardPos",
-                filter: ["has", "point_count"],
+                source: "unzonedPos",
+                filter: [
+                    "all",
+                    ["!", ["has", "point_count"]],
+                    ["==", ["get", "isZoning"], false],
+                ],
                 layout: {
                     "visibility": "visible"
                 },
                 paint: {
-                    "circle-color": ["step", ["get", "point_count"], "#51bbd6", 3, "#f1f075", 6, "#f28cb1"],
-                    "circle-radius": ["step", ["get", "point_count"], 20, 3, 30, 6, 40],
-                    "circle-stroke-width": 2,
+                    "circle-color": "#8f8f8f",
+                    "circle-radius": 10,
+                    "circle-stroke-width": 1,
                     "circle-stroke-color": "#ffffff",
                 },
-            });
-
-            map.addLayer({
-                id: "cluster-count",
-                type: "symbol",
-                source: "billboardPos",
-                filter: ["has", "point_count"],
-                layout: {
-                    "visibility": "visible",
-                    "text-field": ["get", "point_count_abbreviated"],
-                    "text-font": ["DIN Offc Pro Medium", "Arial Unicode MS Bold"],
-                    "text-size": ["step", ["get", "point_count"], 12, 3, 16, 6, 20]
-                },
-            });
+            },
+            );
 
             map.addLayer({
                 id: "unclustered-point-zoned",
@@ -413,27 +391,6 @@ function setupMap(center) {
             );
 
             map.addLayer({
-                id: "unclustered-point",
-                type: "circle",
-                source: "billboardPos",
-                filter: [
-                    "all",
-                    ["!", ["has", "point_count"]],
-                    ["==", ["get", "isZoning"], false],
-                ],
-                layout: {
-                    "visibility": "visible"
-                },
-                paint: {
-                    "circle-color": "#8f8f8f",
-                    "circle-radius": 10,
-                    "circle-stroke-width": 1,
-                    "circle-stroke-color": "#ffffff",
-                },
-            },
-            );
-
-            map.addLayer({
                 id: "reported-point",
                 type: "circle",
                 source: "billboardPos",
@@ -449,6 +406,101 @@ function setupMap(center) {
                 },
             },
             );
+
+            map.addLayer({
+                id: "clusters",
+                type: "circle",
+                source: "unzonedPos",
+                filter: ["has", "point_count"],
+                layout: {
+                    "visibility": "visible"
+                },
+                paint: {
+                    "circle-color": "#8f8f8f",
+                    "circle-radius": ["step", ["get", "point_count"], 20, 3, 30, 6, 40],
+                    "circle-stroke-width": 2,
+                    "circle-stroke-color": "#ffffff",
+                },
+            });
+
+            map.loadImage(
+                "/free-point.png",
+                (error, image) => {
+                    if (error) throw error;
+
+                    // add the image to the map style
+                    map.addImage('free-point', image);
+
+                    map.addSource("freePos", {
+                        type: "geojson",
+                        data: freePointJson,
+                        cluster: true,
+                        clusterMaxZoom: 14, // Max zoom to cluster points on
+                        clusterRadius: 50, // Radius of each cluster when clustering points (defaults to 50)
+                    });
+
+                    // Add a layer to use the image to represent the data.
+                    map.addLayer({
+                        id: "free-point",
+                        type: "symbol",
+                        source: "freePos",
+                        filter: ["!", ["has", "point_count"]],
+                        layout: {
+                            "icon-image": 'free-point',
+                            "visibility": "visible"
+                        }
+                    }, "clusters"
+                    );
+                }
+            );
+
+            map.addLayer({
+                id: "cluster-count",
+                type: "symbol",
+                source: "unzonedPos",
+                filter: ["has", "point_count"],
+                layout: {
+                    "visibility": "visible",
+                    "text-field": ["get", "point_count_abbreviated"],
+                    "text-font": ["DIN Offc Pro Medium", "Arial Unicode MS Bold"],
+                    "text-size": ["step", ["get", "point_count"], 12, 3, 16, 6, 20]
+                },
+                paint: {
+                    "text-color": "#ffffff",
+                },
+            });
+
+            map.addLayer({
+                id: "clusters-zoned",
+                type: "circle",
+                source: "billboardPos",
+                filter: ["has", "point_count"],
+                layout: {
+                    "visibility": "visible"
+                },
+                paint: {
+                    "circle-color": "#0000ff",
+                    "circle-radius": ["step", ["get", "point_count"], 20, 3, 30, 6, 40],
+                    "circle-stroke-width": 2,
+                    "circle-stroke-color": "#ffffff",
+                },
+            });
+
+            map.addLayer({
+                id: "cluster-zoned-count",
+                type: "symbol",
+                source: "billboardPos",
+                filter: ["has", "point_count"],
+                layout: {
+                    "visibility": "visible",
+                    "text-field": ["get", "point_count_abbreviated"],
+                    "text-font": ["DIN Offc Pro Medium", "Arial Unicode MS Bold"],
+                    "text-size": ["step", ["get", "point_count"], 12, 3, 16, 6, 20]
+                },
+                paint: {
+                    "text-color": "#ffffff",
+                },
+            });
 
             map.addLayer({
                 id: "unclustered-point-label",
@@ -497,17 +549,32 @@ function setupMap(center) {
                 const features = map.queryRenderedFeatures(e.point, {
                     layers: ["clusters"],
                 });
-                const clusterId = features[0].properties.cluster_id;
-                map
-                    .getSource("billboardPos")
-                    .getClusterExpansionZoom(clusterId, (err, zoom) => {
-                        if (err) return;
 
-                        map.easeTo({
-                            center: features[0].geometry.coordinates,
-                            zoom: zoom,
-                        });
+                const clusterId = features[0].properties.cluster_id;
+                map.getSource("unzonedPos").getClusterExpansionZoom(clusterId, (err, zoom) => {
+                    if (err) return;
+
+                    map.easeTo({
+                        center: features[0].geometry.coordinates,
+                        zoom: zoom,
                     });
+                });
+            });
+
+            map.on("click", "clusters-zoned", (e) => {
+                const features = map.queryRenderedFeatures(e.point, {
+                    layers: ["clusters-zoned"],
+                });
+
+                const clusterId = features[0].properties.cluster_id;
+                map.getSource("billboardPos").getClusterExpansionZoom(clusterId, (err, zoom) => {
+                    if (err) return;
+
+                    map.easeTo({
+                        center: features[0].geometry.coordinates,
+                        zoom: zoom,
+                    });
+                });
             });
 
             const popup = new mapboxgl.Popup({
@@ -581,7 +648,7 @@ function setupMap(center) {
                         phone: pointReport.phone,
                         reportType: pointReport.reportType,
                         reportImgId: pointReport.reportPicture,
-                        content: pointReport.content,
+                        content: pointReport.content.replace(/"/g, '\\"'),
                         address: pointReport.address,
                         state: pointReport.state,
                         actionHandler: pointReport.actionHandler
@@ -684,7 +751,7 @@ function setupMap(center) {
                                             phone: panelReport.phone,
                                             reportType: panelReport.reportType,
                                             reportImgId: panelReport.reportPicture,
-                                            content: panelReport.content,
+                                            content: panelReport.content.replace(/"/g, '\\"'),
                                             address: panelReport.address,
                                             state: panelReport.state,
                                             actionHandler: panelReport.actionHandler
@@ -774,7 +841,7 @@ function setupMap(center) {
                     phone: props.phone,
                     reportType: props.reportType,
                     reportImgId: JSON.parse(props.reportPicture),
-                    content: props.content,
+                    content: props.content.replace(/"/g, '\\"'),
                     address: props.address,
                     state: props.state,
                     actionHandler: props.actionHandler
