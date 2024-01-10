@@ -171,7 +171,7 @@
                         container.appendChild(districtName);
 
                         const editButton = document.createElement('a');
-                        editButton.href = `/editDistrict?id=${district.disId}`;
+                        editButton.href = `/editDistrict?districtId=${district.disId}&districtName=${encodeURIComponent(district.disName)}`;
                         editButton.classList.add('btn', 'btn-sm', 'btn-primary');
                         editButton.role = 'button';
                         editButton.innerHTML = '<i class="bi bi-pencil-square"></i> Edit';
@@ -237,7 +237,7 @@
 
                             // Edit button
                             const editButton = document.createElement('a');
-                            editButton.href = `/editWard?id=${ward.wardId}`;
+                            editButton.href = `/editWard?wardId=${ward.wardId}&wardName=${encodeURIComponent(ward.wardName)}`;
                             editButton.classList.add('btn', 'btn-sm', 'btn-primary');
                             editButton.role = 'button';
                             editButton.innerHTML = '<i class="bi bi-pencil-square"></i> Edit';
