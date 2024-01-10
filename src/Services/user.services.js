@@ -15,7 +15,7 @@ const createUser = (newUser) => {
                 reject('The email is already');
             }
             const hash = bcrypt.hashSync(password, 10)
-            
+
             if (checkUser === null) {
                 console.log(1);
                 const createUser = await User.create({
@@ -78,6 +78,29 @@ const updateUser = (id, data) => {
                 reject('The user is not defined');
             }
             const updatedUser = await User.findByIdAndUpdate(id, data, { new: true })
+            resolve({
+                status: 'OK',
+                message: 'Update user success',
+                data: updatedUser
+            })
+        } catch (e) {
+            reject(e)
+        }
+    })
+}
+
+const updatePassWord = (email, password) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const checkUser = await User.findOne({
+                email: email
+            })
+            if (checkUser === null) {
+                reject('The user is not defined');
+            }
+            const hash = bcrypt.hashSync(password, 10)
+            const updatePassWord = { $set: { password: hash } }
+            const updatedUser = await User.findOneAndUpdate({ email: email }, updatePassWord, { new: true })
             resolve({
                 status: 'OK',
                 message: 'Update user success',
@@ -153,5 +176,6 @@ module.exports = {
     updateUser,
     deleteUser,
     getAllUser,
-    getDetailsUser
+    getDetailsUser,
+    updatePassWord
 }

@@ -20,7 +20,7 @@ const pointSchema = new mongoose.Schema(
         picturePoint: { type: String, require: true },//"https://drive.google.com/uc?id=your_file_id"
         // đã quy hoạch chưa
         isZoning: { type: Boolean, default: false, require: true },
-
+        havePanel: { type: Boolean, default: false }
     },
     {
         timestamps: true,

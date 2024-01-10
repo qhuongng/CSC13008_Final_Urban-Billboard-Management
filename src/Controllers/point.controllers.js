@@ -76,6 +76,16 @@ const updatePoint = async (req, res) => {
         });
     }
 };
+
+// const updateHavePanel = async (req, res) => {
+//     try {
+
+//     } catch (e) {
+//         return res.status(404).json({
+//             message: e,
+//         });
+//     }
+// }
 module.exports = {
     createPoint,
     getAllPoint,

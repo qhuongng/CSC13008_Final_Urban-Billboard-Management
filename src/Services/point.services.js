@@ -1,6 +1,7 @@
 const Point = require("../Models/Point");
 const Ward = require("../Models/Ward");
 const District = require("../Models/District");
+const Panel = require("../Models/Panel")
 const wardServices = require("../Services/ward.services");
 const districtServices = require("../Services/district.services");
 const positionServices = require("../Services/positionType.services");
@@ -49,6 +50,7 @@ const createPoint = (newPoint) => {
                     formAdvertising,
                     picturePoint,
                     isZoning,
+                    havePanel: false
                 });
                 if (newPoint) {
                     resolve({
@@ -136,9 +138,49 @@ const updatePoint = (id, data) => {
         }
     });
 };
+const updateHavePanel = (id) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const checkPoint = await Point.findOne({
+                _id: id,
+            });
+            if (checkPoint === null) {
+                reject("The Point is not defined")
+            }
+            const checkPanel = await Panel.findOne({
+                idPoint: id
+            })
+            if (checkPanel) {
+                const update = { $set: { havePanel: true } }
+                const updatePoint = Point.findOneAndUpdate(
+                    { _id: id },
+                    update,
+                    { new: true }
+                )
+                resolve({
+                    data: updatePoint
+                })
+            }
+            else {
+                const update = { $set: { havePanel: false } }
+                const updatePoint = Point.findOneAndUpdate(
+                    { _id: id },
+                    update,
+                    { new: true }
+                )
+                resolve({
+                    data: updatePoint
+                })
+            }
+        } catch (e) {
+            reject(e)
+        }
+    })
+}
 module.exports = {
     createPoint,
     getAllPoint,
     deletePoint,
     updatePoint,
+    updateHavePanel
 };

@@ -18,5 +18,10 @@ router.get("/login", (req, res) => {
     layout: false
   });
 });
+router.get('/resetPassword', (req, res) => {
+  res.render("resetPassword", {
+    layout: false
+  });
+})
 
 module.exports = router;

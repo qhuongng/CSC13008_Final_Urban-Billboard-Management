@@ -44,7 +44,7 @@ const createReport = (idPanel, locate, newReport, imgId, district, ward, address
                             <td></td>
                             <td></td>
                             <td></td>
-                            <td style="color: yellow;"><h4>${createReport.address}</h4></td>
+                            <td><h4>${createReport.address}</h4></td>
                         </tr>   
                         <tr>
                             <td><h4>Tình trạng xử lí: </h4></td>
