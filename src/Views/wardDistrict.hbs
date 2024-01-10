@@ -215,8 +215,6 @@
             fetch(`http://localhost:3500/api/ward/getDetail-ward/${district}`)
                 .then(response => response.json())
                 .then(data => {
-                    console.log('Wards Response:', data); // Check the received data in the console
-
                     // Ensure that data is an array before using forEach
                     if (Array.isArray(data.data)) {
                         const wardTableBody = document.getElementById('wardBody');
