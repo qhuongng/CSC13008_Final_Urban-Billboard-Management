@@ -1,0 +1,38 @@
+<form action="" method="post">
+  <div class="card">
+    <h5 class="card-header">
+      New Ward
+    </h5>
+    <div class="card-body">
+      <div class="form-group">
+        <label>Ward ID</label>
+        <input type="text" class="form-control" placeholder="P01" autofocus>
+
+        <label>Ward Name</label>
+        <input type="text" class="form-control" placeholder="Phường 1" autofocus>
+
+        <input type="hidden" id="districtId" name="districtId">
+      </div>
+    </div>
+    <div class="card-footer text-muted">
+      <a class="btn btn-outline-success" href="/" role="button">
+        <i class="bi bi-skip-backward-fill"></i>
+        Back
+      </a>
+      <button type="submit" class="btn btn-primary">
+        <i class="bi bi-check2"></i>
+        Save
+      </button>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const urlParams = new URLSearchParams(window.location.search);
+      const districtId = urlParams.get('districtId');
+      if (districtId) {
+        document.getElementById('districtId').value = districtId;
+      }
+    });
+  </script>
+</form>
