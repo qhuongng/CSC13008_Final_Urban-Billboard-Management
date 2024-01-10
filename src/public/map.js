@@ -224,7 +224,7 @@ function setupMap(center) {
             };
 
             for (let i = 0; i < pointData.length; i++) {
-                let report;
+                let report = null;
                 let isReportedAtPanelLevel = false;
                 let coords = [pointData[i].locate[0], pointData[i].locate[1]];
 
