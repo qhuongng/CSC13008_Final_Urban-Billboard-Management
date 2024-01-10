@@ -27,10 +27,11 @@ function bottomController() {
         const link = document.createElement("div");
         link.id = id;
 
-        link.innerHTML = `<label class="switch"><input type="checkbox" id="${id}-checkbox" checked/><span class="slider"></span></label><p>${id === "unclustered-point-zoned" ? "ĐIỂM ĐẶT ĐÃ QUY HOẠCH" : id === "unclustered-point" ? "ĐIỂM ĐẶT CHƯA QUY HOẠCH" : "ĐIỂM ĐÃ BÁO CÁO"}</p>`;
+        link.innerHTML = `<label class="switch"><input type="checkbox" id="${id}-checkbox" checked/><span class="slider"></span></label><p>${id === "unclustered-point-zoned" ? "ĐIỂM ĐẶT ĐÃ QUY HOẠCH" : id === "unclustered-point" ? "ĐIỂM ĐẶT CHƯA QUY HOẠCH" : "BÁO CÁO VI PHẠM"}</p>`;
 
         // Append the link element to the document body or any desired container
         document.body.appendChild(link);
+
         const layers = document.getElementById("bottom-bar");
         layers.appendChild(link);
 
@@ -208,7 +209,7 @@ function setupMap(center) {
 
         let dbPointJson;
         let freePointJson;
-        let reportIds = [];
+        let localReports = [];
 
         (async () => {
             let pointData = await loadPoints();
@@ -224,34 +225,32 @@ function setupMap(center) {
 
             for (let i = 0; i < pointData.length; i++) {
                 let report;
+                let isReportedAtPanelLevel = false;
                 let coords = [pointData[i].locate[0], pointData[i].locate[1]];
 
                 for (let j = 0; j < reportData.length; j++) {
                     if (reportData[j]) {
                         report = localStorage.getItem(reportData[j]._id);
-                        reportIds.push(reportData[j]._id);
+                        localReports.push(reportData[j]._id);
 
                         if (report) {
                             if (JSON.parse(report).locate[0] == coords[0] && JSON.parse(report).locate[1] == coords[1]) {
-                                // update tình trạng xử lí                            
-                                localStorage.setItem(JSON.parse(report)._id, report);
-                                break;
+                                // nếu là report của ĐỊA ĐIỂM thì add
+                                if (JSON.parse(report).idPanel === "1") {
+                                    // update tình trạng xử lí                            
+                                    localStorage.setItem(JSON.parse(report)._id, report);
+                                    break;
+                                }
+                                else {
+                                    // report là của biển quảng cáo
+                                    isReportedAtPanelLevel = true;
+                                }
                             }
                         }
                     }
 
                     report = null;
                 }
-
-                let hasPanel = 0;
-
-                await fetch(`http://localhost:3500/api/panel/getListPanel/${pointData[i]._id}`)
-                    .then((response) => response.json())
-                    .then((data) => {
-                        if (data.data && data.data.length > 0) {
-                            hasPanel = 1;
-                        }
-                    });
 
                 let point = {
                     type: "Feature",
@@ -273,8 +272,9 @@ function setupMap(center) {
                         picturePoint: pointData[i].picturePoint,
                         long: pointData[i].locate[0],
                         lat: pointData[i].locate[1],
+                        isReportedAtPanelLevel: isReportedAtPanelLevel,
                         pointReport: (report !== null) ? report : 0,
-                        hasPanel: hasPanel
+                        havePanel: pointData[i].havePanel
                     },
                 };
 
@@ -425,7 +425,7 @@ function setupMap(center) {
                     "visibility": "visible"
                 },
                 paint: {
-                    "circle-color": "#00ff00",
+                    "circle-color": "#8f8f8f",
                     "circle-radius": 10,
                     "circle-stroke-width": 1,
                     "circle-stroke-color": "#ffffff",
@@ -437,7 +437,7 @@ function setupMap(center) {
                 id: "reported-point",
                 type: "circle",
                 source: "billboardPos",
-                filter: ["all", ["!", ["has", "point_count"]], ["!=", ["get", "pointReport"], 0]],
+                filter: ["all", ["!", ["has", "point_count"]], ["any", ["!=", ["get", "pointReport"], 0], ["==", ["get", "isReportedAtPanelLevel"], true]]],
                 layout: {
                     "visibility": "visible"
                 },
@@ -458,7 +458,7 @@ function setupMap(center) {
                     "all",
                     ["!", ["has", "point_count"]],
                     ["==", ["get", "isZoning"], false],
-                    ["==", ["get", "hasPanel"], 1],
+                    ["==", ["get", "havePanel"], true],
                 ],
                 layout: {
                     "visibility": "visible",
@@ -479,7 +479,7 @@ function setupMap(center) {
                     "all",
                     ["!", ["has", "point_count"]],
                     ["==", ["get", "isZoning"], true],
-                    ["==", ["get", "hasPanel"], 1],
+                    ["==", ["get", "havePanel"], true],
                 ],
                 layout: {
                     "visibility": "visible",
@@ -642,8 +642,8 @@ function setupMap(center) {
                                     panelReport: 0
                                 };
 
-                                for (let i = 0; i < reportIds.length; i++) {
-                                    const report = localStorage.getItem(reportIds[i]);
+                                for (let i = 0; i < localReports.length; i++) {
+                                    const report = localStorage.getItem(localReports[i]);
 
                                     if (report) {
                                         if (JSON.parse(report).idPanel == info.panelId) {
@@ -675,44 +675,44 @@ function setupMap(center) {
                                     }
                                 }
                                 else {
-                                    // lấy report
-                                    let panelReport = JSON.parse(info.panelReport);
+                                    if (map.getLayoutProperty("reported-point", "visibility") == "visible") {                                   // lấy report
+                                        let panelReport = JSON.parse(info.panelReport);
 
-                                    const reportInfo = {
-                                        name: panelReport.name,
-                                        email: panelReport.email,
-                                        phone: panelReport.phone,
-                                        reportType: panelReport.reportType,
-                                        reportImgId: panelReport.reportPicture,
-                                        content: panelReport.content,
-                                        address: panelReport.address,
-                                        state: panelReport.state,
-                                        actionHandler: panelReport.actionHandler
-                                    };
+                                        const reportInfo = {
+                                            name: panelReport.name,
+                                            email: panelReport.email,
+                                            phone: panelReport.phone,
+                                            reportType: panelReport.reportType,
+                                            reportImgId: panelReport.reportPicture,
+                                            content: panelReport.content,
+                                            address: panelReport.address,
+                                            state: panelReport.state,
+                                            actionHandler: panelReport.actionHandler
+                                        };
 
-                                    const viewReportButton =
-                                        `<button class="btn btn-outline-primary float-right" data-toggle="modal" data-target="#report-info-modal" onclick="loadReportDetail('${JSON.stringify(reportInfo).replace(/"/g, '&quot;')}', false)">
-                                            <i class="bi bi-exclamation-octagon-fill"></i>
-                                            XEM BÁO CÁO
-                                        </button>`;
+                                        const viewReportButton =
+                                            `<button class="btn btn-outline-primary float-right" data-toggle="modal" data-target="#report-info-modal" onclick="loadReportDetail('${JSON.stringify(reportInfo).replace(/"/g, '&quot;')}', false)">
+                                                <i class="bi bi-exclamation-octagon-fill"></i>
+                                                XEM BÁO CÁO
+                                            </button>`;
 
-                                    cardHtml += `<div class="card mb-3" id="billboard-info" key=${index}>
-                                                    <div class="card-body">
-                                                        <h5 class="card-title">${item.Paneltype}</h5>
-                                                        <h6 class="card-subtitle mb-2 text-muted">${address}</h6>
-                                                        <p class="card-text">Kích thước: ${item.size}<br>
-                                                            Số lượng: ${item.amount}<br>
-                                                            Hình thức: <b>${billboardType}</b><br>
-                                                            Phân loại: <b>${positionType}</b></p>
-                                                            <p style="color:red"><em>Bảng quảng cáo này đã được báo cáo.</em></p>
-                                                        <a href="#" data-toggle="modal" data-target="#billboard-info-modal" onclick="loadPanelDetail('${JSON.stringify(info).replace(/"/g, '&quot;')}')">
-                                                            <i class="bi bi-info-circle"></i>
-                                                        </a>
-                                                        ${viewReportButton}
-                                                    </div>
-                                                </div>`
+                                        cardHtml += `<div class="card mb-3" id="billboard-info" key=${index}>
+                                                        <div class="card-body">
+                                                            <h5 class="card-title">${item.Paneltype}</h5>
+                                                            <h6 class="card-subtitle mb-2 text-muted">${address}</h6>
+                                                            <p class="card-text">Kích thước: ${item.size}<br>
+                                                                Số lượng: ${item.amount}<br>
+                                                                Hình thức: <b>${billboardType}</b><br>
+                                                                Phân loại: <b>${positionType}</b></p>
+                                                                <p style="color:red"><em>Bảng quảng cáo này đã được báo cáo.</em></p>
+                                                            <a href="#" data-toggle="modal" data-target="#billboard-info-modal" onclick="loadPanelDetail('${JSON.stringify(info).replace(/"/g, '&quot;')}')">
+                                                                <i class="bi bi-info-circle"></i>
+                                                            </a>
+                                                            ${viewReportButton}
+                                                        </div>
+                                                    </div>`}
                                 }
-                            })
+                            });
 
                             document.getElementById("billboard-container").innerHTML = cardHtml;
                         }
