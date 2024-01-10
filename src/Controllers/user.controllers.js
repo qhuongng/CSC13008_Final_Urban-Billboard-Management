@@ -2,45 +2,11 @@ const UserService = require('../Services/user.services');
 
 const createUser = async (req, res) => {
     try {
-        const { name, email, password, phone, role } = req.body
-        const reg = /^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/
-        const isCheckEmail = reg.test(email)
-        const allowedRoles = ['Ward', 'District', 'Department'];
-
-        if (!name && !email && !password && !phone && !role) {
-            return res.status(404).json({
-                status: 'ERR',
-                message: 'Please input your information'
-            })
-        } else if (!name) {
-            return res.status(404).json({
-                status: 'ERR',
-                message: 'Please input your name'
-            })
-        } else if (!email) {
-            return res.status(404).json({
-                status: 'ERR',
-                message: 'Please input your email'
-            })
-        } else if (!password) {
-            return res.status(404).json({
-                status: 'ERR',
-                message: 'Please input your password'
-            })
-        } else if (!isCheckEmail) {
-            return res.status(404).json({
-                status: 'ERR',
-                message: 'Email format is invalid. Please check the email and try again.'
-            })
-        } else if (!allowedRoles.includes(role)) {
-            return res.status(404).json({
-                status: 'ERR',
-                message: 'Invalid user role',
-            })
-        }
         const response = await UserService.createUser(req.body)
         return res.status(200).json(response)
+        //sau này render lại trang tạo account
     } catch (e) {
+        //render lại trang tại account và báo lỗi
         return res.status(404).json({
             message: e
         })
@@ -108,6 +74,12 @@ const updateUser = async (req, res) => {
     }
 }
 
+const logoutUser = async (req, res) => {
+    req.session.auth = false;
+    req.session.authUser = null;
+    const url = '/';
+    res.redirect(url);
+}
 const deleteUser = async (req, res) => {
     try {
         const userId = req.params.id
@@ -164,6 +136,7 @@ module.exports = {
     createUser,
     loginUser,
     updateUser,
+    logoutUser,
     deleteUser,
     getAllUser,
     getDetailsUser

@@ -18,7 +18,7 @@ const saveOtp = async (req, res) => {
         // return res.status(404).json({
         //     message: e
         // })
-        return res.render('resetPassword', {
+        return res.render('viewUser/resetPassword', {
             layout: false,
             err_message: e
         })

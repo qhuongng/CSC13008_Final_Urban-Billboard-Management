@@ -5,7 +5,7 @@ const bcrypt = require("bcrypt")
 
 const createUser = (newUser) => {
     return new Promise(async (resolve, reject) => {
-        const { name, email, password, phone, role } = newUser
+        const { name, email, date, password, phone, role } = newUser
         try {
             const checkUser = await User.findOne({
                 email: email
@@ -20,6 +20,7 @@ const createUser = (newUser) => {
                 console.log(1);
                 const createUser = await User.create({
                     name,
+                    date,
                     email,
                     password: hash,
                     phone,
@@ -53,14 +54,10 @@ const loginUser = (userLogin) => {
             if (!comparePassword) {
                 reject('The password or username is incorrect');
             }
-            const accessToken = await generalAccessToken({
-                id: checkUser._id
-            })
             resolve({
                 status: 'OK',
                 message: 'SUCCESS',
                 checkUser,
-                accessToken
             })
         } catch (e) {
             reject(e)
