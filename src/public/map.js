@@ -1,6 +1,8 @@
 var map; // Mapbox map
 var marker;
 
+let authUser = JSON.parse(document.getElementById("auth").value);
+
 mapboxgl.accessToken =
     "pk.eyJ1IjoibmhhdGhvYTE0IiwiYSI6ImNscDZjMnZ2cDBkY3AybHNoaTk4cnZ2eHMifQ.KhkP2ZxWJQ5CwtdIr8c_IA";
 
@@ -13,11 +15,19 @@ function successLocation(position) {
 }
 
 function errorLocation() {
-    setupMap([106.68247638583301, 10.77121635650299]);
+    setupMap([106.67908367285673, 10.75305989852285]);
+}
+
+function escapeHtml(unsafe) {
+    return unsafe.replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
 }
 
 function bottomController() {
-    const toggleableLayerIds = ["billboard", "report-violation"];
+    const toggleableLayerIds = ["unclustered-point", "unclustered-point-zoned", "reported-point"];
 
     for (const id of toggleableLayerIds) {
         if (document.getElementById(id)) {
@@ -27,10 +37,11 @@ function bottomController() {
         const link = document.createElement("div");
         link.id = id;
 
-        link.innerHTML = `<label class="switch"><input type="checkbox" id="${id}-checkbox" checked/><span class="slider"></span></label><p>${id === "billboard" ? "BẢNG QUẢNG CÁO" : "BÁO CÁO VI PHẠM"}</p>`;
+        link.innerHTML = `<label class="switch"><input type="checkbox" id="${id}-checkbox" checked/><span class="slider"></span></label><p>${id === "unclustered-point-zoned" ? "ĐIỂM ĐẶT ĐÃ QUY HOẠCH" : id === "unclustered-point" ? "ĐIỂM ĐẶT CHƯA QUY HOẠCH" : "BÁO CÁO VI PHẠM"}</p>`;
 
         // Append the link element to the document body or any desired container
         document.body.appendChild(link);
+
         const layers = document.getElementById("bottom-bar");
         layers.appendChild(link);
 
@@ -44,13 +55,11 @@ function bottomController() {
             const visibility = map.getLayoutProperty(clickedLayer, "visibility");
 
             if ((visibility === "visible" || visibility === undefined) && checkbox.checked) {
-                map.setLayoutProperty(clickedLayer, "visibility", "none");
                 checkbox.checked = false; // Uncheck the checkbox
-                toggleUnclusteredPointVisibility(clickedLayer, "none");
+                toggleLayerVisibility(clickedLayer, "none");
             } else {
-                map.setLayoutProperty(clickedLayer, "visibility", "visible");
                 checkbox.checked = true; // Check the checkbox
-                toggleUnclusteredPointVisibility(clickedLayer, "visible");
+                toggleLayerVisibility(clickedLayer, "visible");
             }
 
             map.triggerRepaint();
@@ -58,26 +67,32 @@ function bottomController() {
     }
 }
 
-function toggleUnclusteredPointVisibility(clickedLayer, visibility) {
-    if (clickedLayer === "billboard") {
+function toggleLayerVisibility(clickedLayer, visibility) {
+    if (clickedLayer === "unclustered-point") {
         map.setLayoutProperty("unclustered-point-label", "visibility", visibility);
         map.setLayoutProperty("unclustered-point", "visibility", visibility);
-    } else {
-        map.setLayoutProperty(
-            "unclustered-point-label-reported",
-            "visibility",
-            visibility
-        );
-        map.setLayoutProperty(
-            "unclustered-point-reported",
-            "visibility",
-            visibility
-        );
+        map.setLayoutProperty("clusters", "visibility", visibility);
+        map.setLayoutProperty("cluster-count", "visibility", visibility);
+    } else if (clickedLayer === "unclustered-point-zoned") {
+        map.setLayoutProperty("unclustered-point-zoned-label", "visibility", visibility);
+        map.setLayoutProperty("unclustered-point-zoned", "visibility", visibility);
+        map.setLayoutProperty("clusters-zoned", "visibility", visibility);
+        map.setLayoutProperty("cluster-zoned-count", "visibility", visibility);
+    }
+    else {
+        map.setLayoutProperty("reported-point", "visibility", visibility);
+        map.setLayoutProperty("free-point", "visibility", visibility);
     }
 }
 
 async function loadPoints() {
     return fetch("http://localhost:3500/api/point/getAllPoint")
+        .then((response) => response.json())
+        .then((data) => data.data)
+}
+
+async function loadReports() {
+    return fetch("http://localhost:3500/api/report/getAllReport")
         .then((response) => response.json())
         .then((data) => data.data)
 }
@@ -109,109 +124,409 @@ function setupMap(center) {
     map.addControl(geocoder, "top-left");
     map.addControl(new mapboxgl.GeolocateControl());
 
+    geocoder.on('result', (e) => {
+        // clear all the info panes if they exist
+        document.getElementById("billboard-container").innerHTML = "";
+
+        if (marker) {
+            marker.remove();
+        }
+
+        var billboardInfoPaneExists = document.getElementById("billboard-info-pane");
+
+        if (!billboardInfoPaneExists) {
+            const div = document.createElement("div");
+            div.setAttribute("id", "billboard-info-pane");
+            div.setAttribute("class", "card border-info text-info mb-3");
+
+            document.getElementById("billboard-container").appendChild(div);
+        }
+
+        document.getElementById("billboard-info-pane").innerHTML = `<div class="card-body">
+                                                                                        <h5 class="card-title">
+                                                                                        <i class="bi bi-info-circle"></i>
+                                                                                         Thông tin bảng quảng cáo
+                                                                                        </h5>
+                                                                                        <p class="card-text">Chưa có dữ liệu.</p>
+                                                                                    </div>`;
+
+        reverseGeocode({ lng: e.result.center[0], lat: e.result.center[1] }, false);
+    });
+
     map.on("style.load", () => {
         map.on("click", (e) => {
+            // clear all the info panes if they exist
+            document.getElementById("billboard-container").innerHTML = "";
+
+            if (marker) {
+                marker.remove();
+            }
+
+            marker = new mapboxgl.Marker({ color: "#0000ff" })
+                .setLngLat(e.lngLat)
+                .addTo(map);
+
+            map.easeTo({
+                center: e.lngLat,
+            });
+
+            var billboardInfoPaneExists = document.getElementById("billboard-info-pane");
+
+            if (!billboardInfoPaneExists) {
+                const div = document.createElement("div");
+                div.setAttribute("id", "billboard-info-pane");
+                div.setAttribute("class", "card border-info text-info mb-3");
+
+                document.getElementById("billboard-container").appendChild(div);
+            }
+
+            document.getElementById("billboard-info-pane").innerHTML = `<div class="card-body">
+                                                                                            <h5 class="card-title">
+                                                                                            <i class="bi bi-info-circle"></i>
+                                                                                             Thông tin bảng quảng cáo
+                                                                                            </h5>
+                                                                                            <p class="card-text">Chưa có dữ liệu.</p>
+                                                                                        </div>`;
+
             var features = map.queryRenderedFeatures(e.point);
+            var isFreeReportedPoint = false;
 
             if (features[0] !== undefined && features[0].properties.name !== undefined) {
-                if (features[0].layer.id == "unclustered-point" || features[0].layer.id == "unclustered-point-label") {
+                if (features[0].layer.id == "unclustered-point" || features[0].layer.id == "unclustered-point-label" || features[0].layer.id == "reported-point" || features[0].layer.id == "unclustered-point-zoned" || features[0].layer.id == "unclustered-point-zoned-label") {
                     return;
                 }
 
-                var url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${features[0].properties.name}.json?access_token=${mapboxgl.accessToken}`;
+                if (features[0].layer.id == "free-point") {
+                    isFreeReportedPoint = true;
+                }
 
-                fetch(url)
-                    .then((response) => response.json())
-                    .then((data) => {
-                        if (data.features && data.features.length > 0) {
-                            const address = data.features[0].place_name;
-                            const placeInfoPaneHeader = '<h5 class="alert-heading"><i class="bi bi-check2-circle"></i> Thông tin địa điểm</h5>';
-                            const reportButton = `<a href="/api/report?location=${encodeURIComponent(address)}" class="btn btn-sm btn-outline-danger"><i class="bi bi-exclamation-octagon-fill"></i> BÁO CÁO VI PHẠM</a>`;
-
-                            document.getElementById(
-                                "place-info-pane"
-                            ).innerHTML = `${placeInfoPaneHeader}<br><strong>${features[0].properties.name}</strong><br>${address}<br><br>${reportButton}`;
-
-                            map.easeTo({
-                                center: e.lngLat,
-                            });
-                        } else {
-                            console.log("No address found");
-                        }
-                    })
-                    .catch((error) => {
-                        console.log("Error:", error);
-                    });
+                reverseGeocode(e.lngLat, isFreeReportedPoint);
             } else {
-                const placeInfoPaneHeader =
-                    '<h5 class="alert-heading"><i class="bi bi-check2-circle"></i> Thông tin địa điểm</h5>';
-                document.getElementById(
-                    "place-info-pane"
-                ).innerHTML = `${placeInfoPaneHeader}Chưa có dữ liệu.`;
+                document.getElementById("place-info-pane").innerHTML = `<div class="card-body">
+                                                                            <h5 class="card-title">
+                                                                            <i class="bi bi-info-circle"></i>
+                                                                             Thông tin địa điểm
+                                                                            </h5>
+                                                                            <p class="card-text">Chưa có dữ liệu.</p>
+                                                                        </div>`;
             }
         });
     });
 
-    map.on("load", () => {
+    map.on("load", async () => {
         //add bottomController
         bottomController();
 
-        let pointJson;
-        (async () => {
-            let data = await loadPoints();
+        let authWard = "-1";
+        let authDist = "-1";
 
-            pointJson = {
+        if (authUser.role[1] != "-1") {
+            await fetch("http://localhost:3500/api/district/getAll-dis")
+                .then((response) => response.json())
+                .then((data) => {
+                    for (let i = 0; i < data.data.length; i++) {
+                        if (authUser.role[1] == data.data[i].disId) {
+                            authDist = data.data[i].disName;
+                        }
+                    }
+                });
+        }
+
+        if (authUser.role[0] != "-1") {
+            await fetch(`http://localhost:3500/api/ward/getDetail-ward/${authUser.role[1]}`)
+                .then((response) => response.json())
+                .then((data) => {
+                    for (let i = 0; i < data.data.length; i++) {
+                        if (authUser.role[0] == data.data[i].wardId) {
+                            authWard = data.data[i].wardName;
+                        }
+                    }
+                });
+        }
+
+        let dbPointJson;
+        let dbZonedPointJson;
+        let freePointJson;
+        let reportIds = [];
+
+        (async (req, res) => {
+            let pointData = await loadPoints();
+            let reportData = await loadReports();
+
+            dbPointJson = {
                 features: [],
             };
 
-            for (let i = 0; i < data.length; i++) {
-                let point = {
-                    type: "Feature",
-                    geometry: {
-                        type: "Point",
-                        coordinates: [data[i].locate[0], data[i].locate[1]],
-                    },
-                    properties: {
-                        id: data[i]._id,
-                        name: data[i].name,
-                        billboardType: data[i].formAdvertising,
-                        positionType: data[i].positionType,
-                        address: data[i].address,
-                        area: {
-                            ward: data[i].area.ward,
-                            district: data[i].area.district,
-                        },
-                        isZoning: data[i].isZoning,
-                        picturePoint: data[i].picturePoint,
-                    },
-                };
+            dbZonedPointJson = {
+                features: [],
+            };
 
-                pointJson.features.push(point);
+            freePointJson = {
+                features: [],
+            };
+
+            for (let i = 0; i < pointData.length; i++) {
+                let ward = pointData[i].area.ward;
+                let district = pointData[i].area.district;
+
+                if ((authWard == "-1" && authDist == "-1") || (authWard == "-1" && authDist == district) || (authWard == ward && authDist == district)) {
+                    let report = null;
+                    let reportId = 0;
+                    let isReportedAtPanelLevel = false;
+                    let coords = [pointData[i].locate[0], pointData[i].locate[1]];
+
+                    for (let j = 0; j < reportData.length; j++) {
+                        if (reportData[j]) {
+                            reportIds.push(reportData[j]._id);
+                            report = localStorage.getItem(reportData[j]._id);
+
+                            if (report) {
+                                if (JSON.parse(report).locate[0] == coords[0] && JSON.parse(report).locate[1] == coords[1]) {
+                                    // nếu là report của ĐỊA ĐIỂM thì add
+                                    if (JSON.parse(report).idPanel === "1") {
+                                        // update tình trạng xử lí
+                                        reportId = reportData[j]._id;
+                                        localStorage.setItem(JSON.parse(report)._id, report);
+                                        break;
+                                    }
+                                    else {
+                                        // report là của biển quảng cáo
+                                        isReportedAtPanelLevel = true;
+                                    }
+                                }
+                            }
+                        }
+
+                        report = null;
+                    }
+
+                    let point = {
+                        type: "Feature",
+                        geometry: {
+                            type: "Point",
+                            coordinates: coords,
+                        },
+                        properties: {
+                            id: pointData[i]._id,
+                            name: pointData[i].name,
+                            billboardType: pointData[i].formAdvertising,
+                            positionType: pointData[i].positionType,
+                            address: pointData[i].address,
+                            area: {
+                                ward: ward,
+                                district: district,
+                            },
+                            isZoning: pointData[i].isZoning,
+                            picturePoint: pointData[i].picturePoint,
+                            long: pointData[i].locate[0],
+                            lat: pointData[i].locate[1],
+                            isReportedAtPanelLevel: isReportedAtPanelLevel,
+                            pointReport: reportId,
+                            havePanel: pointData[i].havePanel
+                        },
+                    };
+
+                    if (point.properties.isZoning === true) {
+                        dbZonedPointJson.features.push(point);
+                    } else {
+                        dbPointJson.features.push(point);
+                    }
+                }
+            }
+
+            // hide the loading panel and display info panels
+            document.getElementById("loading-pane").style.display = "none";
+            document.getElementById("place-container").style.display = "block";
+            document.getElementById("billboard-container").style.display = "block";
+
+            for (let i = 0; i < reportData.length; i++) {
+                if (reportData[i]) {
+                    let report = localStorage.getItem(reportData[i]._id);
+                    let reportJson;
+
+                    if (report) {
+                        reportJson = JSON.parse(report);
+
+                        if (reportJson.idPanel == "0") {
+                            let point = {
+                                type: "Feature",
+                                geometry: {
+                                    type: "Point",
+                                    coordinates: [parseFloat(reportJson.locate[0]), parseFloat(reportJson.locate[1])]
+                                },
+                                properties: {
+                                    long: reportJson.locate[0],
+                                    lat: reportJson.locate[1],
+                                    reportId: reportJson._id,
+                                    reportType: reportJson.reportType,
+                                    name: reportJson.name,
+                                    email: reportJson.email,
+                                    phone: reportJson.phone,
+                                    content: reportJson.content,
+                                    reportPicture: reportJson.reportPicture,
+                                    idPanel: reportJson.idPanel,
+                                    state: reportJson.state,
+                                    actionHandler: reportJson.actionHandler,
+                                    address: reportJson.address,
+                                    district: reportJson.district,
+                                    ward: reportJson.ward,
+                                },
+                            };
+
+                            freePointJson.features.push(point);
+                        }
+                    }
+                }
             }
 
             map.addSource("billboardPos", {
                 type: "geojson",
-                data: pointJson,
+                data: dbZonedPointJson,
+                cluster: true,
+                clusterMaxZoom: 14, // Max zoom to cluster points on
+                clusterRadius: 50, // Radius of each cluster when clustering points (defaults to 50)
+            });
+
+            map.addSource("unzonedPos", {
+                type: "geojson",
+                data: dbPointJson,
                 cluster: true,
                 clusterMaxZoom: 14, // Max zoom to cluster points on
                 clusterRadius: 50, // Radius of each cluster when clustering points (defaults to 50)
             });
 
             map.addLayer({
+                id: "unclustered-point",
+                type: "circle",
+                source: "unzonedPos",
+                filter: [
+                    "all",
+                    ["!", ["has", "point_count"]],
+                    ["==", ["get", "isZoning"], false],
+                ],
+                layout: {
+                    "visibility": "visible"
+                },
+                paint: {
+                    "circle-color": "#8f8f8f",
+                    "circle-radius": 10,
+                    "circle-stroke-width": 1,
+                    "circle-stroke-color": "#ffffff",
+                },
+            },
+            );
+
+            map.addLayer({
+                id: "unclustered-point-zoned",
+                type: "circle",
+                source: "billboardPos",
+                filter: [
+                    "all",
+                    ["!", ["has", "point_count"]],
+                    ["==", ["get", "isZoning"], true],
+                ],
+                layout: {
+                    "visibility": "visible"
+                },
+                paint: {
+                    "circle-color": "#0000ff",
+                    "circle-radius": 10,
+                    "circle-stroke-width": 1,
+                    "circle-stroke-color": "#ffffff",
+                },
+            },
+            );
+
+            map.addLayer({
+                id: "reported-point",
+                type: "circle",
+                source: "billboardPos",
+                filter: ["all", ["!", ["has", "point_count"]], ["any", ["!=", ["get", "pointReport"], 0], ["==", ["get", "isReportedAtPanelLevel"], true]]],
+                layout: {
+                    "visibility": "visible"
+                },
+                paint: {
+                    "circle-color": "#ff0000",
+                    "circle-radius": 10,
+                    "circle-stroke-width": 1,
+                    "circle-stroke-color": "#ffffff",
+                },
+            },
+            );
+
+            map.addLayer({
                 id: "clusters",
+                type: "circle",
+                source: "unzonedPos",
+                filter: ["has", "point_count"],
+                layout: {
+                    "visibility": "visible"
+                },
+                paint: {
+                    "circle-color": "#8f8f8f",
+                    "circle-radius": ["step", ["get", "point_count"], 20, 3, 30, 6, 40],
+                    "circle-stroke-width": 2,
+                    "circle-stroke-color": "#ffffff",
+                },
+            });
+
+            map.loadImage(
+                "/free-point.png",
+                (error, image) => {
+                    if (error) throw error;
+
+                    // add the image to the map style
+                    map.addImage('free-point', image);
+
+                    map.addSource("freePos", {
+                        type: "geojson",
+                        data: freePointJson,
+                        cluster: true,
+                        clusterMaxZoom: 14, // Max zoom to cluster points on
+                        clusterRadius: 50, // Radius of each cluster when clustering points (defaults to 50)
+                    });
+
+                    // Add a layer to use the image to represent the data.
+                    map.addLayer({
+                        id: "free-point",
+                        type: "symbol",
+                        source: "freePos",
+                        filter: ["!", ["has", "point_count"]],
+                        layout: {
+                            "icon-image": 'free-point',
+                            "visibility": "visible"
+                        }
+                    }, "clusters"
+                    );
+                }
+            );
+
+            map.addLayer({
+                id: "cluster-count",
+                type: "symbol",
+                source: "unzonedPos",
+                filter: ["has", "point_count"],
+                layout: {
+                    "visibility": "visible",
+                    "text-field": ["get", "point_count_abbreviated"],
+                    "text-font": ["DIN Offc Pro Medium", "Arial Unicode MS Bold"],
+                    "text-size": ["step", ["get", "point_count"], 12, 3, 16, 6, 20]
+                },
+                paint: {
+                    "text-color": "#ffffff",
+                },
+            });
+
+            map.addLayer({
+                id: "clusters-zoned",
                 type: "circle",
                 source: "billboardPos",
                 filter: ["has", "point_count"],
+                layout: {
+                    "visibility": "visible"
+                },
                 paint: {
-                    "circle-color": [
-                        "step",
-                        ["get", "point_count"],
-                        "#51bbd6",
-                        3,
-                        "#f1f075",
-                        6,
-                        "#f28cb1",
-                    ],
+                    "circle-color": "#0000ff",
                     "circle-radius": ["step", ["get", "point_count"], 20, 3, 30, 6, 40],
                     "circle-stroke-width": 2,
                     "circle-stroke-color": "#ffffff",
@@ -219,30 +534,33 @@ function setupMap(center) {
             });
 
             map.addLayer({
-                id: "cluster-count",
+                id: "cluster-zoned-count",
                 type: "symbol",
                 source: "billboardPos",
                 filter: ["has", "point_count"],
                 layout: {
+                    "visibility": "visible",
                     "text-field": ["get", "point_count_abbreviated"],
                     "text-font": ["DIN Offc Pro Medium", "Arial Unicode MS Bold"],
-                    "text-size": 12,
+                    "text-size": ["step", ["get", "point_count"], 12, 3, 16, 6, 20]
+                },
+                paint: {
+                    "text-color": "#ffffff",
                 },
             });
 
-            // unclustered-point-label
             map.addLayer({
                 id: "unclustered-point-label",
                 type: "symbol",
                 source: "billboardPos",
-                // filter: ["all", ["!", ["has", "point_count"]], ["==", ["get", "reported"], 1]],
                 filter: [
                     "all",
                     ["!", ["has", "point_count"]],
-                    ["==", ["get", "isZoning"], true],
+                    ["==", ["get", "isZoning"], false],
+                    ["==", ["get", "havePanel"], true],
                 ],
-                // filter: ["!", ["has", "point_count"]],
                 layout: {
+                    "visibility": "visible",
                     "text-field": "QC",
                     "text-font": ["DIN Offc Pro Medium", "Arial Unicode MS Regular"],
                     "text-size": 10,
@@ -252,97 +570,59 @@ function setupMap(center) {
                 },
             });
 
-            // unclustered-point-label-reported
-            // map.addLayer({
-            //     id: "unclustered-point-label-reported",
-            //     type: "symbol",
-            //     source: "billboardPos",
-            //     filter: ["all", ["!", ["has", "point_count"]], ["==", ["get", "reported"], 0]],
-            //     layout: {
-            //         "text-field": "QC",
-            //         "text-font": ["DIN Offc Pro Medium", "Arial Unicode MS Regular"],
-            //         "text-size": 10,
-            //     },
-            //     paint: {
-            //         "text-color": "#ffffff",
-            //     },
-            // });
-
-            map.addLayer(
-                {
-                    id: "unclustered-point",
-                    type: "circle",
-                    source: "billboardPos",
-                    //filter: ["all", ["!", ["has", "point_count"]], ["==", ["get", "reported"], 1]],
-                    filter: ["!", ["has", "point_count"]],
-                    paint: {
-                        // "circle-color": ["match", ["get", "reported"], 1, "#0000ff", "#ffffff"],
-                        "circle-color": "#0000ff",
-                        "circle-radius": 10,
-                        "circle-stroke-width": 1,
-                        "circle-stroke-color": "#ffffff",
-                    },
+            map.addLayer({
+                id: "unclustered-point-zoned-label",
+                type: "symbol",
+                source: "billboardPos",
+                filter: [
+                    "all",
+                    ["!", ["has", "point_count"]],
+                    ["==", ["get", "isZoning"], true],
+                    ["==", ["get", "havePanel"], true],
+                ],
+                layout: {
+                    "visibility": "visible",
+                    "text-field": "QC",
+                    "text-font": ["DIN Offc Pro Medium", "Arial Unicode MS Regular"],
+                    "text-size": 10,
                 },
-
-                "unclustered-point-label"
-            );
-
-            // map.addLayer(
-            //     {
-            //         id: "unclustered-point-reported",
-            //         type: "circle",
-            //         source: "billboardPos",
-            //         filter: ["all", ["!", ["has", "point_count"]], ["==", ["get", "reported"], 0]],
-            //         paint: {
-            //             "circle-color": ["match", ["get", "reported"], 0, "#ff0000", "#ffffff"],
-            //             "circle-radius": 10,
-            //             "circle-stroke-width": 1,
-            //             "circle-stroke-color": "#ffffff",
-            //         },
-            //     },
-            //     "unclustered-point-label-reported"
-            // );
-
-            map.addLayer(
-                {
-                    id: "billboard",
-                    type: "circle",
-                    source: "billboardPos",
-                    filter: [
-                        "all",
-                        ["!", ["has", "point_count"]],
-                        ["==", ["get", "reported"], 1],
-                    ],
+                paint: {
+                    "text-color": "#ffffff",
                 },
-                "unclustered-point"
-            );
-
-            // map.addLayer(
-            //     {
-            //         id: "report-violation",
-            //         type: "circle",
-            //         source: "billboardPos",
-            //         filter: ["all", ["!", ["has", "point_count"]], ["==", ["get", "reported"], 0]],
-            //     },
-            //     "unclustered-point-reported"
-            // );
+            });
 
             // inspect a cluster on click
             map.on("click", "clusters", (e) => {
                 const features = map.queryRenderedFeatures(e.point, {
                     layers: ["clusters"],
                 });
-                const clusterId = features[0].properties.cluster_id;
-                map
-                    .getSource("billboardPos")
-                    .getClusterExpansionZoom(clusterId, (err, zoom) => {
-                        if (err) return;
 
-                        map.easeTo({
-                            center: features[0].geometry.coordinates,
-                            zoom: zoom,
-                        });
+                const clusterId = features[0].properties.cluster_id;
+                map.getSource("unzonedPos").getClusterExpansionZoom(clusterId, (err, zoom) => {
+                    if (err) return;
+
+                    map.easeTo({
+                        center: features[0].geometry.coordinates,
+                        zoom: zoom,
                     });
+                });
+            });
+
+            map.on("click", "clusters-zoned", (e) => {
+                const features = map.queryRenderedFeatures(e.point, {
+                    layers: ["clusters-zoned"],
+                });
+
+                const clusterId = features[0].properties.cluster_id;
+
+                map.getSource("billboardPos").getClusterExpansionZoom(clusterId, (err, zoom) => {
+                    if (err) return;
+
+                    map.easeTo({
+                        center: features[0].geometry.coordinates,
+                        zoom: zoom,
+                    });
+                });
             });
 
             const popup = new mapboxgl.Popup({
@@ -350,14 +630,14 @@ function setupMap(center) {
                 closeOnClick: false,
             });
 
-            // map.on("mouseenter", ["unclustered-point", "unclustered-point-reported"], (e) => {
-            map.on("mouseenter", "unclustered-point", (e) => {
+            map.on("mouseenter", ["unclustered-point", "unclustered-point-zoned", "reported-point"], (e) => {
                 const coordinates = e.features[0].geometry.coordinates.slice();
+                const long = e.features[0].properties.long;
+                const lat = e.features[0].properties.lat;
                 const isZoning = e.features[0].properties.isZoning === true ? "ĐÃ QUY HOẠCH" : "CHƯA QUY HOẠCH";
                 const description = `<strong>${e.features[0].properties.billboardType}</strong><br>
                                         ${e.features[0].properties.positionType}<br>
                                         ${e.features[0].properties.address}<br>
-                                        ${JSON.parse(e.features[0].properties.area).ward}, ${JSON.parse(e.features[0].properties.area).district}<br>
                                         ${JSON.parse(e.features[0].properties.area).ward}, ${JSON.parse(e.features[0].properties.area).district}<br>
                                         <strong><em>${isZoning}</em></strong>`;
 
@@ -371,37 +651,79 @@ function setupMap(center) {
                 popup.setLngLat(coordinates).setHTML(description).addTo(map);
             });
 
-            map.on("click", "unclustered-point", (e) => {
-                const pointId = e.features[0].properties.id;
-                const billboardType = e.features[0].properties.billboardType;
-                const positionType = e.features[0].properties.positionType;
-                const coordinates = e.features[0].geometry.coordinates.slice();
-                const address = `${e.features[0].properties.address}<br>${JSON.parse(e.features[0].properties.area).ward}, ${JSON.parse(e.features[0].properties.area).district}`;
-                const addressURL = `${e.features[0].properties.address.trim()}, ${JSON.parse(e.features[0].properties.area).ward}, ${JSON.parse(e.features[0].properties.area).district}`;
-                const imgUrl = `https://drive.google.com/uc?id=${e.features[0].properties.picturePoint}`;
-                const placeInfoPaneHeader =
-                    '<h5 class="alert-heading"><i class="bi bi-check2-circle"></i> Thông tin địa điểm</h5>';
+            map.on("click", ["unclustered-point", "unclustered-point-zoned", "reported-point"], (e) => {
+                const props = e.features[0].properties;
 
-                const reportButton =
-                    `<a class="btn btn-outline-danger" href="/api/report/${0}?address=${addressURL}&lng=${coordinates[0]}&lat=${coordinates[1]}"><i class="bi bi-exclamation-octagon-fill"></i> BÁO CÁO VI PHẠM</a>`;
+                const pointId = props.id;
+                const billboardType = props.billboardType;
+                const positionType = props.positionType;
+                const long = props.long;
+                const lat = props.lat;
+                const district = JSON.parse(props.area).district;
+                const ward = JSON.parse(props.area).ward;
+                const address = `${props.address}<br>${ward}, ${district}`;
+                const addressURL = `${props.address.trim()}, ${ward}, ${district}`;
+                const imgUrl = `https://lh3.google.com/u/0/d/${props.picturePoint}`;
+                const placeInfoPaneHeader = `<div class="card-body">
+                                                <h5 class="card-title">
+                                                    <i class="bi bi-info-circle"></i>
+                                                     Thông tin địa điểm
+                                                </h5>`
 
+                if (e.features[0].properties.pointReport === 0) {
+                    const viewReportsButton =
+                        `<a class="btn btn-outline-primary float-right" href="#">
+                            <i class="bi bi-exclamation-octagon-fill"></i>
+                            &nbsp;XEM CÁC BÁO CÁO
+                         </a>`;
 
-                document.getElementById("place-info-pane").innerHTML = `${placeInfoPaneHeader}<br>
-                                                                        <strong>${e.features[0].properties.name}</strong><br>
+                    document.getElementById("place-info-pane").innerHTML = `${placeInfoPaneHeader}
+                                                                            <p class="card-text">
+                                                                                <strong>${props.name}</strong><br>
+                                                                                ${address}<br><br>
+                                                                                <img class="img-fluid" src="${imgUrl}" referrerpolicy="no-referrer" alt=""><br><br>
+                                                                                ${viewReportsButton}
+                                                                            </p>`;
+
+                }
+                else {
+                    // lấy report
+                    let pointReport = JSON.parse(localStorage.getItem(props.pointReport));
+
+                    const reportInfo = {
+                        name: pointReport.name,
+                        email: pointReport.email,
+                        phone: pointReport.phone,
+                        reportType: pointReport.reportType,
+                        reportImgId: pointReport.reportPicture,
+                        content: pointReport.content.replace(/"/g, '\\"'),
+                        address: pointReport.address,
+                        state: pointReport.state,
+                        actionHandler: pointReport.actionHandler
+                    };
+
+                    const viewReportsButton =
+                        `<button class="btn btn-outline-primary float-right" data-toggle="modal" data-target="#report-info-modal">
+                            <i class="bi bi-exclamation-octagon-fill"></i>
+                            &nbsp;XEM CÁC BÁO CÁO
+                        </button>`;
+
+                    document.getElementById("place-info-pane").innerHTML = `${placeInfoPaneHeader}<br>
+                                                                        <strong>${props.name}</strong><br>
                                                                         ${address}<br><br>
                                                                         <img class="img-fluid" src=${imgUrl} alt=""><br><br>
-                                                                        ${reportButton}`;
+                                                                        ${viewReportsButton}`;
+                }
+
 
                 map.easeTo({
-                    center: coordinates,
+                    center: [long, lat],
                 });
 
                 fetch(`http://localhost:3500/api/panel/getListPanel/${pointId}`)
                     .then((response) => response.json())
                     .then((data) => {
                         if (data.data && data.data.length > 0) {
-                            console.log(data.data);
-
                             // check if default info pane ("chưa có dữ liệu") exists
                             var billboardInfoPaneExists = document.getElementById("billboard-info-pane");
 
@@ -418,9 +740,7 @@ function setupMap(center) {
 
                             data.data.map((item, index) => {
                                 const panelId = item._id;
-                                const reportButton = `<a class="btn btn-outline-danger float-right" href="/api/report/${panelId}?address=${address}&lng=${coordinates[0]}&lat=${coordinates[1]}">
-                                                        <i class="bi bi-exclamation-octagon-fill"></i> BÁO CÁO VI PHẠM
-                                                        </a>`;
+
                                 const info = {
                                     Paneltype: item.Paneltype,
                                     address: addressURL,
@@ -431,11 +751,25 @@ function setupMap(center) {
                                     expDate: item.expDate,
                                     picturePanel: item.picturePanel,
                                     panelId: item._id,
-                                    long: coordinates[0],
-                                    lat: coordinates[1]
+                                    long: long,
+                                    lat: lat,
+                                    panelReport: 0
                                 };
 
-                                console.log(info);
+                                for (let i = 0; i < reportIds.length; i++) {
+                                    const report = localStorage.getItem(reportIds[i]);
+
+                                    if (report) {
+                                        if (JSON.parse(report).idPanel == info.panelId) {
+                                            info.panelReport = reportIds[i];
+                                        }
+                                    }
+                                }
+
+                                const viewInfoButton = `<a id="panel-info-button" class="btn btn-outline-primary float-right" href="#" data-toggle="modal" data-target="#billboard-info-modal" onclick="loadPanelDetail('${escapeHtml(JSON.stringify(info))}')">
+                                                                    <i class="bi bi-info-circle-fill"></i>
+                                                                    &nbsp;XEM CHI TIẾT
+                                                                   </a>`;
 
                                 cardHtml += `<div class="card mb-3" id="billboard-info" key=${index}>
                                             <div class="card-body">
@@ -445,87 +779,128 @@ function setupMap(center) {
                                                     Số lượng: ${item.amount}<br>
                                                     Hình thức: <b>${billboardType}</b><br>
                                                     Phân loại: <b>${positionType}</b></p>
-                                                <a href="#" data-toggle="modal" data-target="#info-modal" onclick="loadPanelDetail('${JSON.stringify(info).replace(/"/g, '&quot;')}')">
-                                                    <i class="bi bi-info-circle"></i>
-                                                </a>
-                                                ${reportButton}
+                                                ${viewInfoButton}
                                             </div>
                                         </div>`
-                            })
+                            });
 
                             document.getElementById("billboard-container").innerHTML = cardHtml;
                         }
                         else {
                             // clear all the info panes if they exist
                             document.getElementById("billboard-container").innerHTML = "";
+
                             var billboardInfoPaneExists = document.getElementById("billboard-info-pane");
 
                             if (!billboardInfoPaneExists) {
                                 const div = document.createElement("div");
                                 div.setAttribute("id", "billboard-info-pane");
-                                div.setAttribute("class", "alert alert-info");
-                                div.setAttribute("role", "alert");
+                                div.setAttribute("class", "card border-info text-info mb-3");
 
                                 document.getElementById("billboard-container").appendChild(div);
                             }
 
-                            document.getElementById("billboard-info-pane").innerHTML = `<h5 class="alert-heading">
+                            document.getElementById("billboard-info-pane").innerHTML = `<div class="card-body">
+                                                                                            <h5 class="card-title">
                                                                                             <i class="bi bi-info-circle"></i>
-                                                                                            Thông tin bảng quảng cáo
-                                                                                        </h5>
-                                                                                        Chưa có dữ liệu.`
+                                                                                             Thông tin bảng quảng cáo
+                                                                                            </h5>
+                                                                                            <p class="card-text">Chưa có dữ liệu.</p>
+                                                                                        </div>`;
                         }
                     });
             });
 
-            // map.on("mouseleave", ["unclustered-point", "unclustered-point-reported"], () => {
-            map.on("mouseleave", "unclustered-point", () => {
+            map.on("mouseleave", ["unclustered-point", "unclustered-point-zoned", "reported-point"], () => {
                 map.getCanvas().style.cursor = "";
                 popup.remove();
             });
 
-            map.on("click", (e) => {
-                const feature = map.queryRenderedFeatures(e.point);
+            map.on("mouseenter", "free-point", (e) => {
+                map.getCanvas().style.cursor = "pointer";
+                const coordinates = e.features[0].geometry.coordinates.slice();
+                const long = e.features[0].properties.long;
+                const lat = e.features[0].properties.lat;
+                const description = `<strong>Điểm được bạn báo cáo</strong><br>
+                                                Tình trạng: <b>${e.features[0].properties.actionHandler}</b><br><br>
+                                                <em>Bấm để xem chi tiết</em>`;
 
-                if (
-                    feature.length === 0 ||
-                    feature[0].layer.source !== "billboardPos"
-                ) {
-                    if (marker) {
-                        marker.remove();
-                    }
-
-                    marker = new mapboxgl.Marker({ color: "#0000ff" })
-                        .setLngLat(e.lngLat)
-                        .addTo(map);
-
-                    reverseGeocode(e.lngLat);
+                // Ensure that if the map is zoomed out such that
+                // multiple copies of the feature are visible, the
+                // popup appears over the copy being pointed to.
+                while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+                    coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
                 }
+
+                popup.setLngLat(coordinates).setHTML(description).addTo(map);
+            });
+
+            map.on("click", "free-point", (e) => {
+                const props = e.features[0].properties;
+
+                const reportInfo = {
+                    name: props.name,
+                    email: props.email,
+                    phone: props.phone,
+                    reportType: props.reportType,
+                    reportImgId: JSON.parse(props.reportPicture),
+                    content: props.content,
+                    address: props.address,
+                    state: props.state,
+                    actionHandler: props.actionHandler
+                };
+
+                // $('#free-report-info-modal').on('shown.bs.modal', function () {
+                //     loadReportDetail(JSON.stringify(reportInfo), true);
+                // });
+
+                $('#free-report-info-modal').modal('show');
+            });
+
+            map.on("mouseleave", "free-point", () => {
+                map.getCanvas().style.cursor = "";
+                popup.remove();
             });
         })();
     });
 }
 
-function reverseGeocode(lngLat) {
+function reverseGeocode(lngLat, isFreeReportedPoint) {
     const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${lngLat.lng},${lngLat.lat}.json?access_token=${mapboxgl.accessToken}`;
 
     fetch(url)
         .then((response) => response.json())
         .then((data) => {
-            console.log(data);
             if (data.features && data.features.length > 0) {
                 const [name, ...addressParts] = data.features[0].place_name.split(",");
                 const address = addressParts.join(",").trim();
+                const placeInfoPaneHeader = `<div class="card-body">
+                                                <h5 class="card-title">
+                                                    <i class="bi bi-info-circle"></i>
+                                                    Thông tin địa điểm
+                                                </h5>`;
 
-                const placeInfoPaneHeader = '<h5 class="alert-heading"><i class="bi bi-check2-circle"></i> Thông tin địa điểm</h5>';
+                if (isFreeReportedPoint) {
+                    const viewReportsButton = `<a class="btn btn-outline-primary float-right" href="#">
+                                                    <i class="bi bi-exclamation-octagon-fill"></i>
+                                                    &nbsp;XEM CÁC BÁO CÁO
+                                               </a>`;
 
-                const reportButton = `<a class="btn btn-outline-danger" href="/api/report/${0}?address=${data.features[0].place_name}&lng=${lngLat.lng}&lat=${lngLat.lat}"><i class="bi bi-exclamation-octagon-fill"></i> BÁO CÁO VI PHẠM</a>`;
+                    document.getElementById("place-info-pane").innerHTML = `${placeInfoPaneHeader}
+                                                                            <p class="card-text">
+                                                                                <strong>${name}</strong><br>
+                                                                                ${address}<br><br>
+                                                                                ${viewReportsButton}
+                                                                            </p>
+                                                                            `;
+                } else {
+                    document.getElementById("place-info-pane").innerHTML = `${placeInfoPaneHeader}
+                                                                                <p class="card-text">
+                                                                                <strong>${name}</strong><br>
+                                                                                ${address}<br>
+                                                                            </p>`;
+                }
 
-
-                document.getElementById("place-info-pane").innerHTML = `${placeInfoPaneHeader}<br><strong>${address}</strong><br><br>${reportButton}`;
-                document.getElementById("place-info-pane").innerHTML = `${placeInfoPaneHeader}<br><strong>${name}</strong><br>${address}<br><br>${reportButton}`;
-
-                localStorage.setItem("placeName", name);
             } else {
                 console.log("No address found");
             }

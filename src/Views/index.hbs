@@ -27,53 +27,118 @@
   <div class="container-fluid">
     <div class="row" id="main-container">
       <div class="col-md-9 mt-3 px-0">
+        <input type="hidden" name="auth" id="auth" value={{authUserRole}} readonly>
         <div id="map"></div>
         <div class="bottom-bar" id="bottom-bar"></div>
       </div>
       <div class="col-md-3 py-3" id="info-panel">
-        <div class="place-container">
-          <div class="alert alert-success" role="alert" id="place-info-pane">
-            <h5 class="alert-heading">
-              <i class="bi bi-check2-circle"></i>
-              Thông tin địa điểm
-            </h5>
-            Chưa có dữ liệu.
+        <div id="loading-pane" style="display:block">
+          <div class="alert alert-secondary" role="alert">
+            Đang tải dữ liệu...
           </div>
         </div>
-        <div id="billboard-container">
-          <div class="alert alert-info" role="alert" id="billboard-info-pane">
-            <h5 class="alert-heading">
-              <i class="bi bi-info-circle"></i>
-              Thông tin bảng quảng cáo
-            </h5>
-            Chưa có dữ liệu.
+        <div id="place-container" style="display:none">
+          <div class=" card border-success text-success mb-3" id="place-info-pane">
+            <div class=" card-body">
+              <h5 class="card-title">
+                <i class="bi bi-info-circle"></i>
+                Thông tin địa điểm
+              </h5>
+              <p class="card-text">Chưa có dữ liệu.</p>
+            </div>
           </div>
-        </div>
-        <div id="billboard-detail-container">
-          <div class="modal fade" id="info-modal" tabindex="-1" role="dialog" aria-labelledby="info-modal-title"
-            aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered" role="document">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h5 class="modal-title" id="info-modal-title">Chi tiết bảng quảng cáo</h5>
-                  <button type="button" class="close" data-dismiss="modal" aria-label="close">
-                    <span aria-hidden="true">&times;</span>
-                  </button>
+          <div id="billboard-container" style="display:none">
+            <div class="card border-info text-info mb-3" id="billboard-info-pane">
+              <div class="card-body">
+                <h5 class="card-title">
+                  <i class="bi bi-info-circle"></i>
+                  Thông tin bảng quảng cáo
+                </h5>
+                <p class="card-text">Chưa có dữ liệu.</p>
+              </div>
+            </div>
+          </div>
+          <div id="billboard-detail-container">
+            <div class="modal fade" id="billboard-info-modal" tabindex="-1" role="dialog"
+              aria-labelledby="info-modal-title" aria-hidden="true">
+              <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="info-modal-title">Chi tiết bảng quảng cáo</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
+                  <div class="modal-body" id="billboard-modal-body">
+                    <ul class="nav nav-tabs mb-3" id="tab-content">
+                      <li class="nav-item"><a class="nav-link active" href="#billboard-details" data-toggle="tab">Thông
+                          tin</a></li>
+                      <li class="nav-item"><a class="nav-link" href="#reports" data-toggle="tab">Báo cáo</a></li>
+                      <li class="nav-item"><a class="nav-link" href="#permits" data-toggle="tab">Cấp phép</a></li>
+                    </ul>
+                    <div class="tab-content">
+                      <div class="tab-pane active" id="billboard-details">
+                      </div>
+                      <div class="tab-pane" id="reports">
+                        Báo cáo
+                      </div>
+                      <div class="tab-pane" id="permits">
+                        Cấp phép
+                      </div>
+                    </div>
+                  </div>
+                  <div class="modal-footer" id="billboard-modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Quay lại</button>
+                  </div>
                 </div>
-                <div class="modal-body" id="modal-body">
+              </div>
+            </div>
+            <div id="report-detail-container">
+              <div class="modal fade" id="report-info-modal" tabindex="-1" role="dialog"
+                aria-labelledby="info-modal-title" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="info-modal-title">Chi tiết báo cáo</h5>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="close">
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+                    <div class="modal-body" id="report-modal-body">
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Quay lại</button>
+                    </div>
+                  </div>
                 </div>
-                <div class="modal-footer" id="modal-footer">
+              </div>
+              <div class="modal fade" id="free-report-info-modal" tabindex="-1" role="dialog"
+                aria-labelledby="info-modal-title" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="info-modal-title">Chi tiết báo cáo</h5>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="close">
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+                    <div class="modal-body" id="free-report-modal-body">
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Quay lại</button>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-  </div>
 </body>
 <script>
   function loadPanelDetail(item) {
+    document.getElementById("billboard-details").innerHTML = "";
+
     const info = JSON.parse(item);
 
     let bodyHtml = `<h5 class="card-title">${info.Paneltype}</h5>
@@ -82,17 +147,47 @@
                                       Số lượng: ${info.amount}<br>
                                       Hình thức: <b>${info.billboardType}</b><br>
                                       Phân loại: <b>${info.positionType}</b><br>
-                                      Ngày hết hạn: <b>${info.expDate.slice(0, 10)}</p>
-                                      <img class="img-fluid" src="https://drive.google.com/uc?id=${info.picturePanel}"" alt=""><br>`
+                                      Ngày hết hạn: <b>${info.expDate.slice(0, 10)}</b></p>
+                                      <img class="img-fluid" src="https://lh3.google.com/u/0/d/${info.picturePanel}" referrerpolicy="no-referrer" alt=""><br>`
 
-    let footerHtml = `<button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Quay lại</button>
-                      <a class="btn btn-outline-danger float-right" id="detail-report-button"
-                        href="/api/report/${info.panelId}?address=${info.address}&lng=${info.long}&lat=${info.lat}">
-                          <i class="bi bi-exclamation-octagon-fill"></i> BÁO CÁO VI PHẠM
-                      </a>`;
+    document.getElementById("billboard-details").innerHTML = bodyHtml;
+  }
 
-    document.getElementById("modal-body").innerHTML = bodyHtml;
-    document.getElementById("modal-footer").innerHTML = footerHtml;
+  function loadReportDetail(item, isFreePoint) {
+    if (isFreePoint === true) {
+      document.getElementById("free-report-modal-body").innerHTML = "";
+    }
+    else {
+      document.getElementById("report-modal-body").innerHTML = "";
+    }
+
+    const info = JSON.parse(item.includes('&quot;') ? item.replace(/&quot;/ig, '"') : item);
+    let imgDivs = "";
+
+    if (info.reportImgId.length === 2) {
+      imgDivs += `<img class="img-fluid" src="http://localhost:3500/api/reportImg/getImgReport/${info.reportImgId[0]}"" alt=""><br>
+                  <img class="img-fluid" src="http://localhost:3500/api/reportImg/getImgReport/${info.reportImgId[1]}"" alt=""><br><br>`
+    }
+    else if (info.reportImgId.length === 1) {
+      imgDivs += `<img class="img-fluid" src="http://localhost:3500/api/reportImg/getImgReport/${info.reportImgId[0]}"" alt=""><br><br>`
+    }
+
+    let bodyHtml = `<h6 class="card-subtitle mb-2 text-muted">${info.address}</h6>
+                    <p class="card-text">Họ tên người gửi: <b>${info.name}</b><br>
+                                      Email: <b>${info.email}</b><br>
+                                      Số điện thoại: <b>${info.phone}</b><br>
+                                      Nội dung: ${info.content}
+                                      Hình ảnh đối tượng báo cáo:<br><br>
+                                      ${imgDivs}
+                                      Tình trạng xử lí: <b>${info.state == 0 ? "Chưa xử lí" : "Đã xử lí"}</b><br>
+                                      Hình thức xử lí: <b>${info.actionHandler}</b></p>`
+
+    if (isFreePoint === true) {
+      document.getElementById("free-report-modal-body").innerHTML = bodyHtml;
+    }
+    else {
+      document.getElementById("report-modal-body").innerHTML = bodyHtml;
+    }
   }
 </script>
 <script src="/map.js" defer></script>

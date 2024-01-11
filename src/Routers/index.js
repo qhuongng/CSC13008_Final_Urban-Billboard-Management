@@ -54,7 +54,9 @@ const routes = (app) => {
         layout: false
       });
     } else {
-      res.render("index");
+      res.render("index", {
+        authUserRole: JSON.stringify(res.locals.authUser)
+      });
     }
   });
 };
