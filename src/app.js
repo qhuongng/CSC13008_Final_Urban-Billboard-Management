@@ -36,7 +36,6 @@ app.use(function (req, res, next) {
 
   res.locals.auth = req.session.auth;
   res.locals.authUser = req.session.authUser;
-  res.locals.token = req.session.token;
   next();
 });
 
@@ -47,15 +46,41 @@ app.engine(
   handlebars.engine({
     extname: "hbs",
     defaultLayout: 'main',
+    helpers: {
+      ifCond(v1, operator, v2, options) {
+        switch (operator) {
+          case '==':
+            return (v1 == v2) ? options.fn(this) : options.inverse(this);
+          case '===':
+            return (v1 === v2) ? options.fn(this) : options.inverse(this);
+          case '!=':
+            return (v1 != v2) ? options.fn(this) : options.inverse(this);
+          case '!==':
+            return (v1 !== v2) ? options.fn(this) : options.inverse(this);
+          case '<':
+            return (v1 < v2) ? options.fn(this) : options.inverse(this);
+          case '<=':
+            return (v1 <= v2) ? options.fn(this) : options.inverse(this);
+          case '>':
+            return (v1 > v2) ? options.fn(this) : options.inverse(this);
+          case '>=':
+            return (v1 >= v2) ? options.fn(this) : options.inverse(this);
+          case '&&':
+            return (v1 && v2) ? options.fn(this) : options.inverse(this);
+          case '||':
+            return (v1 || v2) ? options.fn(this) : options.inverse(this);
+          default:
+            return options.inverse(this);
+        }
+      }
+    }
   })
+
 );
 
 app.set("view engine", "hbs");
 app.set("views", path.join(__dirname, "Views"));
 
-app.get("/", (req, res) => {
-  res.render("resetPassword");
-});
 mongoose
   .connect(`${process.env.MONGO_URL}`)
   .then(() => {

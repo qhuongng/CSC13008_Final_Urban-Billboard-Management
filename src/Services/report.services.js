@@ -44,7 +44,7 @@ const createReport = (idPanel, locate, newReport, imgId, district, ward, address
                             <td></td>
                             <td></td>
                             <td></td>
-                            <td style="color: yellow;"><h4>${createReport.address}</h4></td>
+                            <td><h4>${createReport.address}</h4></td>
                         </tr>   
                         <tr>
                             <td><h4>Tình trạng xử lí: </h4></td>
@@ -107,7 +107,6 @@ const getAllReport = () => {
         }
     })
 }
-
 const updateAction = (reportId, state, action) => {
     return new Promise(async (resolve, reject) => {
         try {
@@ -126,9 +125,27 @@ const updateAction = (reportId, state, action) => {
         }
     })
 }
-
+const getReportbyId = (id) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const report = Report.findOne({ _id: id });
+            if (!report) {
+                reject({
+                    status: 'ERR',
+                    message: 'reportId does not exist'
+                })
+            }
+            else {
+                resolve(report)
+            }
+        } catch (error) {
+            reject(error)
+        }
+    })
+}
 
 module.exports = {
+    getReportbyId,
     createReport,
     getAllReport
 }

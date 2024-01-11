@@ -8,6 +8,7 @@ const multer = require('multer');
 //--------------------------
 router.get('/getAllReport', reportController.getAllReport);
 router.get('/:id', reportController.showReport);
+router.get('/getReport/:id', reportController.getReport);
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 

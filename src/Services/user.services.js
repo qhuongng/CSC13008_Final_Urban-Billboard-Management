@@ -5,7 +5,7 @@ const bcrypt = require("bcrypt")
 
 const createUser = (newUser) => {
     return new Promise(async (resolve, reject) => {
-        const { name, email, password, phone, role } = newUser
+        const { name, email, date, password, phone, role } = newUser
         try {
             const checkUser = await User.findOne({
                 email: email
@@ -15,11 +15,12 @@ const createUser = (newUser) => {
                 reject('The email is already');
             }
             const hash = bcrypt.hashSync(password, 10)
-            
+
             if (checkUser === null) {
                 console.log(1);
                 const createUser = await User.create({
                     name,
+                    date,
                     email,
                     password: hash,
                     phone,
@@ -53,14 +54,10 @@ const loginUser = (userLogin) => {
             if (!comparePassword) {
                 reject('The password or username is incorrect');
             }
-            const accessToken = await generalAccessToken({
-                id: checkUser._id
-            })
             resolve({
                 status: 'OK',
                 message: 'SUCCESS',
                 checkUser,
-                accessToken
             })
         } catch (e) {
             reject(e)
@@ -78,6 +75,29 @@ const updateUser = (id, data) => {
                 reject('The user is not defined');
             }
             const updatedUser = await User.findByIdAndUpdate(id, data, { new: true })
+            resolve({
+                status: 'OK',
+                message: 'Update user success',
+                data: updatedUser
+            })
+        } catch (e) {
+            reject(e)
+        }
+    })
+}
+
+const updatePassWord = (email, password) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const checkUser = await User.findOne({
+                email: email
+            })
+            if (checkUser === null) {
+                reject('The user is not defined');
+            }
+            const hash = bcrypt.hashSync(password, 10)
+            const updatePassWord = { $set: { password: hash } }
+            const updatedUser = await User.findOneAndUpdate({ email: email }, updatePassWord, { new: true })
             resolve({
                 status: 'OK',
                 message: 'Update user success',
@@ -153,5 +173,6 @@ module.exports = {
     updateUser,
     deleteUser,
     getAllUser,
-    getDetailsUser
+    getDetailsUser,
+    updatePassWord
 }

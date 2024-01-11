@@ -1,6 +1,7 @@
 const Panel = require("../Models/Panel");
 const Point = require("../Models/Point");
 const panelTypeService = require("../Services/panelType.services")
+const PointService = require("../Services/point.services")
 
 const createPanel = (newPanel) => {
     return new Promise(async (resolve, reject) => {
@@ -32,6 +33,7 @@ const createPanel = (newPanel) => {
                 };
                 const newPanel = await Panel.create(newPanelData);
                 if (newPanel) {
+                    await PointService.updateHavePanel(idPoint)
                     resolve({
                         status: 'OK',
                         message: 'SUCCESS',
@@ -134,7 +136,9 @@ const deletePanel = (id) => {
                     message: 'The Panel is not defined'
                 })
             }
+            const idPoint = checkPanel.idPoint
             await Panel.findOneAndDelete({ _id: id })
+            await PointService.updateHavePanel(idPoint)
             resolve({
                 status: 'OK',
                 message: 'Delete Panel success',
