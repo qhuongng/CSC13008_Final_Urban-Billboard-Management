@@ -120,9 +120,10 @@
 </body>
 <script>
   function loadPanelDetail(item) {
-    const info = JSON.parse(item);
-
     document.getElementById("billboard-modal-body").innerHTML = "";
+    document.getElementById("billboard-modal-footer").innerHTML = "";
+
+    const info = JSON.parse(item);
 
     let bodyHtml = `<h5 class="card-title">${info.Paneltype}</h5>
                 <h6 class="card-subtitle mb-2 text-muted">${info.address}</h6>
@@ -131,7 +132,7 @@
                                       Hình thức: <b>${info.billboardType}</b><br>
                                       Phân loại: <b>${info.positionType}</b><br>
                                       Ngày hết hạn: <b>${info.expDate.slice(0, 10)}</b></p>
-                                      <img class="img-fluid" src="https://drive.google.com/uc?id=${info.picturePanel}"" alt=""><br>`
+                                      <img class="img-fluid" src="https://lh3.google.com/u/0/d/${info.picturePanel}" referrerpolicy="no-referrer" alt=""><br>`
 
     let footerHtml = `<button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Quay lại</button>
                       <a class="btn btn-outline-danger float-right" id="detail-report-button"
@@ -144,6 +145,8 @@
   }
 
   function loadReportDetail(item, isFreePoint) {
+    console.log(item);
+
     if (isFreePoint === true) {
       document.getElementById("free-report-modal-body").innerHTML = "";
     }
