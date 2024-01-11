@@ -60,6 +60,18 @@ const showReport = async (req, res) => {
     res.render("report", { address: req.query.address });
 };
 
+const getReport = async (req, res) => {
+    try {
+        const reportId = req.params.id;
+        const report = (await reportService.getReportbyId(reportId)).data;
+        if (report) {
+            res.status(200).json(report);
+        }
+    } catch (error) {
+        res.status(400).json({ message: error.message })
+    }
+}
+
 module.exports = {
     createReport,
     getAllReport,

@@ -52,8 +52,7 @@
             Profile
           </a>
           <div class="dropdown-divider"></div>
-          <form id="frmLogout" action="/api/user/logout" method="post"></form>
-          <a class="dropdown-item" href="">
+          <a class="dropdown-item" href="/api/user/logout">
             <i class="bi bi-box-arrow-in-left"></i>
             Logout
           </a>
@@ -76,57 +75,49 @@
             Dashboard <span class="sr-only"></span>
           </a>
         </li>
+        {{!-- {{#if authUser.role[0] == "-1" && authUser.role[1] == "-1"}} --}}
         <li class="nav-item">
           <a class="nav-link side-link" href="/api/demo">
-            <span data-feather="file"></span>
-            Quản lí điểm đặt
+            Quản lí điểm đặt quảng cáo
           </a>
         </li>
         <li class="nav-item">
           <a class="nav-link side-link" href="#">
-            <span data-feather="shopping-cart"></span>
             Quản lí bảng quảng cáo
           </a>
         </li>
         <li class="nav-item">
           <a class="nav-link side-link" href="#">
-            <span data-feather="users"></span>
             Quản lí loại hình quảng cáo
           </a>
         </li>
         <li class="nav-item">
           <a class="nav-link side-link" href="#">
-            <span data-feather="bar-chart-2"></span>
             Quản lí cấp phép quảng cáo
           </a>
         </li>
         <li class="nav-item">
           <a class="nav-link side-link" href="#">
-            <span data-feather="layers"></span>
             Quản lí báo cáo
           </a>
         </li>
         <li class="nav-item">
           <a class="nav-link side-link" href="#">
-            <span data-feather="layers"></span>
             Quản lí hình thức báo cáo
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link side-link" href="#">
-            <span data-feather="layers"></span>
+          <a class="nav-link side-link" href="/api/controlWardDistrict">
             Quản lí Quận, Phường
           </a>
         </li>
         <li class="nav-item">
           <a class="nav-link side-link" href="#">
-            <span data-feather="layers"></span>
             Tạo tài khoản cán bộ
           </a>
         </li>
         <li class="nav-item">
           <a class="nav-link side-link" href="#">
-            <span data-feather="layers"></span>
             Quản lí cán bộ
           </a>
         </li>
@@ -134,6 +125,10 @@
     </div>
   </nav>
   <script>
+    const navItemDepartment = [
+      { link: "/" }
+    ];
+
     $(document).ready(function () {
       // Initialize Bootstrap dropdowns
       $('.dropdown-toggle').dropdown();

@@ -2,28 +2,28 @@ const jwt = require('jsonwebtoken')
 const dotenv = require('dotenv')
 dotenv.config()
 
-const authMiddleware = (allowedRoles) => (req, res, next) => {
-    const token = req.headers.token.split(' ')[1]
-    jwt.verify(token, process.env.ACCESS_TOKEN, function (err, user) {
-        if (err) {
-            return res.status(404).json({
-                message: 'Your access is timed out',
-                status: 'ERR'
-            })
-        }
-        const { payload } = user
-        if (allowedRoles.includes(payload?.role)) {
+const checkRole = (allowedRoles) => (req, res, next) => {
+    if (allowedRoles === "ward") {
+        if (req.session.authUser.role[0] !== "-1" && req.session.authUser.role[1] !== "-1") {
             next()
-        } else {
-            return res.status(404).json({
-                message: 'You do not have permission',
-                status: 'ERR'
-            })
         }
-    });
+        else {
+            const errorMessage = "Bạn không có quyền truy cập";
+            res.locals.error = errorMessage;
+            return window.history.back();
+        }
+    }
 }
 
+const authLogin = (req, res, next) => {
+    if (req.session.auth === false) {
+        req.session.retUrl = req.originalUrl;
+        return res.redirect('/api/user/login');
+    }
+    next();
+};
 
 module.exports = {
-    authMiddleware
+    checkRole,
+    authLogin
 }

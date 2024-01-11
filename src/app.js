@@ -36,7 +36,6 @@ app.use(function (req, res, next) {
 
   res.locals.auth = req.session.auth;
   res.locals.authUser = req.session.authUser;
-  res.locals.token = req.session.token;
   next();
 });
 
@@ -54,23 +53,13 @@ app.set("view engine", "hbs");
 app.set("views", path.join(__dirname, "Views"));
 
 app.get("/", (req, res) => {
-  res.render("wardDistrict");
-});
-
-app.get('/addDistrict', (req, res) => {
-  res.render('Controls/addDistrict');
-});
-
-app.get('/addWard', (req, res) => {
-  res.render('Controls/addWard');
-});
-
-app.get('/editDistrict', (req, res) => {
-  res.render('Controls/editDistrict');
-});
-
-app.get('/editWard', (req, res) => {
-  res.render('Controls/editWard');
+  if (res.locals.auth == false) {
+    res.render("viewUser/login", {
+      layout: false
+    });
+  } else {
+    res.render("index");
+  }
 });
 
 mongoose

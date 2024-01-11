@@ -10,7 +10,8 @@ const ReportRouter = require("./report.routes");
 const ReportImgRouter = require("./reportImg.routes");
 const UserRouter = require("./user.routes");
 const OtpRouter = require('./otp.routes');
-const { authLogin } = require("../Middleware/authLogin");
+const controlWardDistrictRouter = require('./controlward_district.routes');
+const { checkRole, authLogin } = require("../Middleware/authMiddleware");
 
 const routes = (app) => {
   // đường dẫn dùng cho citizen
@@ -26,8 +27,9 @@ const routes = (app) => {
   app.use("/api/reportImg", ReportImgRouter);
   app.use('/api/user', UserRouter);
   app.use('/api/otp', OtpRouter);
+  app.use('/api/controlWardDistrict', controlWardDistrictRouter);
   // dùng để render
-  app.use('/api/demo', authLogin, (req, res) => {
+  app.use('/api/demo', (req, res) => {
     res.render('demo')
   });
 };

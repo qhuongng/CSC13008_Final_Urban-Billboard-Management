@@ -107,7 +107,6 @@ const getAllReport = () => {
         }
     })
 }
-
 const updateAction = (reportId, state, action) => {
     return new Promise(async (resolve, reject) => {
         try {
@@ -126,9 +125,29 @@ const updateAction = (reportId, state, action) => {
         }
     })
 }
-
+const getReportbyId = (id) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const report = Report.findById(id);
+            if (!report) {
+                reject({
+                    status: 'ERR',
+                    message: 'reportId does not exist'
+                })
+            }
+            else {
+                resolve({
+                    data: report
+                })
+            }
+        } catch (error) {
+            reject(error)
+        }
+    })
+}
 
 module.exports = {
+    getReportbyId,
     createReport,
     getAllReport
 }

@@ -5,6 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Department Page</title>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.2/js/toastr.min.js"></script>
+    <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
     <style>
         * {
             margin: 0;
@@ -105,7 +107,7 @@
         <div id="districts">
             <div class="title-container">
                 <h2>Districts</h2>
-                <a class="btn btn-outline-primary" href="/addDistrict" role="button">
+                <a class="btn btn-outline-primary" href="/api/controlWardDistrict/addDistrict" role="button">
                     <i class="bi bi-plus-circle"></i>
                     New District
                 </a>
@@ -133,6 +135,25 @@
     </div>
 
     <script>
+
+        toastr.options.closeButton = true;
+        toastr.options = {
+            "closeButton": true,
+            "debug": false,
+            "newestOnTop": false,
+            "progressBar": false,
+            "positionClass": "toast-bottom-right",
+            "preventDuplicates": false,
+            "onclick": null,
+            "showDuration": "300",
+            "hideDuration": "300",
+            "timeOut": "2000",
+            "extendedTimeOut": "1000",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+        }
         document.getElementById('newWardBtn').addEventListener('click', function (event) {
             event.preventDefault(); // Prevent the default behavior of the anchor tag
 
@@ -143,12 +164,14 @@
                 console.log('Selected District ID:', districtId);
 
                 if (districtId) {
-                    window.location.href = `/addWard?districtId=${districtId}`;
+                    window.location.href = `/api/controlWardDistrict/addWard?districtId=${districtId}`;
                 } else {
-                    alert("Error: District ID is not available.");
+                    //alert("Error: District ID is not available.");
+                    toastr.error("Error: District ID is not available.");
                 }
             } else {
-                alert("Please choose a district first.");
+                //alert("Please choose a district first.");
+                toastr.error("Please choose a district first.")
             }
         });
 
@@ -171,7 +194,7 @@
                         container.appendChild(districtName);
 
                         const editButton = document.createElement('a');
-                        editButton.href = `/editDistrict?districtId=${district.disId}&districtName=${encodeURIComponent(district.disName)}`;
+                        editButton.href = `controlWardDistrict/editDistrict?districtId=${district.disId}&districtName=${encodeURIComponent(district.disName)}`;
                         editButton.classList.add('btn', 'btn-sm', 'btn-primary');
                         editButton.role = 'button';
                         editButton.innerHTML = '<i class="bi bi-pencil-square"></i> Edit';
@@ -184,7 +207,7 @@
 
                             // Enable the "New Ward" button and mark the selected district
                             const newWardBtn = document.getElementById('newWardBtn');
-                            newWardBtn.href = `/addWard?districtId=${district.disId}`;
+                            newWardBtn.href = `api/controlWardDistrict/addWard?districtId=${district.disId}`;
                             newWardBtn.removeAttribute('disabled');
 
                             // Remove the 'selected-district' class from all rows
@@ -235,7 +258,7 @@
 
                             // Edit button
                             const editButton = document.createElement('a');
-                            editButton.href = `/editWard?wardId=${ward.wardId}&wardName=${encodeURIComponent(ward.wardName)}`;
+                            editButton.href = `api/controlWardDistrict/editWard?wardId=${ward.wardId}&wardName=${encodeURIComponent(ward.wardName)}`;
                             editButton.classList.add('btn', 'btn-sm', 'btn-primary');
                             editButton.role = 'button';
                             editButton.innerHTML = '<i class="bi bi-pencil-square"></i> Edit';
