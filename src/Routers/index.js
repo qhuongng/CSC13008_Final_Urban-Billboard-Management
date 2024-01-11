@@ -11,7 +11,6 @@ const ReportImgRouter = require("./reportImg.routes");
 const UserRouter = require("./user.routes");
 const OtpRouter = require('./otp.routes');
 const controlWardDistrictRouter = require('./controlward_district.routes');
-const { checkRole, authLogin } = require("../Middleware/authMiddleware");
 
 const routes = (app) => {
   // đường dẫn dùng cho citizen
@@ -28,9 +27,35 @@ const routes = (app) => {
   app.use('/api/user', UserRouter);
   app.use('/api/otp', OtpRouter);
   app.use('/api/controlWardDistrict', controlWardDistrictRouter);
-  // dùng để render
-  app.use('/api/demo', (req, res) => {
-    res.render('demo')
+  //
+
+
+  app.get("/", (req, res) => {
+    const navItemDepartment = [
+      { link: "/api/controlWardDistrict", label: "Quản lí Phường, Quận" },
+      { link: "#", label: "Quản lí loại hình quảng cáo" },
+      { link: "#", label: "Quản lí hình thức báo cáo" },
+      { link: "#", label: "Quản lí điểm đặt quảng cáo" },
+      { link: "#", label: "Quản lí bảng quảng cáo" },
+      { link: "#", label: "Xét duyệt yêu cầu chỉnh sửa" },
+      { link: "#", label: "Xét duyệt yêu cầu cấp phép" },
+      { link: "#", label: "Thống kê báo cáo" },
+      { link: "#", label: "Tạo tài khoản cán bộ" },
+      { link: "#", label: "Phân công khu vực" },
+    ];
+    const navItemAnother = [
+      { link: "#", label: "Thống kê điểm đặt, biển quảng cáo" },
+      { link: "#", label: "Gửi yêu cầu chỉnh sửa" },
+      { link: "#", label: "Xử lí báo cáo" },
+      { link: "#", label: "Tạo yêu cầu cấp phép quảng cáo" },
+    ];
+    if (res.locals.auth == false) {
+      res.render("viewUser/login", {
+        layout: false
+      });
+    } else {
+      res.render("index");
+    }
   });
 };
 

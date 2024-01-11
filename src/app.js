@@ -46,21 +46,40 @@ app.engine(
   handlebars.engine({
     extname: "hbs",
     defaultLayout: 'main',
+    helpers: {
+      ifCond(v1, operator, v2, options) {
+        switch (operator) {
+          case '==':
+            return (v1 == v2) ? options.fn(this) : options.inverse(this);
+          case '===':
+            return (v1 === v2) ? options.fn(this) : options.inverse(this);
+          case '!=':
+            return (v1 != v2) ? options.fn(this) : options.inverse(this);
+          case '!==':
+            return (v1 !== v2) ? options.fn(this) : options.inverse(this);
+          case '<':
+            return (v1 < v2) ? options.fn(this) : options.inverse(this);
+          case '<=':
+            return (v1 <= v2) ? options.fn(this) : options.inverse(this);
+          case '>':
+            return (v1 > v2) ? options.fn(this) : options.inverse(this);
+          case '>=':
+            return (v1 >= v2) ? options.fn(this) : options.inverse(this);
+          case '&&':
+            return (v1 && v2) ? options.fn(this) : options.inverse(this);
+          case '||':
+            return (v1 || v2) ? options.fn(this) : options.inverse(this);
+          default:
+            return options.inverse(this);
+        }
+      }
+    }
   })
+
 );
 
 app.set("view engine", "hbs");
 app.set("views", path.join(__dirname, "Views"));
-
-app.get("/", (req, res) => {
-  if (res.locals.auth == false) {
-    res.render("viewUser/login", {
-      layout: false
-    });
-  } else {
-    res.render("index");
-  }
-});
 
 mongoose
   .connect(`${process.env.MONGO_URL}`)

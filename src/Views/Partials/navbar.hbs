@@ -64,7 +64,6 @@
       </li>
       {{/if}}
     </ul>
-    </div>
   </nav>
   <nav class=" bg-light sidebar">
     <div class="sidebar-sticky">
@@ -75,9 +74,25 @@
             Dashboard <span class="sr-only"></span>
           </a>
         </li>
-        {{!-- {{#if authUser.role[0] == "-1" && authUser.role[1] == "-1"}} --}}
+        {{#ifCond authUser.role.[0] '===' "-1"}}
+        {{#ifCond authUser.role.[1] '===' "-1"}}
         <li class="nav-item">
-          <a class="nav-link side-link" href="/api/demo">
+          <a class="nav-link side-link" href="/api/controlWardDistrict">
+            Quản lí Phường, Quận
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link side-link" href="#">
+            Quản lí loại hình quảng cáo
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link side-link" href="#">
+            Quản lí hình thức báo cáo
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link side-link" href="#">
             Quản lí điểm đặt quảng cáo
           </a>
         </li>
@@ -88,27 +103,17 @@
         </li>
         <li class="nav-item">
           <a class="nav-link side-link" href="#">
-            Quản lí loại hình quảng cáo
+            Xét duyệt yêu cầu chỉnh sửa
           </a>
         </li>
         <li class="nav-item">
           <a class="nav-link side-link" href="#">
-            Quản lí cấp phép quảng cáo
+            Xét duyệt yêu cầu cấp phép
           </a>
         </li>
         <li class="nav-item">
           <a class="nav-link side-link" href="#">
-            Quản lí báo cáo
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link side-link" href="#">
-            Quản lí hình thức báo cáo
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link side-link" href="/api/controlWardDistrict">
-            Quản lí Quận, Phường
+            Thống kê báo cáo
           </a>
         </li>
         <li class="nav-item">
@@ -118,17 +123,36 @@
         </li>
         <li class="nav-item">
           <a class="nav-link side-link" href="#">
-            Quản lí cán bộ
+            Phân công khu vực
           </a>
         </li>
+        {{/ifCond}}
+        {{else}}
+        <li class="nav-item">
+          <a class="nav-link side-link" href="#">
+            Thống kê điểm đặt, biển quảng cáo
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link side-link" href="#">
+            Gửi yêu cầu chỉnh sửa
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link side-link" href="#">
+            Xử lí báo cáo
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link side-link" href="#">
+            Tạo yêu cầu cấp phép quảng cáo
+          </a>
+        </li>
+        {{/ifCond}}
       </ul>
     </div>
   </nav>
   <script>
-    const navItemDepartment = [
-      { link: "/" }
-    ];
-
     $(document).ready(function () {
       // Initialize Bootstrap dropdowns
       $('.dropdown-toggle').dropdown();
