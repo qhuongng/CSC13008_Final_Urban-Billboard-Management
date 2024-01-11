@@ -63,7 +63,7 @@ const showReport = async (req, res) => {
 const getReport = async (req, res) => {
     try {
         const reportId = req.params.id;
-        const report = (await reportService.getReportbyId(reportId)).data;
+        const report = await reportService.getReportbyId(reportId);
         if (report) {
             res.status(200).json(report);
         }
@@ -73,6 +73,7 @@ const getReport = async (req, res) => {
 }
 
 module.exports = {
+    getReport,
     createReport,
     getAllReport,
     showReport,

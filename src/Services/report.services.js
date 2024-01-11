@@ -128,7 +128,7 @@ const updateAction = (reportId, state, action) => {
 const getReportbyId = (id) => {
     return new Promise(async (resolve, reject) => {
         try {
-            const report = Report.findById(id);
+            const report = Report.findOne({ _id: id });
             if (!report) {
                 reject({
                     status: 'ERR',
@@ -136,9 +136,7 @@ const getReportbyId = (id) => {
                 })
             }
             else {
-                resolve({
-                    data: report
-                })
+                resolve(report)
             }
         } catch (error) {
             reject(error)
