@@ -16,6 +16,14 @@ function errorLocation() {
     setupMap([106.67908367285673, 10.75305989852285]);
 }
 
+function escapeHtml(unsafe) {
+    return unsafe.replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
 function bottomController() {
     const toggleableLayerIds = ["unclustered-point", "unclustered-point-zoned", "reported-point"];
 
@@ -210,7 +218,7 @@ function setupMap(center) {
         let dbPointJson;
         let dbZonedPointJson;
         let freePointJson;
-        let localReports = [];
+        let reportIds = [];
 
         (async () => {
             let pointData = await loadPoints();
@@ -230,19 +238,21 @@ function setupMap(center) {
 
             for (let i = 0; i < pointData.length; i++) {
                 let report = null;
+                let reportId = 0;
                 let isReportedAtPanelLevel = false;
                 let coords = [pointData[i].locate[0], pointData[i].locate[1]];
 
                 for (let j = 0; j < reportData.length; j++) {
                     if (reportData[j]) {
+                        reportIds.push(reportData[j]._id);
                         report = localStorage.getItem(reportData[j]._id);
-                        localReports.push(reportData[j]._id);
 
                         if (report) {
                             if (JSON.parse(report).locate[0] == coords[0] && JSON.parse(report).locate[1] == coords[1]) {
                                 // nếu là report của ĐỊA ĐIỂM thì add
                                 if (JSON.parse(report).idPanel === "1") {
-                                    // update tình trạng xử lí                            
+                                    // update tình trạng xử lí
+                                    reportId = reportData[j]._id;
                                     localStorage.setItem(JSON.parse(report)._id, report);
                                     break;
                                 }
@@ -278,7 +288,7 @@ function setupMap(center) {
                         long: pointData[i].locate[0],
                         lat: pointData[i].locate[1],
                         isReportedAtPanelLevel: isReportedAtPanelLevel,
-                        pointReport: (report !== null) ? report : 0,
+                        pointReport: reportId,
                         havePanel: pointData[i].havePanel
                     },
                 };
@@ -298,36 +308,41 @@ function setupMap(center) {
             for (let i = 0; i < reportData.length; i++) {
                 if (reportData[i]) {
                     let report = localStorage.getItem(reportData[i]._id);
+                    console.log(report);
 
-                    if (report && JSON.parse(report).idPanel == "0") {
-                        let reportJson = JSON.parse(report);
+                    let reportJson;
 
-                        let point = {
-                            type: "Feature",
-                            geometry: {
-                                type: "Point",
-                                coordinates: [parseFloat(reportJson.locate[0]), parseFloat(reportJson.locate[1])]
-                            },
-                            properties: {
-                                long: reportJson.locate[0],
-                                lat: reportJson.locate[1],
-                                reportId: reportJson._id,
-                                reportType: reportJson.reportType,
-                                name: reportJson.name,
-                                email: reportJson.email,
-                                phone: reportJson.phone,
-                                content: reportJson.content.replace(/"/g, '\\"'),
-                                reportPicture: reportJson.reportPicture,
-                                idPanel: reportJson.idPanel,
-                                state: reportJson.state,
-                                actionHandler: reportJson.actionHandler,
-                                address: reportJson.address,
-                                district: reportJson.district,
-                                ward: reportJson.ward,
-                            },
-                        };
+                    if (report) {
+                        reportJson = JSON.parse(report);
 
-                        freePointJson.features.push(point);
+                        if (reportJson.idPanel == "0") {
+                            let point = {
+                                type: "Feature",
+                                geometry: {
+                                    type: "Point",
+                                    coordinates: [parseFloat(reportJson.locate[0]), parseFloat(reportJson.locate[1])]
+                                },
+                                properties: {
+                                    long: reportJson.locate[0],
+                                    lat: reportJson.locate[1],
+                                    reportId: reportJson._id,
+                                    reportType: reportJson.reportType,
+                                    name: reportJson.name,
+                                    email: reportJson.email,
+                                    phone: reportJson.phone,
+                                    content: reportJson.content,
+                                    reportPicture: reportJson.reportPicture,
+                                    idPanel: reportJson.idPanel,
+                                    state: reportJson.state,
+                                    actionHandler: reportJson.actionHandler,
+                                    address: reportJson.address,
+                                    district: reportJson.district,
+                                    ward: reportJson.ward,
+                                },
+                            };
+
+                            freePointJson.features.push(point);
+                        }
                     }
                 }
             }
@@ -567,6 +582,7 @@ function setupMap(center) {
                 });
 
                 const clusterId = features[0].properties.cluster_id;
+
                 map.getSource("billboardPos").getClusterExpansionZoom(clusterId, (err, zoom) => {
                     if (err) return;
 
@@ -615,7 +631,7 @@ function setupMap(center) {
                 const ward = JSON.parse(props.area).ward;
                 const address = `${props.address}<br>${ward}, ${district}`;
                 const addressURL = `${props.address.trim()}, ${ward}, ${district}`;
-                const imgUrl = `https://drive.google.com/uc?id=${props.picturePoint}`;
+                const imgUrl = `https://lh3.google.com/u/0/d/${props.picturePoint}`;
                 const placeInfoPaneHeader = `<div class="card-body">
                                                 <h5 class="card-title">
                                                     <i class="bi bi-info-circle"></i>
@@ -633,14 +649,14 @@ function setupMap(center) {
                                                                             <p class="card-text">
                                                                                 <strong>${props.name}</strong><br>
                                                                                 ${address}<br><br>
-                                                                                <img class="img-fluid" src=${imgUrl} alt=""><br><br>
+                                                                                <img class="img-fluid" src="${imgUrl}" referrerpolicy="no-referrer" alt=""><br><br>
                                                                                 ${reportButton}
                                                                             </p>`;
 
                 }
                 else {
                     // lấy report
-                    let pointReport = JSON.parse(props.pointReport);
+                    let pointReport = JSON.parse(localStorage.getItem(props.pointReport));
 
                     const reportInfo = {
                         name: pointReport.name,
@@ -655,7 +671,7 @@ function setupMap(center) {
                     };
 
                     const viewReportButton =
-                        `<button class="btn btn-outline-primary float-right" data-toggle="modal" data-target="#report-info-modal" onclick="loadReportDetail('${JSON.stringify(reportInfo).replace(/"/g, '&quot;')}', false)">
+                        `<button class="btn btn-outline-primary float-right" data-toggle="modal" data-target="#report-info-modal" onclick="loadReportDetail('${escapeHtml(JSON.stringify(reportInfo))}', false)">
                             <i class="bi bi-exclamation-octagon-fill"></i>
                             XEM BÁO CÁO
                         </button>`;
@@ -709,12 +725,12 @@ function setupMap(center) {
                                     panelReport: 0
                                 };
 
-                                for (let i = 0; i < localReports.length; i++) {
-                                    const report = localStorage.getItem(localReports[i]);
+                                for (let i = 0; i < reportIds.length; i++) {
+                                    const report = localStorage.getItem(reportIds[i]);
 
                                     if (report) {
                                         if (JSON.parse(report).idPanel == info.panelId) {
-                                            info.panelReport = report;
+                                            info.panelReport = reportIds[i];
                                         }
                                     }
                                 }
@@ -733,7 +749,7 @@ function setupMap(center) {
                                                     Số lượng: ${item.amount}<br>
                                                     Hình thức: <b>${billboardType}</b><br>
                                                     Phân loại: <b>${positionType}</b></p>
-                                                <a href="#" data-toggle="modal" data-target="#billboard-info-modal" onclick="loadPanelDetail('${JSON.stringify(info).replace(/"/g, '&quot;')}')">
+                                                <a href="#" data-toggle="modal" data-target="#billboard-info-modal" onclick="loadPanelDetail('${escapeHtml(JSON.stringify(info))}')">
                                                     <i class="bi bi-info-circle"></i>
                                                 </a>
                                                 ${reportButton}
@@ -742,8 +758,8 @@ function setupMap(center) {
                                     }
                                 }
                                 else {
-                                    if (map.getLayoutProperty("reported-point", "visibility") == "visible") {                                   // lấy report
-                                        let panelReport = JSON.parse(info.panelReport);
+                                    if (map.getLayoutProperty("reported-point", "visibility") == "visible") {                                // lấy report
+                                        let panelReport = JSON.parse(localStorage.getItem(info.panelReport));
 
                                         const reportInfo = {
                                             name: panelReport.name,
@@ -757,8 +773,10 @@ function setupMap(center) {
                                             actionHandler: panelReport.actionHandler
                                         };
 
+                                        console.log(reportInfo);
+
                                         const viewReportButton =
-                                            `<button class="btn btn-outline-primary float-right" data-toggle="modal" data-target="#report-info-modal" onclick="loadReportDetail('${JSON.stringify(reportInfo).replace(/"/g, '&quot;')}', false)">
+                                            `<button class="btn btn-outline-primary float-right" data-toggle="modal" data-target="#report-info-modal" onclick="loadReportDetail('${escapeHtml(JSON.stringify(reportInfo))}', false)">
                                                 <i class="bi bi-exclamation-octagon-fill"></i>
                                                 XEM BÁO CÁO
                                             </button>`;
@@ -772,7 +790,7 @@ function setupMap(center) {
                                                                 Hình thức: <b>${billboardType}</b><br>
                                                                 Phân loại: <b>${positionType}</b></p>
                                                                 <p style="color:red"><em>Bảng quảng cáo này đã được báo cáo.</em></p>
-                                                            <a href="#" data-toggle="modal" data-target="#billboard-info-modal" onclick="loadPanelDetail('${JSON.stringify(info).replace(/"/g, '&quot;')}')">
+                                                            <a href="#" data-toggle="modal" data-target="#billboard-info-modal" onclick="loadPanelDetail('${escapeHtml(JSON.stringify(info))}')">
                                                                 <i class="bi bi-info-circle"></i>
                                                             </a>
                                                             ${viewReportButton}
@@ -834,6 +852,7 @@ function setupMap(center) {
 
             map.on("click", "free-point", (e) => {
                 const props = e.features[0].properties;
+                console.log(props);
 
                 const reportInfo = {
                     name: props.name,
@@ -841,14 +860,14 @@ function setupMap(center) {
                     phone: props.phone,
                     reportType: props.reportType,
                     reportImgId: JSON.parse(props.reportPicture),
-                    content: props.content.replace(/"/g, '\\"'),
+                    content: props.content,
                     address: props.address,
                     state: props.state,
                     actionHandler: props.actionHandler
                 };
 
                 $('#free-report-info-modal').on('shown.bs.modal', function () {
-                    loadReportDetail(JSON.stringify(reportInfo).replace(/"/g, '&quot;'), true);
+                    loadReportDetail(JSON.stringify(reportInfo), true);
                 });
 
                 $('#free-report-info-modal').modal('show');
