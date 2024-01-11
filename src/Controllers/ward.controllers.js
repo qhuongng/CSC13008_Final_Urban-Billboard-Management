@@ -1,21 +1,21 @@
 const WardService = require('../Services/ward.services')
 
-const createWard= async(req,res)=>{
-    try{
-        const {wardId, wardName, districtRefId} = req.body
-        if(!wardId){
+const createWard = async (req, res) => {
+    try {
+        const { wardId, wardName, districtRefId } = req.body
+        if (!wardId) {
             return res.status(200).json({
                 status: 'ERR',
                 message: 'The wardId is required'
             })
         }
-        if(!wardName){
+        if (!wardName) {
             return res.status(200).json({
                 status: 'ERR',
                 message: 'The wardName is required'
             })
         }
-        if(!districtRefId){
+        if (!districtRefId) {
             return res.status(200).json({
                 status: 'ERR',
                 message: 'The districtRefId is required'
@@ -23,7 +23,7 @@ const createWard= async(req,res)=>{
         }
         const response = await WardService.createWard(req.body)
         return res.status(200).json(response)
-    }catch(e){
+    } catch (e) {
         return res.status(404).json({
             message: e
         })

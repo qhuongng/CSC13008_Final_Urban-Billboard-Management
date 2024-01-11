@@ -3,12 +3,12 @@ body {
 }
 
 #main-container {
-    height: 100vh;
+    height: 90vh;
     overflow-y: hidden;
 }
 
 #map {
-    height: 96vh;
+    height: 87vh;
     width: 100%;
     border-radius: 5px;
 }
