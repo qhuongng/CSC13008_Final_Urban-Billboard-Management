@@ -1,0 +1,212 @@
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+<div class="control-responsive border p-4 d-flex flex-column align-items-center">
+    <div class="container mt-3">
+        <!-- Page Title -->
+
+        <div class="mt-3 d-flex justify-content-between">
+            <h2 class="mb-4">Hình thức báo cáo</h2>
+            <div>
+                <button class="btn btn-success mr-2" data-toggle="modal" data-target="#addModal">
+                    <i class="fas fa-plus"></i>
+                    Thêm hình thức báo cáo
+                </button>
+                {{!-- <button class="btn btn-warning mr-2" onclick="editSelectedRow()" data-toggle="modal"
+                    data-target="#editModal">
+                    <i class="fas fa-edit"></i>
+                    Edit Selected
+                </button>
+                <button class="btn btn-danger" onclick="deleteSelectedRow()">
+                    <i class="fas fa-trash-alt"></i>
+                    Delete Selected
+                </button> --}}
+            </div>
+        </div>
+        <!-- Table -->
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Phân loại</th>
+                        <th scope="col">Tác vụ</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<!-- Add Modal for Add and Edit -->
+<div class="modal fade" id="addModal" tabindex="-1" role="dialog" aria-labelledby="addModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addModalLabel">Thêm hình thức báo cáo</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="addForm">
+                    <div class="form-group">
+                        <label for="add-data">Hình thức báo cáo mới:</label>
+                        <input type="text" class="form-control" id="add-data" placeholder="Nhập hình thức quảng cáo mới"
+                            required />
+                        <div class="invalid-feedback">
+                            Cung cấp hình thức báo cáo mới
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-primary" onclick="addCategory()">Thêm</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editModalLabel">Edit Category</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="editForm">
+                    <div class="form-group">
+                        <label for="edited-id">ID hình thức báo cáo: </label>
+                        <input type="text" id="edited-id" style="border: none;" readonly />
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-data">Chỉnh sửa tên hình thức báo cáo </label>
+                        <input type="text" class="form-control" id="edit-data" placeholder="Nhập tại đây" required />
+                        <div class="invalid-feedback">
+                            Cung cấp hình thức báo cáo mới
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-primary" onclick="editSelectedRow()">Lưu thay đổi</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    fetch('http://localhost:3500/api/reportType/getAllReportType')
+        .then(response => response.json())
+        .then(data => {
+            const listReportType = data.data;
+            listReportType.forEach(item => {
+                const row = `<tr>
+                                <th scope="row">${item.reportId}</th>
+                                <td>${item.reportName}</td>
+                                <td class="text-nowrap overflow-hidden" style="width: 1%;">
+                                    <button class="btn btn-sm btn-primary" onclick="editRow('${item.reportId}')" data-toggle="modal"
+                                        data-target="#editModal">
+                                        <i class="fas fa-edit"></i>
+                                        Edit
+                                    </button>
+                                    <button class="btn btn-sm btn-danger" onclick="deleteRow('${item.reportId}')">
+                                        <i class="fas fa-trash-alt"></i>
+                                        Delete
+                                    </button>
+                                </td>
+                            </tr>`;
+                $('tbody').append(row);
+            });
+        })
+        .catch(err => console.log(err));
+
+    function addRow() {
+        const tableBody = document.querySelector('tbody');
+        const newRow = document.createElement('tr');
+        newRow.innerHTML = `
+        <th scope="row">${tableBody.children.length + 1}</th>
+        <td>New Category</td>
+        <td>
+          <button class="btn btn-sm btn-primary" onclick="editRow(${tableBody.children.length + 1})">Sửa</button>
+          <button class="btn btn-sm btn-danger" onclick="deleteRow(${tableBody.children.length + 1})">Xoá</button>
+        </td>
+      `;
+        tableBody.appendChild(newRow);
+    }
+
+    function editRow(rowIdentifier) {
+        const numericPart = parseInt(rowIdentifier.slice(1), 10);
+
+        const row = document.querySelector(`tbody tr:nth-child(${numericPart})`);
+
+        if (row) {
+            console.log(`Editing row ${rowIdentifier}`);
+            document.getElementById('edited-id').value = rowIdentifier;
+        } else {
+            console.log(`Row ${rowIdentifier} not found.`);
+        }
+    }
+
+    function deleteRow(rowNumber) {
+        const numericPart = parseInt(rowIdentifier.slice(1), 10);
+
+        const row = document.querySelector(`tbody tr:nth-child(${numericPart})`);
+
+        if (row) {
+            console.log(`Deleting row ${rowIdentifier}`);
+            document.getElementById('deleted-id').value = rowIdentifier;
+        } else {
+            console.log(`Row ${rowIdentifier} not found.`);
+        }
+    }
+
+    function editSelectedRow() {
+        const id = document.getElementById('edited-id').value;
+        const editedData = document.getElementById('edit-data').value;
+
+        console.log(`Editing row ${id}`);
+        console.log(`New data: ${editedData}`);
+
+        fetch('/api/controlReportType/edit', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ id: id, editedData: editedData })
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                $('#editModal').modal('hide');
+                $('.modal-backdrop').remove();
+                document.getElementById('editForm').reset();
+                alert('Edit successfully!');
+                window.location.reload()
+            })
+            .catch(error => {
+                console.log(data);
+                $('#editModal').modal('hide');
+                $('.modal-backdrop').remove();
+                document.getElementById('editForm').reset();
+                alert('Edit failed!');
+                window.location.reload()
+            });
+    }
+
+    function deleteSelectedRow() {
+        const selectedRows = document.querySelectorAll('tbody tr input[type="checkbox"]:checked');
+        selectedRows.forEach(row => row.parentElement.parentElement.remove());
+    }
+</script>
