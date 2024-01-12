@@ -82,12 +82,12 @@
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link side-link" href="#">
+          <a class="nav-link side-link" href="/api/controlPanelType">
             Quản lí loại hình quảng cáo
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link side-link" href="#">
+          <a class="nav-link side-link" href="/api/controlReportType">
             Quản lí hình thức báo cáo
           </a>
         </li>
@@ -178,6 +178,10 @@
     const sidebarToggle = document.querySelector('.sidebar-toggle');
     sidebarToggle.addEventListener('click', function () {
       document.querySelector('.sidebar').classList.toggle('active');
+      if(document.querySelector('.sidebar').classList.contains('active'))
+        document.querySelector('.control-responsive').style.marginLeft = '250px';
+      else
+      document.querySelector('.control-responsive').style.marginLeft = '0px';
     });
   </script>
 </body>
