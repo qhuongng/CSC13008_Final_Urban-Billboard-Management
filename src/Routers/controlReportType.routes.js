@@ -3,7 +3,7 @@ const router = express.Router();
 const controlReportType = require("../Controllers/reportType.controllers");
 
 router.get("/", (req, res) => {
-  res.render("Controls/reportType/reportType");
+  res.render("controlReportType/reportType");
 });
 
 router.put("/edit", controlReportType.updateReportType);

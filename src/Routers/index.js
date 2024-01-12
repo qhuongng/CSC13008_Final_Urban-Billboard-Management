@@ -33,24 +33,6 @@ const routes = (app) => {
   app.use('/api/controlReportType', controlReportTypeRouter);
   //
   app.get("/", (req, res) => {
-    const navItemDepartment = [
-      { link: "/api/controlWardDistrict", label: "Quản lí Phường, Quận" },
-      { link: "/api/controlPanelType", label: "Quản lí loại hình quảng cáo" },
-      { link: "/api/controlReportType", label: "Quản lí hình thức báo cáo" },
-      { link: "#", label: "Quản lí điểm đặt quảng cáo" },
-      { link: "#", label: "Quản lí bảng quảng cáo" },
-      { link: "#", label: "Xét duyệt yêu cầu chỉnh sửa" },
-      { link: "#", label: "Xét duyệt yêu cầu cấp phép" },
-      { link: "#", label: "Thống kê báo cáo" },
-      { link: "#", label: "Tạo tài khoản cán bộ" },
-      { link: "#", label: "Phân công khu vực" },
-    ];
-    const navItemAnother = [
-      { link: "#", label: "Thống kê điểm đặt, biển quảng cáo" },
-      { link: "#", label: "Gửi yêu cầu chỉnh sửa" },
-      { link: "#", label: "Xử lí báo cáo" },
-      { link: "#", label: "Tạo yêu cầu cấp phép quảng cáo" },
-    ];
     if (res.locals.auth == false) {
       res.render("viewUser/login", {
         layout: false
