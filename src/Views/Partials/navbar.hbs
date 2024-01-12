@@ -73,8 +73,8 @@
             Dashboard <span class="sr-only"></span>
           </a>
         </li>
-        {{#ifCond authUser.role.[0] '===' "-1"}}
         {{#ifCond authUser.role.[1] '===' "-1"}}
+        {{#ifCond authUser.role.[0] '===' "-1"}}
         <li class="nav-item">
           <a class="nav-link side-link" href="/api/controlWardDistrict">
             Quản lí Phường, Quận
