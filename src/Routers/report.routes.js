@@ -12,6 +12,7 @@ router.get('/getReport/:id', reportController.getReport);
 router.get('/getReportByWard/:name', reportController.getReportByWard)
 router.get('/getReportByDis/:name', reportController.getReportByDis)
 router.get('/getReportByWardAndDis/:wardName/:districtName', reportController.getReportByWardAndDis);
+router.get('/getReportByEmail/:email', reportController.getReportByEmail)
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
