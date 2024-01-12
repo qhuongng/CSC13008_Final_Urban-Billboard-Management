@@ -11,6 +11,7 @@ const ReportImgRouter = require("./reportImg.routes");
 const UserRouter = require("./user.routes");
 const OtpRouter = require('./otp.routes');
 const controlWardDistrictRouter = require('./controlward_district.routes');
+const reportStatisticsRouter = require('./reportStatistics.routes');
 
 const routes = (app) => {
   // đường dẫn dùng cho citizen
@@ -27,6 +28,7 @@ const routes = (app) => {
   app.use('/api/user', UserRouter);
   app.use('/api/otp', OtpRouter);
   app.use('/api/controlWardDistrict', controlWardDistrictRouter);
+  app.use('/api/reportStatistics', reportStatisticsRouter)
   //
   app.get("/", (req, res) => {
     if (res.locals.auth == false) {
