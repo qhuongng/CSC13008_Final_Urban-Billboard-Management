@@ -1,5 +1,4 @@
-<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
-<div class="control-responsive border p-4 d-flex flex-column align-items-center">
+<div class="control-responsive p-4 d-flex flex-column align-items-center">
     <div class="container mt-3">
         <!-- Page Title -->
 
@@ -38,10 +37,6 @@
     </div>
 </div>
 
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
 <!-- Add Modal for Add and Edit -->
 <div class="modal fade" id="addModal" tabindex="-1" role="dialog" aria-labelledby="addModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -55,8 +50,8 @@
             <div class="modal-body">
                 <form id="addForm">
                     <div class="form-group">
-                        <label for="add-data">Hình thức báo cáo mới:</label>
-                        <input type="text" class="form-control" id="add-data" placeholder="Nhập hình thức quảng cáo mới"
+                        <label for="add-data">Hình thức báo cáo mới</label>
+                        <input type="text" class="form-control" id="add-data" placeholder="VD: Biển kim loại sơn"
                             required />
                         <div class="invalid-feedback">
                             Cung cấp hình thức báo cáo mới
@@ -85,12 +80,13 @@
             <div class="modal-body">
                 <form id="editForm">
                     <div class="form-group">
-                        <label for="edited-id">ID hình thức báo cáo: </label>
+                        <label for="edited-id">ID hình thức báo cáo </label>
                         <input type="text" id="edited-id" style="border: none;" readonly />
                     </div>
                     <div class="form-group">
                         <label for="edit-data">Chỉnh sửa tên hình thức báo cáo </label>
-                        <input type="text" class="form-control" id="edit-data" placeholder="Nhập tại đây" required />
+                        <input type="text" class="form-control" id="edit-data" placeholder="VD: Biển kim loại"
+                            required />
                         <div class="invalid-feedback">
                             Cung cấp hình thức báo cáo mới
                         </div>

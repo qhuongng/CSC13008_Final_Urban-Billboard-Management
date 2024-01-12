@@ -308,26 +308,31 @@ function setupMap(center) {
             // load reported free points
             for (let i = 0; i < reports.length; i++) {
                 if (reports[i].idPanel == "0") {
-                    let pointExists = freePointJson.features.some(freePoint => (freePoint.properties.address == reports[i].address && freePoint.properties.ward == reports[i].ward && freePoint.properties.district == reports[i].district));
+                    let ward = reports[i].ward;
+                    let district = reports[i].district;
 
-                    // check if a point with the same address, ward and distric already exists
-                    if (pointExists === false) {
-                        let point = {
-                            type: "Feature",
-                            geometry: {
-                                type: "Point",
-                                coordinates: [parseFloat(reports[i].locate[0]), parseFloat(reports[i].locate[1])]
-                            },
-                            properties: {
-                                long: reports[i].locate[0],
-                                lat: reports[i].locate[1],
-                                address: reports[i].address,
-                                district: reports[i].district,
-                                ward: reports[i].ward,
-                            },
-                        };
+                    if ((authWard == "-1" && authDist == "-1") || (authWard == "-1" && authDist == district) || (authWard == ward && authDist == district)) {
+                        let pointExists = freePointJson.features.some(freePoint => (freePoint.properties.address == reports[i].address && freePoint.properties.ward == reports[i].ward && freePoint.properties.district == reports[i].district));
 
-                        freePointJson.features.push(point);
+                        // check if a point with the same address, ward and distric already exists
+                        if (pointExists === false) {
+                            let point = {
+                                type: "Feature",
+                                geometry: {
+                                    type: "Point",
+                                    coordinates: [parseFloat(reports[i].locate[0]), parseFloat(reports[i].locate[1])]
+                                },
+                                properties: {
+                                    long: reports[i].locate[0],
+                                    lat: reports[i].locate[1],
+                                    address: reports[i].address,
+                                    district: reports[i].district,
+                                    ward: reports[i].ward,
+                                },
+                            };
+
+                            freePointJson.features.push(point);
+                        }
                     }
                 }
             }

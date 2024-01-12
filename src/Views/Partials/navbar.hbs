@@ -38,7 +38,7 @@
       <a class="navbar-brand" href="/">Map Application <i class="bi bi-geo-alt-fill"></i></a>
     </div>
 
-    <ul class="navbar-nav ml-auto">
+    <ul class="navbar-nav ml-auto mr-3">
       {{#if auth}}
       <li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown" id="nav-dropdown" aria-haspopup="true"
@@ -73,8 +73,8 @@
             Dashboard <span class="sr-only"></span>
           </a>
         </li>
-        {{#ifCond authUser.role.[0] '===' "-1"}}
         {{#ifCond authUser.role.[1] '===' "-1"}}
+        {{#ifCond authUser.role.[0] '===' "-1"}}
         <li class="nav-item">
           <a class="nav-link side-link" href="/api/controlWardDistrict">
             Quản lí Phường, Quận
@@ -177,10 +177,10 @@
     const sidebarToggle = document.querySelector('.sidebar-toggle');
     sidebarToggle.addEventListener('click', function () {
       document.querySelector('.sidebar').classList.toggle('active');
-      if(document.querySelector('.sidebar').classList.contains('active'))
+      if (document.querySelector('.sidebar').classList.contains('active'))
         document.querySelector('.control-responsive').style.marginLeft = '250px';
       else
-      document.querySelector('.control-responsive').style.marginLeft = '0px';
+        document.querySelector('.control-responsive').style.marginLeft = '0px';
     });
   </script>
 </body>
