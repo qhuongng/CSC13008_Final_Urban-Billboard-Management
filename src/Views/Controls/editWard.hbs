@@ -4,12 +4,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.2/js/toastr.min.js"></script>
+  <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
   <style>
     .container {
       display: flex;
       align-items: center;
       justify-content: center;
-      height: 90vh;
       margin: 0;
     }
 
@@ -97,13 +98,18 @@
         </h5>
         <div class="card-body">
           <div class="form-group">
+            <label for="districtRefId">District ID</label>
+            <input type="text" name="districtRefId" id="districtRefId" class="form-control" readonly
+              value="{{districtRefId}}">
+          </div>
+          <div class="form-group">
             <label for="wardId">Ward ID</label>
             <input type="text" name="wardId" id="wardId" class="form-control" readonly value="{{wardId}}">
           </div>
           <div class="form-group">
             <label for="txtWardName">Ward Name</label>
-            <input type="text" name="wardName" id="txtWardName" class="form-control" placeholder="Phường 1" autofocus
-              value="{{txtWardName}}">
+            <input type="text" name="wardName" id="txtWardName" class="form-control" placeholder="{{wardName}}"
+              autofocus>
           </div>
         </div>
         <div class="card-footer text-muted">
@@ -125,95 +131,85 @@
   </form>
 
   <script>
+    toastr.options.closeButton = true;
+    toastr.options = {
+      "closeButton": true,
+      "debug": false,
+      "newestOnTop": false,
+      "progressBar": false,
+      "positionClass": "toast-bottom-right",
+      "preventDuplicates": false,
+      "onclick": null,
+      "showDuration": "300",
+      "hideDuration": "300",
+      "timeOut": "2000",
+      "extendedTimeOut": "1000",
+      "showEasing": "swing",
+      "hideEasing": "linear",
+      "showMethod": "fadeIn",
+      "hideMethod": "fadeOut"
+    }
     document.addEventListener('DOMContentLoaded', function () {
-      const urlParams = new URLSearchParams(window.location.search);
-      const wardId = urlParams.get('wardId');
-      const wardName = urlParams.get('wardName')
-
-      // Set wardId value
-      const wardIdInput = document.getElementById('wardId');
-      if (wardIdInput) {
-        wardIdInput.value = wardId;
-      }
-
-      // Set wardName placeholder
-      const txtWardNameInput = document.getElementById('txtWardName');
-      if (txtWardNameInput) {
-        txtWardNameInput.placeholder = wardName;
-      }
-
-      // Create a notification element for messages
-      const notificationElement = document.createElement('div');
-      notificationElement.id = 'notification';
-      document.body.appendChild(notificationElement);
-
-      // Function to show notification
-      const showNotification = (message, success = true) => {
-        const notification = document.getElementById('notification');
-        notification.textContent = message;
-        notification.style.backgroundColor = success ? '#28a745' : '#dc3545'; // Green for success, red for error
-        notification.style.color = '#ffffff'; // White text color
-        notification.style.padding = '20px';
-        notification.style.position = 'fixed';
-        notification.style.top = '0';
-        notification.style.right = '0';
-        notification.style.zIndex = '1000';
-        notification.style.display = 'block';
-
-        setTimeout(() => {
-          notification.style.display = 'none';
-        }, 3000); // Hide after 3 seconds (adjust as needed)
-      };
-
       // Function to send PUT request
       const sendPutRequest = async () => {
-        try {
-          const response = await fetch(`http://localhost:3500/api/ward/update-ward/${wardId}`, {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              wardName: txtWardNameInput.value
-            }),
-          });
-
-          if (response.ok) {
-            // Handle successful response
-            showNotification('Update successful!', true);
-            setTimeout(() => {
-              window.location.href = '/';
-            }, 2000); // Redirect after 2 seconds (adjust as needed)
-          } else {
-            // Handle error response
-            showNotification('Update failed. Please try again.', false);
-          }
-        } catch (error) {
-          console.error('Error:', error);
-          showNotification('An error occurred. Please try again.', false);
+        const txtWardNameInput = $('#txtWardName');
+        const wardId = document.getElementById('wardId').value;
+        const districtRefId = document.getElementById('districtRefId').value;
+        if (!txtWardNameInput.val()) {
+          toastr.error("Error: Ward Name is require.");
+          txtWardNameInput.addClass('border-danger');
+          txtWardNameInput.focus();
         }
+        else {
+          txtWardNameInput.removeClass('border-danger');
+          try {
+            const response = await fetch(`http://localhost:3500/api/ward/update-ward/${wardId}`, {
+              method: 'PUT',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                wardName: txtWardNameInput.val(),
+                districtRefId: districtRefId
+              }),
+            });
+
+            if (response.status === 200) {
+              toastr.options.onHidden = () => { window.location.href = "/api/controlWardDistrict" }
+              toastr.success("Update Ward Successful")
+            } else {
+              toastr.error("The Ward Name is already");
+            }
+          } catch (error) {
+            toastr.error("An error occurred. Please try again.");
+          }
+        }
+
       };
 
       // Function to send DELETE request
       const sendDeleteRequest = async () => {
+        const wardId = document.getElementById('wardId').value;
+        const districtRefId = document.getElementById('districtRefId').value;
         try {
           const response = await fetch(`http://localhost:3500/api/ward/delete-ward/${wardId}`, {
             method: 'DELETE',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              districtRefId: districtRefId
+            }),
           });
 
           if (response.ok) {
-            // Handle successful response
-            showNotification('Delete successful!', true);
-            setTimeout(() => {
-              window.location.href = '/';
-            }, 2000); // Redirect after 2 seconds (adjust as needed)
+            toastr.options.onHidden = () => { window.location.href = "/api/controlWardDistrict" }
+            toastr.success("Delete Ward Successful")
           } else {
-            // Handle error response
-            showNotification('Delete failed. Please try again.', false);
+            toastr.error("Delete failed. Please try again.");
           }
         } catch (error) {
-          console.error('Error:', error);
-          showNotification('An error occurred. Please try again.', false);
+          toastr.error("An error occurred. Please try again.");
         }
       };
 

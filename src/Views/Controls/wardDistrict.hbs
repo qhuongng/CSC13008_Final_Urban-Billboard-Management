@@ -121,7 +121,8 @@
         <div id="wards">
             <div class="title-container">
                 <h2>Wards</h2>
-                <a id="newWardBtn" class="btn btn-outline-primary" href="/api/controlWardDistrict/addWard" role="button" disabled>
+                <a id="newWardBtn" class="btn btn-outline-primary" href="/api/controlWardDistrict/addWard" role="button"
+                    disabled>
                     <i class="bi bi-plus-circle"></i>
                     New Ward
                 </a>
@@ -258,7 +259,7 @@
 
                             // Edit button
                             const editButton = document.createElement('a');
-                            editButton.href = `api/controlWardDistrict/editWard?wardId=${ward.wardId}&wardName=${encodeURIComponent(ward.wardName)}`;
+                            editButton.href = `controlWardDistrict/editWard?wardId=${ward.wardId}&wardName=${encodeURIComponent(ward.wardName)}&districtRefId=${district}`;
                             editButton.classList.add('btn', 'btn-sm', 'btn-primary');
                             editButton.role = 'button';
                             editButton.innerHTML = '<i class="bi bi-pencil-square"></i> Edit';

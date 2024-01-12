@@ -5,26 +5,15 @@ const createWard = (newWard) => {
     return new Promise(async (resolve, reject) => {
         const { wardId, wardName, districtRefId } = newWard;
         try {
-            const checkWard = await Ward.findOne({
+            const checkWardById = await Ward.findOne({
                 wardId: wardId,
                 districtRefId: districtRefId,
             });
-            const checkDistrict = await District.findOne({
-                disId: districtRefId,
+            const checkWardByName = await Ward.findOne({
+                wardName: wardName,
+                districtRefId: districtRefId,
             });
-            if (checkWard !== null) {
-                reject({
-                    status: "ERR",
-                    message: "The Ward is already",
-                });
-            }
-            if (checkDistrict == null) {
-                return res.status(400).json({
-                    status: "ERR",
-                    message: "District not found",
-                });
-            }
-            if (checkWard === null) {
+            if (checkWardById === null && checkWardByName === null) {
                 const newWard = await Ward.create({
                     wardId,
                     wardName,
@@ -37,6 +26,11 @@ const createWard = (newWard) => {
                         data: newWard,
                     });
                 }
+            } else {
+                resolve({
+                    status: "ERR",
+                    message: "The Ward is already",
+                });
             }
         } catch (e) {
             reject(e);
@@ -69,18 +63,26 @@ const getWardName = (wardId, districtRefId) => {
     });
 };
 
-const updateWard = (wardId, data) => {
+const updateWard = (wardId, wardName, districtRefId) => {
     return new Promise(async (resolve, reject) => {
         try {
+            console.log(wardId);
+            console.log(wardName);
+            console.log(districtRefId);
             const checkWard = await Ward.findOne({
-                wardId: wardId
+                wardName: wardName,
+                districtRefId: districtRefId
             });
-            if (!checkWard) {
-                reject('The Ward is not defined');
+            console.log(checkWard);
+            if (checkWard) {
+                resolve({
+                    status: "ERR",
+                    message: "The Ward Name is already"
+                });
             }
             const updatedWard = await Ward.findOneAndUpdate(
-                { wardId: wardId },
-                data,
+                { wardId: wardId, districtRefId: districtRefId },
+                { wardName: wardName },
                 { new: true }
             );
             resolve({
@@ -94,16 +96,13 @@ const updateWard = (wardId, data) => {
     });
 };
 
-const deleteWard = (wardId) => {
+const deleteWard = (wardId, districtRefId) => {
     return new Promise(async (resolve, reject) => {
         try {
-            const checkWard = await Ward.findOne({
-                wardId: wardId
+            await Ward.findOneAndDelete({
+                wardId: wardId,
+                districtRefId: districtRefId
             });
-            if (!checkWard) {
-                reject('The Ward is not defined');
-            }
-            await Ward.findOneAndDelete({ wardId: wardId });
             resolve({
                 status: 'OK',
                 message: 'Delete Ward success',
@@ -139,7 +138,7 @@ const getWardsByDistrictId = (districtId) => {
             }
 
             const wards = await Ward.find({ districtRefId: district.disId });
-            
+
             resolve({
                 status: 'OK',
                 message: 'SUCCESS',

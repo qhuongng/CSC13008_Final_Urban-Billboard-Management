@@ -4,12 +4,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.2/js/toastr.min.js"></script>
+  <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
   <style>
     .container {
       display: flex;
       align-items: center;
       justify-content: center;
-      height: 90vh;
       margin: 0;
     }
 
@@ -89,7 +90,7 @@
 
 <body>
 
-  <form id="editDistrictForm" action="" method="">
+  <form action="" method="">
     <div class="container">
       <div class="card">
         <h5 class="card-header">
@@ -102,8 +103,8 @@
           </div>
           <div class="form-group">
             <label for="txtDisName">District Name</label>
-            <input type="text" name="disName" id="txtDisName" class="form-control" placeholder="Quận 1" autofocus
-              value="{{txtDisName}}">
+            <input type="text" name="disName" id="txtDisName" class="form-control" placeholder="{{districtName}}"
+              autofocus>
           </div>
         </div>
         <div class="card-footer text-muted">
@@ -125,110 +126,88 @@
   </form>
 
   <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      const urlParams = new URLSearchParams(window.location.search);
-      const districtId = urlParams.get('districtId');
-      const districtName = urlParams.get('districtName')
+    toastr.options.closeButton = true;
+    toastr.options = {
+      "closeButton": true,
+      "debug": false,
+      "newestOnTop": false,
+      "progressBar": false,
+      "positionClass": "toast-bottom-right",
+      "preventDuplicates": false,
+      "onclick": null,
+      "showDuration": "300",
+      "hideDuration": "300",
+      "timeOut": "2000",
+      "extendedTimeOut": "1000",
+      "showEasing": "swing",
+      "hideEasing": "linear",
+      "showMethod": "fadeIn",
+      "hideMethod": "fadeOut"
+    }
+    // Function to send PUT request
 
-      // Set districtId value
-      const districtIdInput = document.getElementById('districtId');
-      if (districtIdInput) {
-        districtIdInput.value = districtId;
+    const sendPutRequest = async () => {
+      const districtId = document.getElementById('districtId').value
+      var districtNameInput = $('#txtDisName')
+      const districtName = document.getElementById('txtDisName').value
+      if (!districtName) {
+        toastr.error("Error: District Name is require.");
+        districtNameInput.addClass('border-danger');
+        districtNameInput.focus();
       }
+      else {
+        districtNameInput.removeClass('border-danger');
+        const response = await fetch(`http://localhost:3500/api/district/update-district/${districtId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            disName: districtName
+          }),
+        });
 
-      // Set districtName placeholder
-      const txtDisNameInput = document.getElementById('txtDisName');
-      if (txtDisNameInput) {
-        txtDisNameInput.placeholder = districtName;
-      }
-
-      // Create a notification element for messages
-      const notificationElement = document.createElement('div');
-      notificationElement.id = 'notification';
-      document.body.appendChild(notificationElement);
-
-      // Function to show notification
-      const showNotification = (message, success = true) => {
-        const notification = document.getElementById('notification');
-        notification.textContent = message;
-        notification.style.backgroundColor = success ? '#28a745' : '#dc3545'; // Green for success, red for error
-        notification.style.color = '#ffffff'; // White text color
-        notification.style.padding = '20px';
-        notification.style.position = 'fixed';
-        notification.style.top = '0';
-        notification.style.right = '0';
-        notification.style.zIndex = '1000';
-        notification.style.display = 'block';
-
-        setTimeout(() => {
-          notification.style.display = 'none';
-        }, 3000); // Hide after 3 seconds (adjust as needed)
-      };
-
-      // Function to send PUT request
-      const sendPutRequest = async () => {
-        try {
-          const response = await fetch(`http://localhost:3500/api/district/update-district/${districtId}`, {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              disName: txtDisNameInput.value
-            }),
-          });
-
-          if (response.ok) {
-            // Handle successful response
-            showNotification('Update successful!', true);
-            setTimeout(() => {
-              window.location.href = '/';
-            }, 2000); // Redirect after 2 seconds (adjust as needed)
-          } else {
-            // Handle error response
-            showNotification('Update failed. Please try again.', false);
-          }
-        } catch (error) {
-          console.error('Error:', error);
-          showNotification('An error occurred. Please try again.', false);
+        if (response.status === 200) {
+          // Handle successful response
+          toastr.options.onHidden = () => { window.location.href = "/api/controlWardDistrict" }
+          toastr.success("Update District Successful")
+        } else {
+          // Handle error response
+          toastr.error('District Name is already in use.');
         }
-      };
+      }
+    };
 
-      // Function to send DELETE request
-      const sendDeleteRequest = async () => {
-        try {
-          const response = await fetch(`http://localhost:3500/api/district/delete-district/${districtId}`, {
-            method: 'DELETE',
-          });
+    // Function to send DELETE request
+    const sendDeleteRequest = async () => {
+      try {
+        const response = await fetch(`http://localhost:3500/api/district/delete-district/${districtId}`, {
+          method: 'DELETE',
+        });
 
-          if (response.ok) {
-            // Handle successful response
-            showNotification('Delete successful!', true);
-            setTimeout(() => {
-              window.location.href = '/';
-            }, 2000); // Redirect after 2 seconds (adjust as needed)
-          } else {
-            // Handle error response
-            showNotification('Delete failed. Please try again.', false);
-          }
-        } catch (error) {
-          console.error('Error:', error);
-          showNotification('An error occurred. Please try again.', false);
+        if (response.ok) {
+          toastr.options.onHidden = () => { window.location.href = "/api/controlWardDistrict" }
+          toastr.success("Delete District Successful")
+        } else {
+          // Handle error response
+          toastr.error('Delete failed. Please try again.');
         }
-      };
-
-      // Add click event listeners to buttons
-      const saveButton = document.getElementById('saveButton');
-      const deleteButton = document.getElementById('deleteButton');
-
-      if (saveButton) {
-        saveButton.addEventListener('click', sendPutRequest);
+      } catch (error) {
+        toastr.error('An error occurred. Please try again.');
       }
+    };
 
-      if (deleteButton) {
-        deleteButton.addEventListener('click', sendDeleteRequest);
-      }
-    });
+    // Add click event listeners to buttons
+    const saveButton = document.getElementById('saveButton');
+    const deleteButton = document.getElementById('deleteButton');
+
+    if (saveButton) {
+      saveButton.addEventListener('click', sendPutRequest);
+    }
+
+    if (deleteButton) {
+      deleteButton.addEventListener('click', sendDeleteRequest);
+    }
   </script>
 </body>
 

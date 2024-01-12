@@ -11,7 +11,6 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      height: 90vh;
       margin: 0;
     }
 
@@ -106,8 +105,8 @@
             <input type="text" class="form-control" id="wardName" name="wardName" placeholder="Phường 1" autofocus>
 
             <label for="districtRefId">District ID</label>
-            <input type="text" class="form-control" id="districtRefId" name="districtRefId" placeholder="District ID"
-              value="{{districtId}}" readonly>
+            <input type="text" class="form-control" id="districtRefId" name="districtRefId" value="{{districtId}}"
+              readonly>
 
           </div>
         </div>
@@ -146,45 +145,55 @@
       "hideMethod": "fadeOut"
     }
     document.addEventListener('DOMContentLoaded', function () {
-      const urlParams = new URLSearchParams(window.location.search);
-      const districtId = urlParams.get('districtId');
 
-      // Assign the value of districtId to the input field
-      const districtRefIdInput = document.getElementById('districtRefId');
-      if (districtRefIdInput) {
-        districtRefIdInput.value = districtId;
-      }
-
-      const txtWardNameInput = document.getElementById('wardName');
-      const txtWardIdInput = document.getElementById('wardId')
+      const txtWardNameInput = $('#wardName');
+      const txtWardIdInput = $('#wardId');
 
       // Function to send PUT request
       const sendPostRequest = async () => {
-        try {
-          const response = await fetch('http://localhost:3500/api/ward/createWard', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              wardId: txtWardIdInput.value,
-              wardName: txtWardNameInput.value,
-              districtRefId: districtRefIdInput.value
-            }),
-          });
-
-          if (!txtWardIdInput.value) {
-            toastr.error("Error: Ward ID is not available.");
-          } else if (!txtWardNameInput.value) {
-            toastr.error("Error: Ward Name is not available.");
-          } else if (response.ok) {
-            toastr.success("Create Ward Successful")
-          } else {
-            // Handle error response
-            toastr.error("Create failed. Please try again.");
+        const districtRefId = document.getElementById('districtRefId').value;
+        if (!txtWardIdInput.val() && !txtWardNameInput.val()) {
+          toastr.error("Error: Ward Id and Ward Name is require.");
+          txtWardIdInput.addClass('border-danger');
+          txtWardIdInput.focus();
+          txtWardNameInput.addClass('border-danger');
+          txtWardNameInput.focus();
+        }
+        else if (!txtWardIdInput.val() && txtWardNameInput.val()) {
+          toastr.error("Error: Ward Id is require.");
+          txtWardIdInput.addClass('border-danger');
+          txtWardNameInput.removeClass('border-danger');
+          txtWardIdInput.focus();
+        }
+        else if (txtWardIdInput.val() && !txtWardNameInput.val()) {
+          toastr.error("Error: Ward Name is require.");
+          txtWardNameInput.addClass('border-danger');
+          txtWardIdInput.removeClass('border-danger');
+          txtWardNameInput.focus();
+        }
+        else {
+          try {
+            const response = await fetch('http://localhost:3500/api/ward/createWard', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                wardId: txtWardIdInput.val(),
+                wardName: txtWardNameInput.val(),
+                districtRefId: districtRefId
+              }),
+            });
+            if (response.status === 200) {
+              toastr.options.onHidden = () => { window.location.href = "/api/controlWardDistrict" }
+              toastr.success("Create Ward Successful")
+            } else {
+              // Handle error response
+              toastr.error("The Ward is already");
+            }
+          } catch (error) {
+            toastr.error("An error occurred. Please try again.");
           }
-        } catch (error) {
-          toastr.error("An error occurred. Please try again.");
         }
       };
 

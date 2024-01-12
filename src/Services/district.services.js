@@ -1,21 +1,25 @@
 const District = require("../Models/District");
+const Ward = require("../Models/Ward")
 
 const createDistrict = (newDistrict) => {
     return new Promise(async (resolve, reject) => {
         const { disId, disName } = newDistrict;
         try {
-            const checkDistrict = await District.findOne({
+            const checkDistrictId = await District.findOne({
                 disId: disId,
             });
+            const checkDistrictName = await District.findOne({
+                disName: disName,
+            });
 
-            if (checkDistrict !== null) {
-                reject({
+            if (checkDistrictId !== null || checkDistrictName !== null) {
+                resolve({
                     status: "ERR",
                     message: "The District is already",
                 });
             }
 
-            if (checkDistrict === null) {
+            if (checkDistrictId === null && checkDistrictName === null) {
                 const newDistrict = await District.create({
                     disId,
                     disName,
@@ -58,18 +62,23 @@ const getDistrictName = (disId) => {
     });
 };
 
-const updateDistrict = (disId, data) => {
+const updateDistrict = (disId, districtName) => {
     return new Promise(async (resolve, reject) => {
         try {
-            const checkDis = await District.findOne({
-                disId: disId
+            console.log(districtName);
+            const checkDisName = await District.findOne({
+                disName: districtName
             });
-            if (!checkDis) {
-                reject('The District is not defined');
+            console.log(checkDisName);
+            if (checkDisName !== null) {
+                resolve({
+                    status: "ERR",
+                    message: "District Name is already in use"
+                })
             }
             const updatedDistrict = await District.findOneAndUpdate(
                 { disId: disId },
-                data,
+                districtName,
                 { new: true }
             );
             resolve({
@@ -86,12 +95,7 @@ const updateDistrict = (disId, data) => {
 const deleteDistrict = (disId) => {
     return new Promise(async (resolve, reject) => {
         try {
-            const checkDis = await District.findOne({
-                disId: disId
-            });
-            if (!checkDis) {
-                reject('The District is not defined');
-            }
+            await Ward.deleteMany({ districtRefId: disId })
             await District.findOneAndDelete({ disId: disId });
             resolve({
                 status: 'OK',

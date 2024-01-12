@@ -11,7 +11,6 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      height: 90vh;
       margin: 0;
     }
 
@@ -141,44 +140,63 @@
       "hideMethod": "fadeOut"
     }
     document.addEventListener('DOMContentLoaded', function () {
-
-      const txtDisNameInput = document.getElementById('disName');
-      const txtDisIdInput = document.getElementById('disId')
-
-    // Function to send PUT request
-    const sendPostRequest = async () => {
-      try {
-        const response = await fetch('http://localhost:3500/api/district/createDistrict', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            disId: txtDisIdInput.value,
-            disName: txtDisNameInput.value
-          }),
-        });
-        if (!txtDisIdInput.value) {
-          toastr.error("Error: District ID is not available.");
-        } else if (!txtDisNameInput.value) {
-          toastr.error("Error: District Name is not available.");
-        } else if (response.ok) {
-          toastr.success("Create District Successful")
-        } else {
-          // Handle error response
-          toastr.error("Create failed. Please try again.");
+      // Function to send PUT request
+      const sendPostRequest = async () => {
+        const txtDisNameInput = $('#disName')
+        const txtDisIdInput = $('#disId')
+        if (!txtDisIdInput.val() && !txtDisNameInput.val()) {
+          toastr.error("Error: District Id and District Name is require.");
+          txtDisIdInput.addClass('border-danger');
+          txtDisIdInput.focus();
+          txtDisNameInput.addClass('border-danger');
+          txtDisNameInput.focus();
         }
-      } catch (error) {
-        toastr.error("An error occurred. Please try again.");
+        else if (!txtDisIdInput.val() && txtDisNameInput.val()) {
+          toastr.error("Error: District Id is require.");
+          txtDisIdInput.addClass('border-danger');
+          txtDisNameInput.removeClass('border-danger');
+          txtDisIdInput.focus();
+        }
+        else if (txtDisIdInput.val() && !txtDisNameInput.val()) {
+          toastr.error("Error: District Name is require.");
+          txtDisNameInput.addClass('border-danger');
+          txtDisIdInput.removeClass('border-danger');
+          txtDisNameInput.focus();
+        }
+        else {
+          txtDisIdInput.removeClass('border-danger');
+          txtDisNameInput.removeClass('border-danger');
+          try {
+            const response = await fetch('http://localhost:3500/api/district/createDistrict', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                disId: txtDisIdInput.val(),
+                disName: txtDisNameInput.val()
+              }),
+            });
+            if (response.status === 200) {
+              toastr.options.onHidden = () => { window.location.href = "/api/controlWardDistrict" }
+              toastr.success("Create District Successful")
+
+            } else {
+              // Handle error response
+              toastr.error("The District is already");
+            }
+          } catch (error) {
+            toastr.error("An error occurred. Please try again.");
+          }
+        }
+      };
+
+      // Add click event listeners to buttons
+      const saveButton = document.getElementById('saveButton');
+
+      if (saveButton) {
+        saveButton.addEventListener('click', sendPostRequest);
       }
-    };
-
-    // Add click event listeners to buttons
-    const saveButton = document.getElementById('saveButton');
-
-    if (saveButton) {
-      saveButton.addEventListener('click', sendPostRequest);
-    }
     });
   </script>
 

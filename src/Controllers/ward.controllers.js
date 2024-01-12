@@ -1,29 +1,15 @@
 const WardService = require('../Services/ward.services')
 
-const createWard= async(req,res)=>{
-    try{
-        const {wardId, wardName, districtRefId} = req.body
-        if(!wardId){
-            return res.status(404).json({
-                status: 'ERR',
-                message: 'The wardId is required'
-            })
-        }
-        if(!wardName){
-            return res.status(404).json({
-                status: 'ERR',
-                message: 'The wardName is required'
-            })
-        }
-        if(!districtRefId){
-            return res.status(404).json({
-                status: 'ERR',
-                message: 'The districtRefId is required'
-            })
-        }
+const createWard = async (req, res) => {
+    try {
         const response = await WardService.createWard(req.body)
-        return res.status(200).json(response)
-    }catch(e){
+        if (response.status === "ERR") {
+            return res.status(204).json(response)
+        } else {
+            return res.status(200).json(response)
+        }
+
+    } catch (e) {
         return res.status(404).json({
             message: e
         })
@@ -33,16 +19,14 @@ const createWard= async(req,res)=>{
 const updateWard = async (req, res) => {
     try {
         const wardId = req.params.id
-        const data = req.body
-        if (!wardId) {
-            return res.status(404).json({
-                status: 'ERR',
-                message: 'The wardId is required'
-            })
+        const wardName = req.body.wardName
+        const districtRefId = req.body.districtRefId
+        const response = await WardService.updateWard(wardId, wardName, districtRefId)
+        if (response.status === "ERR") {
+            return res.status(204).json(response)
+        } else {
+            return res.status(200).json(response)
         }
-
-        const response = await WardService.updateWard(wardId, data)
-        return res.status(200).json(response)
     } catch (e) {
         return res.status(404).json({
             message: e
@@ -53,15 +37,8 @@ const updateWard = async (req, res) => {
 const deleteWard = async (req, res) => {
     try {
         const wardId = req.params.id
-        //const token = req.headers
-        if (!wardId) {
-            return res.status(404).json({
-                status: 'ERR',
-                message: 'The wardId is required'
-            })
-        }
-
-        const response = await WardService.deleteWard(wardId)
+        const districtRefId = req.body.districtRefId
+        const response = await WardService.deleteWard(wardId, districtRefId)
         return res.status(200).json(response)
     } catch (e) {
         return res.status(404).json({

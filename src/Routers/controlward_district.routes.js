@@ -10,15 +10,24 @@ router.get('/addDistrict', (req, res) => {
 });
 
 router.get('/addWard', (req, res) => {
-    res.render('Controls/addWard');
+    res.render('Controls/addWard', {
+        districtId: req.query.districtId
+    });
 });
 
 router.get('/editDistrict', (req, res) => {
-    res.render('Controls/editDistrict');
+    res.render('Controls/editDistrict', {
+        districtId: req.query.districtId,
+        districtName: req.query.districtName
+    });
 });
 
 router.get('/editWard', (req, res) => {
-    res.render('Controls/editWard');
+    res.render('Controls/editWard', {
+        wardId: req.query.wardId,
+        wardName: req.query.wardName,
+        districtRefId: req.query.districtRefId
+    });
 });
 
 
