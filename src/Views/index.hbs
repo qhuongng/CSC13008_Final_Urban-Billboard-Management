@@ -88,22 +88,18 @@
                 </div>
                 <div class="modal-body" id="billboard-modal-body">
                   <ul class="nav nav-tabs mb-3" id="tab-content">
-                    <li class="nav-item"><a class="nav-link active" href="#billboard-details" data-toggle="tab">Thông
-                        tin</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#billboard-reports" data-toggle="tab">Báo cáo</a>
-                    </li>
                     <li class="nav-item"><a class="nav-link" href="#billboard-permits" data-toggle="tab">Cấp phép</a>
+                    </li>
+                    <li class="nav-item"><a class="nav-link" href="#billboard-reports" data-toggle="tab">Báo cáo</a>
                     </li>
                   </ul>
                   <div class="tab-content">
-                    <div class="tab-pane active" id="billboard-details">
+                    <div class="tab-pane" id="billboard-permits">
+                      TODO: cấp phép
                     </div>
                     <div class="tab-pane" id="billboard-reports">
                       <div id="panel-report-accordion">
                       </div>
-                    </div>
-                    <div class="tab-pane" id="billboard-permits">
-                      Cấp phép
                     </div>
                   </div>
                 </div>
@@ -139,21 +135,10 @@
 
       <script>
         function loadPanelDetail(item) {
-          document.getElementById("billboard-details").innerHTML = "";
+          // document.getElementById("billboard-permits").innerHTML = "";
           document.getElementById("panel-report-accordion").innerHTML = "";
 
           const info = JSON.parse(item);
-
-          let bodyHtml = `<h5 class="card-title">${info.Paneltype}</h5>
-                <h6 class="card-subtitle mb-2 text-muted">${info.address}</h6>
-                <p class="card-text">Kích thước: ${info.size}<br>
-                                      Số lượng: ${info.amount}<br>
-                                      Hình thức: <b>${info.billboardType}</b><br>
-                                      Phân loại: <b>${info.positionType}</b><br>
-                                      Ngày hết hạn: <b>${info.expDate.slice(0, 10)}</b></p>
-                                      <img class="img-fluid" src="https://lh3.google.com/u/0/d/${info.picturePanel}" referrerpolicy="no-referrer" alt=""><br>`
-
-          document.getElementById("billboard-details").innerHTML = bodyHtml;
 
           // load reports for panel
           let panelReportHtml = "";
