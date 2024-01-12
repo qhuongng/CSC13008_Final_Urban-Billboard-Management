@@ -198,11 +198,29 @@ const getReportByWardAndDis = async (wardName,disName) => {
     }
 };
 
+const getReportByEmail = async (email) => {
+    try {
+        const reports = await Report.find({ email: email });
+
+        return {
+            status: 'OK',
+            message: 'SUCCESS',
+            data: reports,
+        };
+    } catch (error) {
+        return {
+            status: 'ERR',
+            message: error.message,
+        };
+    }
+};
+
 module.exports = {
     getReportbyId,
     createReport,
     getAllReport,
     getReportByWard,
     getReportByDis,
-    getReportByWardAndDis
+    getReportByWardAndDis,
+    getReportByEmail
 }
