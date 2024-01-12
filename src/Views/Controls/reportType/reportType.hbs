@@ -83,17 +83,29 @@
                 </button>
             </div>
             <div class="modal-body">
-                <!-- Add your form or input fields for editing a category here -->
+                <form id="editForm">
+                    <div class="form-group">
+                        <input type="hidden" id="edited-id" />
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-data">Chỉnh sửa tên hình thức báo cáo </label>
+                        <input type="text" class="form-control" id="edit-data" placeholder="Nhập tại đây" required />
+                        <div class="invalid-feedback">
+                            Cung cấp hình thức báo cáo mới
+                        </div>
+                    </div>
+                </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" onclick="editSelectedRow()">Save Changes</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-primary" onclick="editSelectedRow()">Lưu thay đổi</button>
             </div>
         </div>
     </div>
 </div>
 
 <script>
+
     fetch('http://localhost:3500/api/reportType/getAllReportType')
         .then(response => response.json())
         .then(data => {
@@ -103,12 +115,12 @@
                                 <th scope="row">${item.reportId}</th>
                                 <td>${item.reportName}</td>
                                 <td class="text-nowrap overflow-hidden" style="width: 1%;">
-                                    <button class="btn btn-sm btn-primary" onclick="editRow(${item.reportId})" data-toggle="modal"
+                                    <button class="btn btn-sm btn-primary" onclick="editRow('${item.reportId}')" data-toggle="modal"
                                         data-target="#editModal">
                                         <i class="fas fa-edit"></i>
                                         Edit
                                     </button>
-                                    <button class="btn btn-sm btn-danger" onclick="deleteRow(${item.reportId})">
+                                    <button class="btn btn-sm btn-danger" onclick="deleteRow('${item.reportId}')">
                                         <i class="fas fa-trash-alt"></i>
                                         Delete
                                     </button>
@@ -126,27 +138,70 @@
         <th scope="row">${tableBody.children.length + 1}</th>
         <td>New Category</td>
         <td>
-          <button class="btn btn-sm btn-primary" onclick="editRow(${tableBody.children.length + 1})">Edit</button>
-          <button class="btn btn-sm btn-danger" onclick="deleteRow(${tableBody.children.length + 1})">Delete</button>
+          <button class="btn btn-sm btn-primary" onclick="editRow(${tableBody.children.length + 1})">Sửa</button>
+          <button class="btn btn-sm btn-danger" onclick="deleteRow(${tableBody.children.length + 1})">Xoá</button>
         </td>
       `;
         tableBody.appendChild(newRow);
     }
 
-    function editRow(rowNumber) {
-        const row = document.querySelector(`tbody tr:nth-child(${rowNumber})`);
-        // Your logic for editing the row (e.g., opening a modal for editing)
-        console.log(`Editing row ${rowNumber}`);
+    function editRow(rowIdentifier) {
+        const numericPart = parseInt(rowIdentifier.slice(1), 10);
+
+        const row = document.querySelector(`tbody tr:nth-child(${numericPart})`);
+
+        if (row) {
+            console.log(`Editing row ${rowIdentifier}`);
+            document.getElementById('edited-id').value = rowIdentifier;
+        } else {
+            console.log(`Row ${rowIdentifier} not found.`);
+        }
     }
 
     function deleteRow(rowNumber) {
-        const row = document.querySelector(`tbody tr:nth-child(${rowNumber})`);
-        row.remove();
+        const numericPart = parseInt(rowIdentifier.slice(1), 10);
+
+        const row = document.querySelector(`tbody tr:nth-child(${numericPart})`);
+
+        if (row) {
+            console.log(`Deleting row ${rowIdentifier}`);
+            document.getElementById('deleted-id').value = rowIdentifier;
+        } else {
+            console.log(`Row ${rowIdentifier} not found.`);
+        }
     }
 
     function editSelectedRow() {
-        // Your logic for editing the selected row (e.g., opening a modal for editing)
-        console.log('Editing selected row');
+        const id = document.getElementById('edited-id').value;
+        const editedData = document.getElementById('edit-data').value;
+
+        console.log(`Editing row ${id}`);
+        console.log(`New data: ${editedData}`);
+
+        fetch('/api/controlReportType/edit', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ id: id, editedData: editedData })
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                $('#editModal').modal('hide');
+                $('.modal-backdrop').remove();
+                document.getElementById('editForm').reset();
+                alert('Edit successfully!');
+                window.location.reload()
+            })
+            .catch(error => {
+                  console.log(data);
+                $('#editModal').modal('hide');
+                $('.modal-backdrop').remove();
+                document.getElementById('editForm').reset();
+                alert('Edit failed!');
+                window.location.reload()
+            });
     }
 
     function deleteSelectedRow() {
