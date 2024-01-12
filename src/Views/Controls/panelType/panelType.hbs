@@ -168,27 +168,29 @@
         console.log(`Editing row ${id}`);
         console.log(`New data: ${editedData}`);
 
-        {{!-- Update url --}}
-        fetch('#', {
+        fetch('/api/controlPanelType/edit', {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({
-                id: id,
-                editedData: editedData
-            })
+            body: JSON.stringify({ id: id, editedData: editedData })
         })
             .then(response => response.json())
             .then(data => {
                 console.log(data);
                 $('#editModal').modal('hide');
-                showNotification('Edit successful!');
+                $('.modal-backdrop').remove();
+                document.getElementById('editForm').reset();
+                alert('Edit successfully!');
+                window.location.reload()
             })
             .catch(error => {
-                console.log(error);
+                console.log(data);
                 $('#editModal').modal('hide');
-                showNotification('Edit failed!', false);
+                $('.modal-backdrop').remove();
+                document.getElementById('editForm').reset();
+                alert('Edit failed!');
+                window.location.reload()
             });
     }
 
