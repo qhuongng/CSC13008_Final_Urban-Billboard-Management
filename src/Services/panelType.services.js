@@ -60,7 +60,24 @@ const getPanelTypeName = (panId) => {
     })
 }
 
+const getAllPanelType = () => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const allPanelType = await PanelType.find()
+            resolve({
+                status: 'OK',
+                message: 'SUCCESS',
+                data: allPanelType
+
+            })
+        } catch (e) {
+            reject(e)
+        }
+    })
+}
+
 module.exports = {
     createTypePan,
-    getPanelTypeName
+    getPanelTypeName,
+    getAllPanelType
 }
