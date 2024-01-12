@@ -5,20 +5,14 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/css/bootstrap.min.css"
-    integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-
   <script src="https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.js"></script>
   <link href="https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.css" rel="stylesheet" />
 
-  <script
-    src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.min.js"></script>
   <link rel="stylesheet"
     href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.css"
     type="text/css" />
+  <script
+    src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.min.js"></script>
 
   <link href="/styles.css" rel="stylesheet" />
 </head>
@@ -37,6 +31,7 @@
             Đang tải dữ liệu...
           </div>
         </div>
+
         <div id="place-container" style="display:none">
           <div class=" card border-success text-success mb-3" id="place-info-pane">
             <div class=" card-body">
@@ -47,6 +42,7 @@
               <p class="card-text">Chưa có dữ liệu.</p>
             </div>
           </div>
+
           <div id="billboard-container" style="display:none">
             <div class="card border-info text-info mb-3" id="billboard-info-pane">
               <div class="card-body">
@@ -58,90 +54,97 @@
               </div>
             </div>
           </div>
-          <div id="billboard-detail-container">
-            <div class="modal fade" id="billboard-info-modal" tabindex="-1" role="dialog"
-              aria-labelledby="info-modal-title" aria-hidden="true">
-              <div class="modal-dialog modal-dialog-centered" role="document">
-                <div class="modal-content">
-                  <div class="modal-header">
-                    <h5 class="modal-title" id="info-modal-title">Chi tiết bảng quảng cáo</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="close">
-                      <span aria-hidden="true">&times;</span>
-                    </button>
+
+          <div class="modal fade" id="place-info-modal" tabindex="-1" role="dialog" aria-labelledby="info-modal-title"
+            aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="info-modal-title">Các báo cáo tại điểm đặt biển quảng cáo này</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body" id="place-modal-body">
+                  <div id="place-report-accordion">
                   </div>
-                  <div class="modal-body" id="billboard-modal-body">
-                    <ul class="nav nav-tabs mb-3" id="tab-content">
-                      <li class="nav-item"><a class="nav-link active" href="#billboard-details" data-toggle="tab">Thông
-                          tin</a></li>
-                      <li class="nav-item"><a class="nav-link" href="#reports" data-toggle="tab">Báo cáo</a></li>
-                      <li class="nav-item"><a class="nav-link" href="#permits" data-toggle="tab">Cấp phép</a></li>
-                    </ul>
-                    <div class="tab-content">
-                      <div class="tab-pane active" id="billboard-details">
-                      </div>
-                      <div class="tab-pane" id="reports">
-                        Báo cáo
-                      </div>
-                      <div class="tab-pane" id="permits">
-                        Cấp phép
-                      </div>
-                    </div>
-                  </div>
-                  <div class="modal-footer" id="billboard-modal-footer">
-                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Quay lại</button>
-                  </div>
+                </div>
+                <div class="modal-footer" id="place-modal-footer">
+                  <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Quay lại</button>
                 </div>
               </div>
             </div>
-            <div id="report-detail-container">
-              <div class="modal fade" id="report-info-modal" tabindex="-1" role="dialog"
-                aria-labelledby="info-modal-title" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered" role="document">
-                  <div class="modal-content">
-                    <div class="modal-header">
-                      <h5 class="modal-title" id="info-modal-title">Chi tiết báo cáo</h5>
-                      <button type="button" class="close" data-dismiss="modal" aria-label="close">
-                        <span aria-hidden="true">&times;</span>
-                      </button>
+          </div>
+
+          <div class="modal fade" id="billboard-info-modal" tabindex="-1" role="dialog"
+            aria-labelledby="info-modal-title" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="info-modal-title">Chi tiết bảng quảng cáo</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body" id="billboard-modal-body">
+                  <ul class="nav nav-tabs mb-3" id="tab-content">
+                    <li class="nav-item"><a class="nav-link active" href="#billboard-details" data-toggle="tab">Thông
+                        tin</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#billboard-reports" data-toggle="tab">Báo cáo</a>
+                    </li>
+                    <li class="nav-item"><a class="nav-link" href="#billboard-permits" data-toggle="tab">Cấp phép</a>
+                    </li>
+                  </ul>
+                  <div class="tab-content">
+                    <div class="tab-pane active" id="billboard-details">
                     </div>
-                    <div class="modal-body" id="report-modal-body">
+                    <div class="tab-pane" id="billboard-reports">
+                      <div id="panel-report-accordion">
+                      </div>
                     </div>
-                    <div class="modal-footer">
-                      <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Quay lại</button>
+                    <div class="tab-pane" id="billboard-permits">
+                      Cấp phép
                     </div>
                   </div>
                 </div>
+                <div class="modal-footer" id="billboard-modal-footer">
+                  <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Quay lại</button>
+                </div>
               </div>
-              <div class="modal fade" id="free-report-info-modal" tabindex="-1" role="dialog"
-                aria-labelledby="info-modal-title" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered" role="document">
-                  <div class="modal-content">
-                    <div class="modal-header">
-                      <h5 class="modal-title" id="info-modal-title">Chi tiết báo cáo</h5>
-                      <button type="button" class="close" data-dismiss="modal" aria-label="close">
-                        <span aria-hidden="true">&times;</span>
-                      </button>
-                    </div>
-                    <div class="modal-body" id="free-report-modal-body">
-                    </div>
-                    <div class="modal-footer">
-                      <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Quay lại</button>
-                    </div>
+            </div>
+          </div>
+
+          <div class="modal fade" id="free-report-info-modal" tabindex="-1" role="dialog"
+            aria-labelledby="info-modal-title" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="info-modal-title">Các báo cáo tại điểm này</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body" id="free-report-modal-body">
+                  <div id="free-report-accordion">
                   </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Quay lại</button>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-</body>
-<script>
-  function loadPanelDetail(item) {
-    document.getElementById("billboard-details").innerHTML = "";
 
-    const info = JSON.parse(item);
+      <script>
+        function loadPanelDetail(item) {
+          document.getElementById("billboard-details").innerHTML = "";
+          document.getElementById("panel-report-accordion").innerHTML = "";
 
-    let bodyHtml = `<h5 class="card-title">${info.Paneltype}</h5>
+          const info = JSON.parse(item);
+
+          let bodyHtml = `<h5 class="card-title">${info.Paneltype}</h5>
                 <h6 class="card-subtitle mb-2 text-muted">${info.address}</h6>
                 <p class="card-text">Kích thước: ${info.size}<br>
                                       Số lượng: ${info.amount}<br>
@@ -150,53 +153,107 @@
                                       Ngày hết hạn: <b>${info.expDate.slice(0, 10)}</b></p>
                                       <img class="img-fluid" src="https://lh3.google.com/u/0/d/${info.picturePanel}" referrerpolicy="no-referrer" alt=""><br>`
 
-    document.getElementById("billboard-details").innerHTML = bodyHtml;
-  }
+          document.getElementById("billboard-details").innerHTML = bodyHtml;
 
-  function loadReportDetail(item, isFreePoint) {
-    if (isFreePoint === true) {
-      document.getElementById("free-report-modal-body").innerHTML = "";
-    }
-    else {
-      document.getElementById("report-modal-body").innerHTML = "";
-    }
+          // load reports for panel
+          let panelReportHtml = "";
+          let reports = info.reports;
 
-    const info = JSON.parse(item.includes('&quot;') ? item.replace(/&quot;/ig, '"') : item);
-    let imgDivs = "";
+          if (reports.length === 0) {
+            document.getElementById("panel-report-accordion").innerHTML += "Biển quảng cáo này chưa bị báo cáo.";
+          }
+          else {
+            for (let i = 0; i < reports.length; i++) {
+              let report = reports[i];
+              let imgDivs = "";
 
-    if (info.reportImgId.length === 2) {
-      imgDivs += `<img class="img-fluid" src="http://localhost:3500/api/reportImg/getImgReport/${info.reportImgId[0]}"" alt=""><br>
-                  <img class="img-fluid" src="http://localhost:3500/api/reportImg/getImgReport/${info.reportImgId[1]}"" alt=""><br><br>`
-    }
-    else if (info.reportImgId.length === 1) {
-      imgDivs += `<img class="img-fluid" src="http://localhost:3500/api/reportImg/getImgReport/${info.reportImgId[0]}"" alt=""><br><br>`
-    }
+              if (report.reportPicture.length === 2) {
+                imgDivs += `<img class="img-fluid" src="http://localhost:3500/api/reportImg/getImgReport/${report.reportPicture[0]}"" alt=""><br>
+                                        <img class="img-fluid" src="http://localhost:3500/api/reportImg/getImgReport/${report.reportPicture[1]}"" alt=""><br><br>`
+              }
+              else if (report.reportPicture.length === 1) {
+                imgDivs += `<img class="img-fluid" src="http://localhost:3500/api/reportImg/getImgReport/${report.reportPicture[0]}"" alt=""><br><br>`
+              }
 
-    let bodyHtml = `<h6 class="card-subtitle mb-2 text-muted">${info.address}</h6>
-                    <p class="card-text">Họ tên người gửi: <b>${info.name}</b><br>
-                                      Email: <b>${info.email}</b><br>
-                                      Số điện thoại: <b>${info.phone}</b><br>
-                                      Nội dung: ${info.content}
-                                      Hình ảnh đối tượng báo cáo:<br><br>
-                                      ${imgDivs}
-                                      Tình trạng xử lí: <b>${info.state == 0 ? "Chưa xử lí" : "Đã xử lí"}</b><br>
-                                      Hình thức xử lí: <b>${info.actionHandler}</b></p>`
+              let bodyHtml = `<h6 class="card-subtitle mb-2 text-muted">${report.address}</h6>
+                                          <p class="card-text">Họ tên người gửi: <b>${report.name}</b><br>
+                                                            Email: <b>${report.email}</b><br>
+                                                            Số điện thoại: <b>${report.phone}</b><br>
+                                                            Nội dung: ${report.content}
+                                                            Hình ảnh đối tượng báo cáo:<br><br>
+                                                            ${imgDivs}
+                                                            Tình trạng xử lí: <b>${report.state == 0 ? "Chưa xử lí" : "Đã xử lí"}</b><br>
+                                                            Hình thức xử lí: <b>${report.actionHandler}</b></p>`
 
-    if (isFreePoint === true) {
-      document.getElementById("free-report-modal-body").innerHTML = bodyHtml;
-    }
-    else {
-      document.getElementById("report-modal-body").innerHTML = bodyHtml;
-    }
-  }
-</script>
-<script src="/map.js" defer></script>
-<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
-  integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.3/dist/umd/popper.min.js"
-  integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/js/bootstrap.min.js"
-  integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+              panelReportHtml += `<div class="card">
+                                                <div class="card-header" id="heading${i}">
+                                                    <h5 class="mb-0">
+                                                        <a class="btn" data-toggle="collapse" href="#collapse${i}" aria-expanded="true" aria-controls="collapse${i}">
+                                                        ${report.name} (${report.email})
+                                                        </a>
+                                                    </h5>
+                                                </div>
+                                                <div id="collapse${i}" class="collapse" aria-labelledby="heading${i}" data-parent="#place-report-accordion">
+                                                    <div class="card-body">
+                                                        ${bodyHtml}
+                                                    </div>
+                                                </div>
+                                            </div>`
+            }
+
+            document.getElementById("panel-report-accordion").innerHTML = panelReportHtml;
+          }
+        }
+
+        function loadFreePointReports(reports) {
+          document.getElementById("free-report-accordion").innerHTML = "";
+
+          console.log(reports);
+
+          let freeReportHtml = "";
+
+          for (let i = 0; i < reports.length; i++) {
+            let report = reports[i];
+            let imgDivs = "";
+
+            if (report.reportPicture.length === 2) {
+              imgDivs += `<img class="img-fluid" src="http://localhost:3500/api/reportImg/getImgReport/${report.reportPicture[0]}"" alt=""><br>
+                                        <img class="img-fluid" src="http://localhost:3500/api/reportImg/getImgReport/${report.reportPicture[1]}"" alt=""><br><br>`
+            }
+            else if (report.reportPicture.length === 1) {
+              imgDivs += `<img class="img-fluid" src="http://localhost:3500/api/reportImg/getImgReport/${report.reportPicture[0]}"" alt=""><br><br>`
+            }
+
+            let bodyHtml = `<h6 class="card-subtitle mb-2 text-muted">${report.address}</h6>
+                                          <p class="card-text">Họ tên người gửi: <b>${report.name}</b><br>
+                                                            Email: <b>${report.email}</b><br>
+                                                            Số điện thoại: <b>${report.phone}</b><br>
+                                                            Nội dung: ${report.content}
+                                                            Hình ảnh đối tượng báo cáo:<br><br>
+                                                            ${imgDivs}
+                                                            Tình trạng xử lí: <b>${report.state == 0 ? "Chưa xử lí" : "Đã xử lí"}</b><br>
+                                                            Hình thức xử lí: <b>${report.actionHandler}</b></p>`
+
+            freeReportHtml += `<div class="card">
+                                                <div class="card-header" id="heading${i}">
+                                                    <h5 class="mb-0">
+                                                        <a class="btn" data-toggle="collapse" href="#collapse${i}" aria-expanded="true" aria-controls="collapse${i}">
+                                                        ${report.name} (${report.email})
+                                                        </a>
+                                                    </h5>
+                                                </div>
+                                                <div id="collapse${i}" class="collapse" aria-labelledby="heading${i}" data-parent="#place-report-accordion">
+                                                    <div class="card-body">
+                                                        ${bodyHtml}
+                                                    </div>
+                                                </div>
+                                            </div>`
+          }
+
+          document.getElementById("free-report-accordion").innerHTML = freeReportHtml;
+        }
+      </script>
+      <script src="/map.js" defer></script>
 </body>
 
 </html>

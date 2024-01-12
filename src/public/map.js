@@ -37,7 +37,7 @@ function bottomController() {
         const link = document.createElement("div");
         link.id = id;
 
-        link.innerHTML = `<label class="switch"><input type="checkbox" id="${id}-checkbox" checked/><span class="slider"></span></label><p>${id === "unclustered-point-zoned" ? "ĐIỂM ĐẶT ĐÃ QUY HOẠCH" : id === "unclustered-point" ? "ĐIỂM ĐẶT CHƯA QUY HOẠCH" : "BÁO CÁO VI PHẠM"}</p>`;
+        link.innerHTML = `<label class="switch"><input type="checkbox" id="${id}-checkbox" checked/><span class="slider"></span></label><p>${id === "unclustered-point-zoned" ? "ĐIỂM ĐẶT ĐÃ QUY HOẠCH" : id === "unclustered-point" ? "ĐIỂM ĐẶT CHƯA QUY HOẠCH" : "ĐỊA ĐIỂM THÔNG THƯỜNG"}</p>`;
 
         // Append the link element to the document body or any desired container
         document.body.appendChild(link);
@@ -80,7 +80,6 @@ function toggleLayerVisibility(clickedLayer, visibility) {
         map.setLayoutProperty("cluster-zoned-count", "visibility", visibility);
     }
     else {
-        map.setLayoutProperty("reported-point", "visibility", visibility);
         map.setLayoutProperty("free-point", "visibility", visibility);
     }
 }
@@ -132,24 +131,6 @@ function setupMap(center) {
             marker.remove();
         }
 
-        var billboardInfoPaneExists = document.getElementById("billboard-info-pane");
-
-        if (!billboardInfoPaneExists) {
-            const div = document.createElement("div");
-            div.setAttribute("id", "billboard-info-pane");
-            div.setAttribute("class", "card border-info text-info mb-3");
-
-            document.getElementById("billboard-container").appendChild(div);
-        }
-
-        document.getElementById("billboard-info-pane").innerHTML = `<div class="card-body">
-                                                                                        <h5 class="card-title">
-                                                                                        <i class="bi bi-info-circle"></i>
-                                                                                         Thông tin bảng quảng cáo
-                                                                                        </h5>
-                                                                                        <p class="card-text">Chưa có dữ liệu.</p>
-                                                                                    </div>`;
-
         reverseGeocode({ lng: e.result.center[0], lat: e.result.center[1] }, false);
     });
 
@@ -192,7 +173,7 @@ function setupMap(center) {
             var isFreeReportedPoint = false;
 
             if (features[0] !== undefined && features[0].properties.name !== undefined) {
-                if (features[0].layer.id == "unclustered-point" || features[0].layer.id == "unclustered-point-label" || features[0].layer.id == "reported-point" || features[0].layer.id == "unclustered-point-zoned" || features[0].layer.id == "unclustered-point-zoned-label") {
+                if (features[0].layer.id == "unclustered-point" || features[0].layer.id == "unclustered-point-label" || features[0].layer.id == "reported-point" || features[0].layer.id == "unclustered-point-zoned" || features[0].layer.id == "unclustered-point-zoned-label" || features[0].layer.id == "reported-point") {
                     return;
                 }
 
@@ -247,11 +228,11 @@ function setupMap(center) {
         let dbPointJson;
         let dbZonedPointJson;
         let freePointJson;
-        let reportIds = [];
+        let reports = [];
 
-        (async (req, res) => {
+        (async () => {
             let pointData = await loadPoints();
-            let reportData = await loadReports();
+            reports = await loadReports();
 
             dbPointJson = {
                 features: [],
@@ -262,42 +243,32 @@ function setupMap(center) {
             };
 
             freePointJson = {
+                type: "FeatureCollection",
                 features: [],
             };
 
             for (let i = 0; i < pointData.length; i++) {
                 let ward = pointData[i].area.ward;
                 let district = pointData[i].area.district;
+                let pointReport = false;
+                let isReportedAtPanelLevel = false;
 
                 if ((authWard == "-1" && authDist == "-1") || (authWard == "-1" && authDist == district) || (authWard == ward && authDist == district)) {
-                    let report = null;
-                    let reportId = 0;
-                    let isReportedAtPanelLevel = false;
                     let coords = [pointData[i].locate[0], pointData[i].locate[1]];
 
-                    for (let j = 0; j < reportData.length; j++) {
-                        if (reportData[j]) {
-                            reportIds.push(reportData[j]._id);
-                            report = localStorage.getItem(reportData[j]._id);
-
-                            if (report) {
-                                if (JSON.parse(report).locate[0] == coords[0] && JSON.parse(report).locate[1] == coords[1]) {
-                                    // nếu là report của ĐỊA ĐIỂM thì add
-                                    if (JSON.parse(report).idPanel === "1") {
-                                        // update tình trạng xử lí
-                                        reportId = reportData[j]._id;
-                                        localStorage.setItem(JSON.parse(report)._id, report);
-                                        break;
-                                    }
-                                    else {
-                                        // report là của biển quảng cáo
-                                        isReportedAtPanelLevel = true;
-                                    }
-                                }
+                    for (let j = 0; j < reports.length; j++) {
+                        if (reports[j].locate[0] == coords[0] && reports[j].locate[1] == coords[1]) {
+                            // nếu là report của ĐỊA ĐIỂM thì set pointReport
+                            if (reports[j].idPanel === "1") {
+                                pointReport = true;
+                                break;
+                            }
+                            else {
+                                // report là của biển quảng cáo
+                                isReportedAtPanelLevel = true;
+                                break;
                             }
                         }
-
-                        report = null;
                     }
 
                     let point = {
@@ -320,9 +291,9 @@ function setupMap(center) {
                             picturePoint: pointData[i].picturePoint,
                             long: pointData[i].locate[0],
                             lat: pointData[i].locate[1],
-                            isReportedAtPanelLevel: isReportedAtPanelLevel,
-                            pointReport: reportId,
-                            havePanel: pointData[i].havePanel
+                            havePanel: pointData[i].havePanel,
+                            pointReport: pointReport,
+                            isReportedAtPanelLevel: isReportedAtPanelLevel
                         },
                     };
 
@@ -334,57 +305,50 @@ function setupMap(center) {
                 }
             }
 
+            // load reported free points
+            for (let i = 0; i < reports.length; i++) {
+                if (reports[i].idPanel == "0") {
+                    let pointExists = freePointJson.features.some(freePoint => (freePoint.properties.address == reports[i].address && freePoint.properties.ward == reports[i].ward && freePoint.properties.district == reports[i].district));
+
+                    // check if a point with the same address, ward and distric already exists
+                    if (pointExists === false) {
+                        let point = {
+                            type: "Feature",
+                            geometry: {
+                                type: "Point",
+                                coordinates: [parseFloat(reports[i].locate[0]), parseFloat(reports[i].locate[1])]
+                            },
+                            properties: {
+                                long: reports[i].locate[0],
+                                lat: reports[i].locate[1],
+                                address: reports[i].address,
+                                district: reports[i].district,
+                                ward: reports[i].ward,
+                            },
+                        };
+
+                        freePointJson.features.push(point);
+                    }
+                }
+            }
+
             // hide the loading panel and display info panels
             document.getElementById("loading-pane").style.display = "none";
             document.getElementById("place-container").style.display = "block";
             document.getElementById("billboard-container").style.display = "block";
 
-            for (let i = 0; i < reportData.length; i++) {
-                if (reportData[i]) {
-                    let report = localStorage.getItem(reportData[i]._id);
-                    let reportJson;
-
-                    if (report) {
-                        reportJson = JSON.parse(report);
-
-                        if (reportJson.idPanel == "0") {
-                            let point = {
-                                type: "Feature",
-                                geometry: {
-                                    type: "Point",
-                                    coordinates: [parseFloat(reportJson.locate[0]), parseFloat(reportJson.locate[1])]
-                                },
-                                properties: {
-                                    long: reportJson.locate[0],
-                                    lat: reportJson.locate[1],
-                                    reportId: reportJson._id,
-                                    reportType: reportJson.reportType,
-                                    name: reportJson.name,
-                                    email: reportJson.email,
-                                    phone: reportJson.phone,
-                                    content: reportJson.content,
-                                    reportPicture: reportJson.reportPicture,
-                                    idPanel: reportJson.idPanel,
-                                    state: reportJson.state,
-                                    actionHandler: reportJson.actionHandler,
-                                    address: reportJson.address,
-                                    district: reportJson.district,
-                                    ward: reportJson.ward,
-                                },
-                            };
-
-                            freePointJson.features.push(point);
-                        }
-                    }
-                }
-            }
+            map.addSource("freePos", {
+                type: "geojson",
+                data: freePointJson,
+                cluster: false
+            });
 
             map.addSource("billboardPos", {
                 type: "geojson",
                 data: dbZonedPointJson,
                 cluster: true,
                 clusterMaxZoom: 14, // Max zoom to cluster points on
-                clusterRadius: 50, // Radius of each cluster when clustering points (defaults to 50)
+                clusterRadius: 40, // Radius of each cluster when clustering points (defaults to 50)
             });
 
             map.addSource("unzonedPos", {
@@ -392,7 +356,7 @@ function setupMap(center) {
                 data: dbPointJson,
                 cluster: true,
                 clusterMaxZoom: 14, // Max zoom to cluster points on
-                clusterRadius: 50, // Radius of each cluster when clustering points (defaults to 50)
+                clusterRadius: 40, // Radius of each cluster when clustering points (defaults to 50)
             });
 
             map.addLayer({
@@ -441,7 +405,7 @@ function setupMap(center) {
                 id: "reported-point",
                 type: "circle",
                 source: "billboardPos",
-                filter: ["all", ["!", ["has", "point_count"]], ["any", ["!=", ["get", "pointReport"], 0], ["==", ["get", "isReportedAtPanelLevel"], true]]],
+                filter: ["all", ["!", ["has", "point_count"]], ["any", ["==", ["get", "pointReport"], true], ["==", ["get", "isReportedAtPanelLevel"], true]]],
                 layout: {
                     "visibility": "visible"
                 },
@@ -470,35 +434,24 @@ function setupMap(center) {
                 },
             });
 
-            map.loadImage(
-                "/free-point.png",
-                (error, image) => {
-                    if (error) throw error;
+            map.loadImage("/free-point.png", (error, image) => {
+                if (error) throw error;
 
-                    // add the image to the map style
-                    map.addImage('free-point', image);
+                // add the image to the map style
+                map.addImage('free-point', image);
 
-                    map.addSource("freePos", {
-                        type: "geojson",
-                        data: freePointJson,
-                        cluster: true,
-                        clusterMaxZoom: 14, // Max zoom to cluster points on
-                        clusterRadius: 50, // Radius of each cluster when clustering points (defaults to 50)
-                    });
-
-                    // Add a layer to use the image to represent the data.
-                    map.addLayer({
-                        id: "free-point",
-                        type: "symbol",
-                        source: "freePos",
-                        filter: ["!", ["has", "point_count"]],
-                        layout: {
-                            "icon-image": 'free-point',
-                            "visibility": "visible"
-                        }
-                    }, "clusters"
-                    );
-                }
+                // Add a layer to use the image to represent the data.
+                map.addLayer({
+                    id: "free-point",
+                    type: "symbol",
+                    source: "freePos",
+                    layout: {
+                        "icon-image": 'free-point',
+                        "visibility": "visible",
+                        "icon-allow-overlap": true
+                    }
+                }, "clusters");
+            }
             );
 
             map.addLayer({
@@ -652,6 +605,9 @@ function setupMap(center) {
             });
 
             map.on("click", ["unclustered-point", "unclustered-point-zoned", "reported-point"], (e) => {
+                // clear the place report modal
+                document.getElementById("place-report-accordion").innerHTML = "";
+
                 const props = e.features[0].properties;
 
                 const pointId = props.id;
@@ -670,9 +626,61 @@ function setupMap(center) {
                                                      Thông tin địa điểm
                                                 </h5>`
 
-                if (e.features[0].properties.pointReport === 0) {
+                if (props.pointReport === true) {
+                    let pointReports = [];
+
+                    for (let i = 0; i < reports.length; i++) {
+                        if (reports[i].locate[0] == long && reports[i].locate[1] == lat) {
+                            if (reports[i].idPanel === "1") {
+                                pointReports.push(reports[i]);
+                            }
+                        }
+                    }
+
+                    let placeReportHtml = "";
+
+                    for (let i = 0; i < pointReports.length; i++) {
+                        let info = pointReports[i];
+                        let imgDivs = "";
+
+                        if (info.reportPicture.length === 2) {
+                            imgDivs += `<img class="img-fluid" src="http://localhost:3500/api/reportImg/getImgReport/${info.reportPicture[0]}"" alt=""><br>
+                                        <img class="img-fluid" src="http://localhost:3500/api/reportImg/getImgReport/${info.reportPicture[1]}"" alt=""><br><br>`
+                        }
+                        else if (info.reportPicture.length === 1) {
+                            imgDivs += `<img class="img-fluid" src="http://localhost:3500/api/reportImg/getImgReport/${info.reportPicture[0]}"" alt=""><br><br>`
+                        }
+
+                        let bodyHtml = `<h6 class="card-subtitle mb-2 text-muted">${info.address}</h6>
+                                          <p class="card-text">Họ tên người gửi: <b>${info.name}</b><br>
+                                                            Email: <b>${info.email}</b><br>
+                                                            Số điện thoại: <b>${info.phone}</b><br>
+                                                            Nội dung: ${info.content}
+                                                            Hình ảnh đối tượng báo cáo:<br><br>
+                                                            ${imgDivs}
+                                                            Tình trạng xử lí: <b>${info.state == 0 ? "Chưa xử lí" : "Đã xử lí"}</b><br>
+                                                            Hình thức xử lí: <b>${info.actionHandler}</b></p>`
+
+                        placeReportHtml += `<div class="card">
+                                                <div class="card-header" id="heading${i}">
+                                                    <h5 class="mb-0">
+                                                        <a class="btn" data-toggle="collapse" href="#collapse${i}" aria-expanded="true" aria-controls="collapse${i}">
+                                                        ${info.name} (${info.email})
+                                                        </a>
+                                                    </h5>
+                                                </div>
+                                                <div id="collapse${i}" class="collapse" aria-labelledby="heading${i}" data-parent="#place-report-accordion">
+                                                    <div class="card-body">
+                                                        ${bodyHtml}
+                                                    </div>
+                                                </div>
+                                            </div>`
+                    }
+
+                    document.getElementById("place-report-accordion").innerHTML = placeReportHtml;
+
                     const viewReportsButton =
-                        `<a class="btn btn-outline-primary float-right" href="#">
+                        `<a class="btn btn-outline-primary float-right" href="#" data-toggle="modal" data-target="#place-info-modal">
                             <i class="bi bi-exclamation-octagon-fill"></i>
                             &nbsp;XEM CÁC BÁO CÁO
                          </a>`;
@@ -684,35 +692,14 @@ function setupMap(center) {
                                                                                 <img class="img-fluid" src="${imgUrl}" referrerpolicy="no-referrer" alt=""><br><br>
                                                                                 ${viewReportsButton}
                                                                             </p>`;
-
                 }
                 else {
-                    // lấy report
-                    let pointReport = JSON.parse(localStorage.getItem(props.pointReport));
-
-                    const reportInfo = {
-                        name: pointReport.name,
-                        email: pointReport.email,
-                        phone: pointReport.phone,
-                        reportType: pointReport.reportType,
-                        reportImgId: pointReport.reportPicture,
-                        content: pointReport.content.replace(/"/g, '\\"'),
-                        address: pointReport.address,
-                        state: pointReport.state,
-                        actionHandler: pointReport.actionHandler
-                    };
-
-                    const viewReportsButton =
-                        `<button class="btn btn-outline-primary float-right" data-toggle="modal" data-target="#report-info-modal">
-                            <i class="bi bi-exclamation-octagon-fill"></i>
-                            &nbsp;XEM CÁC BÁO CÁO
-                        </button>`;
-
-                    document.getElementById("place-info-pane").innerHTML = `${placeInfoPaneHeader}<br>
-                                                                        <strong>${props.name}</strong><br>
-                                                                        ${address}<br><br>
-                                                                        <img class="img-fluid" src=${imgUrl} alt=""><br><br>
-                                                                        ${viewReportsButton}`;
+                    document.getElementById("place-info-pane").innerHTML = `${placeInfoPaneHeader}
+                                                                            <p class="card-text">
+                                                                                <strong>${props.name}</strong><br>
+                                                                                ${address}<br><br>
+                                                                                <img class="img-fluid" src="${imgUrl}" referrerpolicy="no-referrer" alt=""><br>
+                                                                            </p>`;
                 }
 
 
@@ -720,6 +707,7 @@ function setupMap(center) {
                     center: [long, lat],
                 });
 
+                // fetch all the panels of selected point
                 fetch(`http://localhost:3500/api/panel/getListPanel/${pointId}`)
                     .then((response) => response.json())
                     .then((data) => {
@@ -735,11 +723,19 @@ function setupMap(center) {
                             // clear all the info panes if they exist
                             document.getElementById("billboard-container").innerHTML = "";
 
-
+                            // retrieve panel info to inject into cards
                             let cardHtml = "";
 
                             data.data.map((item, index) => {
                                 const panelId = item._id;
+                                let panelReports = [];
+
+                                for (let i = 0; i < reports.length; i++) {
+                                    if (reports[i].idPanel == panelId) {
+                                        reports[i].content = reports[i].content.replace(/"/g, '\\"');
+                                        panelReports.push(reports[i]);
+                                    }
+                                }
 
                                 const info = {
                                     Paneltype: item.Paneltype,
@@ -753,18 +749,8 @@ function setupMap(center) {
                                     panelId: item._id,
                                     long: long,
                                     lat: lat,
-                                    panelReport: 0
+                                    reports: panelReports
                                 };
-
-                                for (let i = 0; i < reportIds.length; i++) {
-                                    const report = localStorage.getItem(reportIds[i]);
-
-                                    if (report) {
-                                        if (JSON.parse(report).idPanel == info.panelId) {
-                                            info.panelReport = reportIds[i];
-                                        }
-                                    }
-                                }
 
                                 const viewInfoButton = `<a id="panel-info-button" class="btn btn-outline-primary float-right" href="#" data-toggle="modal" data-target="#billboard-info-modal" onclick="loadPanelDetail('${escapeHtml(JSON.stringify(info))}')">
                                                                     <i class="bi bi-info-circle-fill"></i>
@@ -818,12 +804,10 @@ function setupMap(center) {
 
             map.on("mouseenter", "free-point", (e) => {
                 map.getCanvas().style.cursor = "pointer";
+
                 const coordinates = e.features[0].geometry.coordinates.slice();
-                const long = e.features[0].properties.long;
-                const lat = e.features[0].properties.lat;
-                const description = `<strong>Điểm được bạn báo cáo</strong><br>
-                                                Tình trạng: <b>${e.features[0].properties.actionHandler}</b><br><br>
-                                                <em>Bấm để xem chi tiết</em>`;
+                const description = `<strong>Điểm bị báo cáo</strong><br>
+                                    <em>Bấm để xem chi tiết</em>`;
 
                 // Ensure that if the map is zoomed out such that
                 // multiple copies of the feature are visible, the
@@ -837,22 +821,20 @@ function setupMap(center) {
 
             map.on("click", "free-point", (e) => {
                 const props = e.features[0].properties;
+                let freeReports = [];
 
-                const reportInfo = {
-                    name: props.name,
-                    email: props.email,
-                    phone: props.phone,
-                    reportType: props.reportType,
-                    reportImgId: JSON.parse(props.reportPicture),
-                    content: props.content,
-                    address: props.address,
-                    state: props.state,
-                    actionHandler: props.actionHandler
-                };
+                for (let i = 0; i < reports.length; i++) {
+                    if (reports[i].idPanel == "0") {
+                        if (reports[i].address == props.address && reports[i].ward == props.ward && reports[i].district == props.district) {
+                            reports[i].content = reports[i].content.replace(/"/g, '\\"');
+                            freeReports.push(reports[i]);
+                        }
+                    }
+                }
 
-                // $('#free-report-info-modal').on('shown.bs.modal', function () {
-                //     loadReportDetail(JSON.stringify(reportInfo), true);
-                // });
+                $('#free-report-info-modal').on('shown.bs.modal', function () {
+                    loadFreePointReports(freeReports);
+                });
 
                 $('#free-report-info-modal').modal('show');
             });
