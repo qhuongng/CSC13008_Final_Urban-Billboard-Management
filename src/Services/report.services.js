@@ -1,5 +1,6 @@
 const Report = require('../Models/Report');
 const reportTypeService = require('./reportType.services');
+const wardService = require('./ward.services');
 const nodemailer = require('nodemailer');
 require("dotenv").config();
 
@@ -144,8 +145,64 @@ const getReportbyId = (id) => {
     })
 }
 
+const getReportByWard = async (wardName) => {
+    try {
+
+        const reports = await Report.find({ ward: wardName });
+
+        console.log(reports)
+        return {
+            status: 'OK',
+            message: 'SUCCESS',
+            data: reports,
+        };
+    } catch (error) {
+        return {
+            status: 'ERR',
+            message: error.message,
+        };
+    }
+};
+
+const getReportByDis = async (disName) => {
+    try {
+        const reports = await Report.find({ district: disName });
+
+        return {
+            status: 'OK',
+            message: 'SUCCESS',
+            data: reports,
+        };
+    } catch (error) {
+        return {
+            status: 'ERR',
+            message: error.message,
+        };
+    }
+};
+
+const getReportByWardAndDis = async (wardName,disName) => {
+    try {
+        const reports = await Report.find({ ward: wardName, district: disName });
+
+        return {
+            status: 'OK',
+            message: 'SUCCESS',
+            data: reports,
+        };
+    } catch (error) {
+        return {
+            status: 'ERR',
+            message: error.message,
+        };
+    }
+};
+
 module.exports = {
     getReportbyId,
     createReport,
-    getAllReport
+    getAllReport,
+    getReportByWard,
+    getReportByDis,
+    getReportByWardAndDis
 }

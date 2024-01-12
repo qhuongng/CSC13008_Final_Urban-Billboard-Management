@@ -9,6 +9,10 @@ const multer = require('multer');
 router.get('/getAllReport', reportController.getAllReport);
 router.get('/:id', reportController.showReport);
 router.get('/getReport/:id', reportController.getReport);
+router.get('/getReportByWard/:name', reportController.getReportByWard)
+router.get('/getReportByDis/:name', reportController.getReportByDis)
+router.get('/getReportByWardAndDis/:wardName/:districtName', reportController.getReportByWardAndDis);
+
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 

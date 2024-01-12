@@ -72,9 +72,48 @@ const getReport = async (req, res) => {
     }
 }
 
+const getReportByWard = async (req, res) => {
+    try {
+        const wardName = req.params.name;
+        const report = await reportService.getReportByWard(wardName);
+        if (report) {
+            res.status(200).json(report);
+        }
+    } catch (error) {
+        res.status(400).json({ message: error.message })
+    }
+}
+
+const getReportByDis = async (req, res) => {
+    try {
+        const disName = req.params.name;
+        const report = await reportService.getReportByDis(disName);
+        if (report) {
+            res.status(200).json(report);
+        }
+    } catch (error) {
+        res.status(400).json({ message: error.message })
+    }
+}
+
+const getReportByWardAndDis = async (req, res) => {
+    try {
+        const { wardName, districtName } = req.params;
+        const report = await reportService.getReportByWardAndDis(wardName, districtName);
+        if (report) {
+            res.status(200).json(report);
+        }
+    } catch (error) {
+        res.status(400).json({ message: error.message })
+    }
+}
+
 module.exports = {
     getReport,
     createReport,
     getAllReport,
     showReport,
+    getReportByWard,
+    getReportByDis,
+    getReportByWardAndDis
 };
