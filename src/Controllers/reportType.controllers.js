@@ -18,6 +18,18 @@ const createTypeReport= async(req,res)=>{
         })
     }
 }
+
+const getAllReportType = async (req, res) => {
+    try {
+        const response = await ReportTypeService.getAllReportType()
+        return res.status(200).json(response)
+    } catch (e) {
+        return res.status(404).json({
+            message: e
+        })
+    }
+}
 module.exports = {
-    createTypeReport
+    createTypeReport,
+    getAllReportType
 }
