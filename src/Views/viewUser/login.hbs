@@ -9,8 +9,15 @@
         integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <style>
-        .gradient-custom {
-            background: linear-gradient(90deg, #9fa2a2 0%, #353635 50%, #9fa2a2 100%);
+        #form-container {
+            max-width: 40vw;
+        }
+
+        #main-container {
+            width: 100%;
+            background-image: url("/login-bg.jpg");
+            background-size: cover;
+            background-repeat: no-repeat;
         }
 
         .card-registration .select-input.form-control[readonly]:not([disabled]) {
@@ -28,10 +35,11 @@
 </head>
 
 <body>
-    <section class="vh-100 gradient-custom">
+    <section class="vh-100" id="main-container">
         <div class="container h-100">
             <div class="row d-flex justify-content-center align-items-center h-100">
-                <div class="card-body bg-white p-5 rounded">
+                <div class="card-body p-5 bg-opacity-75 rounded" id="form-container"
+                    style="background-color:rgb(255,255,255,0.9)">
                     <h2 class="text-uppercase text-center mb-5">Đăng nhập</h2>
                     {{#if err_message}}
                     <div class="alert alert-warning alert-dismissible fade show" role="alert">
@@ -44,12 +52,12 @@
                     {{/if}}
                     <form action="/api/user/login" method="post" class="w-100 h-100">
                         <div class="form-group">
-                            <label for="email">Email:</label>
+                            <label for="email">Email</label>
                             <input type="email" class="form-control form-control-lg" id="email" name="email" required>
                         </div>
 
                         <div class="from-group">
-                            <label for="password">Mật khẩu:</label>
+                            <label for="password">Mật khẩu</label>
                             <input type="password" class="form-control form-control-lg" id="password" name="password"
                                 required>
                         </div>
@@ -66,7 +74,7 @@
                         </div>
 
                         <div class="m-auto d-flex justify-content-center align-items-center"><button type="submit"
-                                class="btn btn-primary mt-3 mx-auto w-100 gradient-custom">Đăng nhập</button></div>
+                                class="btn btn-primary mt-3 mx-auto w-100">Đăng nhập</button></div>
                     </form>
                 </div>
             </div>

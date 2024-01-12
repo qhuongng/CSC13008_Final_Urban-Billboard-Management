@@ -27,7 +27,6 @@ app.use(session({
 }));
 
 app.use(express.static(__dirname + "/public"));
-//app.use("/static", express.static("static"));
 
 app.use(function (req, res, next) {
   if (typeof (req.session.auth) === 'undefined') {
@@ -36,6 +35,7 @@ app.use(function (req, res, next) {
 
   res.locals.auth = req.session.auth;
   res.locals.authUser = req.session.authUser;
+
   next();
 });
 
