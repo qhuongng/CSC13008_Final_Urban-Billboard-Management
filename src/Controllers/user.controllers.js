@@ -43,7 +43,7 @@ const loginUser = async (req, res) => {
         const url = req.session.retUrl || '/';
         res.redirect(url);
     } catch (e) {
-        return res.render('login', {
+        return res.render('viewUser/login', {
             layout: false,
             err_message: e
         })

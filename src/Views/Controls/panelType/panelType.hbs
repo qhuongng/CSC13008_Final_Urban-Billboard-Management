@@ -23,53 +23,8 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <th scope="row">1</th>
-                        <td>Quảng cáo thương mại</td>
-                        <td class="text-nowrap overflow-hidden" style="width: 1%;">
-                            <button class="btn btn-sm btn-primary" onclick="editRow(1)" data-toggle="modal"
-                                data-target="#editModal">
-                                <i class="fas fa-edit"></i>
-                                Edit
-                            </button>
-                            <button class="btn btn-sm btn-danger" onclick="deleteRow(1)">
-                                <i class="fas fa-trash-alt"></i>
-                                Delete
-                            </button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row">2</th>
-                        <td>Xã hội hóa</td>
-                        <td class="text-nowrap overflow-hidden" style="width: 1%;">
-                            <button class="btn btn-sm btn-primary" onclick="editRow(2)" data-toggle="modal"
-                                data-target="#editModal">
-                                <i class="fas fa-edit"></i>
-                                Edit
-                            </button>
-                            <button class="btn btn-sm btn-danger" onclick="deleteRow(2)">
-                                <i class="fas fa-trash-alt"></i>
-                                Delete
-                            </button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row">3</th>
-                        <td>Cổ động chính trị</td>
-                        <td class="text-nowrap overflow-hidden" style="width: 1%;">
-                            <button class="btn btn-sm btn-primary" onclick="editRow(3)" data-toggle="modal"
-                                data-target="#editModal">
-                                <i class="fas fa-edit"></i>
-                                Edit
-                            </button>
-                            <button class="btn btn-sm btn-danger" onclick="deleteRow(3)">
-                                <i class="fas fa-trash-alt"></i>
-                                Delete
-                            </button>
-                        </td>
-                    </tr>
                 </tbody>
-            </table>
+            </table>x
         </div>
     </div>
 </div>
@@ -128,3 +83,20 @@
         </div>
     </div>
 </div>
+
+<script>
+    fetch('http://localhost:3500/api/panelType/getAllPanelType').then(res =>
+        res.json()).then(data => {
+            const listPanelType = data.data;
+            listPanelType.forEach(item => {
+                const row = `<tr> <th
+  scope="row">${item.panId}</th> <td>${item.panName}</td> <td class="text-nowrap
+  overflow-hidden" style="width: 1%;"> <button class="btn btn-sm btn-primary"
+  onclick="editRow(${item.panId})" data-toggle="modal" data-target="#editModal">
+  <i class="fas fa-edit"></i> Edit </button> <button class="btn btn-sm
+  btn-danger" onclick="deleteRow(${item.panId})"> <i class="fas
+  fa-trash-alt"></i> Delete </button> </td> </tr>`; $('tbody').append(row);
+            })
+        }).catch(err => console.log(err));
+
+</script>
