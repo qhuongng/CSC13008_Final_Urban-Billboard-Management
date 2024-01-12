@@ -18,7 +18,6 @@ const createTypePan= async(req,res)=>{
         })
     }
 }
-
 const getAllPanelType = async (req, res) => {
     try {
         const response = await PanelService.getAllPanelType()
@@ -29,7 +28,6 @@ const getAllPanelType = async (req, res) => {
         })
     }
 }
-
 module.exports = {
     createTypePan,
     getAllPanelType

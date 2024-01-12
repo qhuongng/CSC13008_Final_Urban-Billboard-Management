@@ -32,66 +32,6 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <th scope="row">1</th>
-                        <td>Tố giác sai phạm</td>
-                        <td class="text-nowrap overflow-hidden" style="width: 1%;">
-                            <button class="btn btn-sm btn-primary" onclick="editRow(1)" data-toggle="modal"
-                                data-target="#editModal">
-                                <i class="fas fa-edit"></i>
-                                Edit
-                            </button>
-                            <button class="btn btn-sm btn-danger" onclick="deleteRow(1)">
-                                <i class="fas fa-trash-alt"></i>
-                                Delete
-                            </button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row">2</th>
-                        <td>Đăng ký nội dung</td>
-                        <td class="text-nowrap overflow-hidden" style="width: 1%;">
-                            <button class="btn btn-sm btn-primary" onclick="editRow(2)" data-toggle="modal"
-                                data-target="#editModal">
-                                <i class="fas fa-edit"></i>
-                                Edit
-                            </button>
-                            <button class="btn btn-sm btn-danger" onclick="deleteRow(2)">
-                                <i class="fas fa-trash-alt"></i>
-                                Delete
-                            </button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row">3</th>
-                        <td>Đóng góp ý kiến</td>
-                        <td class="text-nowrap overflow-hidden" style="width: 1%;">
-                            <button class="btn btn-sm btn-primary" onclick="editRow(3)" data-toggle="modal"
-                                data-target="#editModal">
-                                <i class="fas fa-edit"></i>
-                                Edit
-                            </button>
-                            <button class="btn btn-sm btn-danger" onclick="deleteRow(3)">
-                                <i class="fas fa-trash-alt"></i>
-                                Delete
-                            </button>
-                        </td>
-                    <tr>
-                        <th scope="row">3</th>
-                        <td>Giải đáp thắc mắc</td>
-                        <td class="text-nowrap overflow-hidden" style="width: 1%;">
-                            <button class="btn btn-sm btn-primary" onclick="editRow(4)" data-toggle="modal"
-                                data-target="#editModal">
-                                <i class="fas fa-edit"></i>
-                                Edit
-                            </button>
-                            <button class="btn btn-sm btn-danger" onclick="deleteRow(4)">
-                                <i class="fas fa-trash-alt"></i>
-                                Delete
-                            </button>
-                        </td>
-                    </tr>
-                    </tr>
                 </tbody>
             </table>
         </div>
@@ -152,3 +92,65 @@
         </div>
     </div>
 </div>
+
+<script>
+    fetch('http://localhost:3500/api/reportType/getAllReportType')
+        .then(response => response.json())
+        .then(data => {
+            const listReportType = data.data;
+            listReportType.forEach(item => {
+                const row = `<tr>
+                                <th scope="row">${item.reportId}</th>
+                                <td>${item.reportName}</td>
+                                <td class="text-nowrap overflow-hidden" style="width: 1%;">
+                                    <button class="btn btn-sm btn-primary" onclick="editRow(${item.reportId})" data-toggle="modal"
+                                        data-target="#editModal">
+                                        <i class="fas fa-edit"></i>
+                                        Edit
+                                    </button>
+                                    <button class="btn btn-sm btn-danger" onclick="deleteRow(${item.reportId})">
+                                        <i class="fas fa-trash-alt"></i>
+                                        Delete
+                                    </button>
+                                </td>
+                            </tr>`;
+                $('tbody').append(row);
+            });
+        })
+        .catch(err => console.log(err));
+
+    function addRow() {
+        const tableBody = document.querySelector('tbody');
+        const newRow = document.createElement('tr');
+        newRow.innerHTML = `
+        <th scope="row">${tableBody.children.length + 1}</th>
+        <td>New Category</td>
+        <td>
+          <button class="btn btn-sm btn-primary" onclick="editRow(${tableBody.children.length + 1})">Edit</button>
+          <button class="btn btn-sm btn-danger" onclick="deleteRow(${tableBody.children.length + 1})">Delete</button>
+        </td>
+      `;
+        tableBody.appendChild(newRow);
+    }
+
+    function editRow(rowNumber) {
+        const row = document.querySelector(`tbody tr:nth-child(${rowNumber})`);
+        // Your logic for editing the row (e.g., opening a modal for editing)
+        console.log(`Editing row ${rowNumber}`);
+    }
+
+    function deleteRow(rowNumber) {
+        const row = document.querySelector(`tbody tr:nth-child(${rowNumber})`);
+        row.remove();
+    }
+
+    function editSelectedRow() {
+        // Your logic for editing the selected row (e.g., opening a modal for editing)
+        console.log('Editing selected row');
+    }
+
+    function deleteSelectedRow() {
+        const selectedRows = document.querySelectorAll('tbody tr input[type="checkbox"]:checked');
+        selectedRows.forEach(row => row.parentElement.parentElement.remove());
+    }
+</script>
