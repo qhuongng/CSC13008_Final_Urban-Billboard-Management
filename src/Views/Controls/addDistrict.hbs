@@ -4,6 +4,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.2/js/toastr.min.js"></script>
+  <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
   <style>
     .container {
       display: flex;
@@ -89,7 +91,7 @@
 
 <body>
 
-  <form action="http://localhost:3500/api/district/createDistrict" method="post">
+  <form action="" method="">
     <div class="container">
       <div class="card">
         <h5 class="card-header">
@@ -109,7 +111,7 @@
             <i class="bi bi-skip-backward-fill"></i>
             Back
           </a>
-          <button type="submit" class="btn btn-primary">
+          <button type="button" class="btn btn-primary" id="saveButton">
             <i class="bi bi-check2"></i>
             Save
           </button>
@@ -117,6 +119,68 @@
       </div>
     </div>
   </form>
+
+  <script>
+
+    toastr.options.closeButton = true;
+    toastr.options = {
+      "closeButton": true,
+      "debug": false,
+      "newestOnTop": false,
+      "progressBar": false,
+      "positionClass": "toast-bottom-right",
+      "preventDuplicates": false,
+      "onclick": null,
+      "showDuration": "300",
+      "hideDuration": "300",
+      "timeOut": "2000",
+      "extendedTimeOut": "1000",
+      "showEasing": "swing",
+      "hideEasing": "linear",
+      "showMethod": "fadeIn",
+      "hideMethod": "fadeOut"
+    }
+    document.addEventListener('DOMContentLoaded', function () {
+
+      const txtDisNameInput = document.getElementById('disName');
+      const txtDisIdInput = document.getElementById('disId')
+
+    // Function to send PUT request
+    const sendPostRequest = async () => {
+      try {
+        const response = await fetch('http://localhost:3500/api/district/createDistrict', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            disId: txtDisIdInput.value,
+            disName: txtDisNameInput.value
+          }),
+        });
+        if (!txtDisIdInput.value) {
+          toastr.error("Error: District ID is not available.");
+        } else if (!txtDisNameInput.value) {
+          toastr.error("Error: District Name is not available.");
+        } else if (response.ok) {
+          toastr.success("Create District Successful")
+        } else {
+          // Handle error response
+          toastr.error("Create failed. Please try again.");
+        }
+      } catch (error) {
+        toastr.error("An error occurred. Please try again.");
+      }
+    };
+
+    // Add click event listeners to buttons
+    const saveButton = document.getElementById('saveButton');
+
+    if (saveButton) {
+      saveButton.addEventListener('click', sendPostRequest);
+    }
+    });
+  </script>
 
 </body>
 
