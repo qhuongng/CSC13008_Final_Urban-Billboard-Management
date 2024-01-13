@@ -170,6 +170,30 @@ const getWardsByDistrictName = async (districtName) => {
     }
 };
 
+const getWardById = (wardId) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const checkWard = await Ward.findOne({
+                wardId: wardId,
+            });
+            if (checkWard == null) {
+                reject({
+                    status: "ERR",
+                    message: "The Ward not found",
+                });
+            } else {
+                resolve({
+                    status: "OK",
+                    message: "SUCCESS",
+                    data: checkWard,
+                });
+            }
+        } catch (error) {
+            reject(error);
+        }
+    });
+};
+
 module.exports = {
     createWard,
     getWardName,
@@ -177,5 +201,6 @@ module.exports = {
     deleteWard,
     getAllWard,
     getWardsByDistrictId,
-    getWardsByDistrictName
+    getWardsByDistrictName,
+    getWardById
 };

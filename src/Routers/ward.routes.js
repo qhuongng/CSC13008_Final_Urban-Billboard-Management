@@ -11,4 +11,6 @@ router.get("/getDetail-ward/:id", wardController.getDetailWard);
 
 router.get("/getWard/:name", wardController.getWardsByDistrictName);
 
+router.get("/getWardById/:id", wardController.getWardById)
+
 module.exports = router
