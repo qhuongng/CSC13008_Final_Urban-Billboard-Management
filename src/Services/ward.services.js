@@ -150,11 +150,32 @@ const getWardsByDistrictId = (districtId) => {
     });
 };
 
+const getWardsByDistrictName = async (districtName) => {
+    try {
+        const district = await District.findOne({ disName: districtName });
+
+        if (!district) {
+            throw new Error('District not found');
+        }
+
+        const wards = await Ward.find({ districtRefId: district.disId });
+
+        return {
+            status: 'OK',
+            message: 'SUCCESS',
+            data: wards
+        };
+    } catch (error) {
+        throw error;
+    }
+};
+
 module.exports = {
     createWard,
     getWardName,
     updateWard,
     deleteWard,
     getAllWard,
-    getWardsByDistrictId
+    getWardsByDistrictId,
+    getWardsByDistrictName
 };

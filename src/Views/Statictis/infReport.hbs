@@ -4,6 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.2/js/toastr.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
     <title>Thống kê báo cáo</title>
 
     <style>
@@ -101,7 +104,11 @@
         /* Highlighted row class */
         .highlighted {
             background-color: #a0e57e;
-            /* Light green color */
+        }
+
+        .pieChart{
+           max-width: 50%; 
+    margin: auto;
         }
     </style>
 
@@ -125,6 +132,8 @@
     <input type="text" id="emailInput" placeholder="Vui lòng nhập email: ">
 
     <button onclick="filterReports()">Filter</button>
+
+    <canvas id="pieChart" width="100" height="100"></canvas>
 
     <table border="1" id="reportsTable">
         <thead>
@@ -151,9 +160,30 @@
     </div>
 
     <script>
+
+        toastr.options.closeButton = true;
+        toastr.options = {
+            "closeButton": true,
+            "debug": false,
+            "newestOnTop": false,
+            "progressBar": false,
+            "positionClass": "toast-top-center",
+            "preventDuplicates": false,
+            "onclick": null,
+            "showDuration": "300",
+            "hideDuration": "300",
+            "timeOut": "2000",
+            "extendedTimeOut": "1000",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+        }
+
         async function filterReports() {
             const wardSelect = document.getElementById('wardSelect');
             const districtSelect = document.getElementById('districtSelect');
+            const txtDisInput = $('#districtSelect');
             const emailInput = document.getElementById('emailInput');
 
             const wardInput = wardSelect.value;
@@ -162,10 +192,18 @@
 
             let url;
 
-            if (wardInput && districtInput) {
+            if (!districtInput && wardInput) {
+                toastr.error("Vui lòng chọn quận trước.");
+                txtDisInput.addClass('border-danger');
+                txtDisInput.removeClass('border-danger');
+                txtDisInput.focus();
+                return;
+            }
+
+            if (wardInput && districtInput && emailInputValue) {
+                url = `http://localhost:3500/api/report/getReportByWardAndDisAndEmail/${wardInput}/${districtInput}/${emailInputValue}`;
+            } else if (wardInput && districtInput) {
                 url = `http://localhost:3500/api/report/getReportByWardAndDis/${wardInput}/${districtInput}`;
-            } else if (wardInput) {
-                url = `http://localhost:3500/api/report/getReportByWard/${wardInput}`;
             } else if (districtInput) {
                 url = `http://localhost:3500/api/report/getReportByDis/${districtInput}`;
             } else if (emailInputValue) {
@@ -181,7 +219,7 @@
                 if (data.status === 'OK') {
                     displayReports(data.data);
                 } else {
-                    alert(`Error: ${data.message}`);
+                    toastr.error(`Error: ${data.message}`);
                 }
             } catch (error) {
                 console.error('Error fetching data:', error);
@@ -189,23 +227,23 @@
         }
 
         async function displayReports(reports) {
-            const reportsBody = document.getElementById('reportsBody');
-            reportsBody.innerHTML = '';
+    const reportsBody = document.getElementById('reportsBody');
+    reportsBody.innerHTML = '';
 
-            if (reports.length === 0) {
-                // If no data, create a single row with a "No data" message
-                const noDataRow = document.createElement('tr');
-                const noDataCell = document.createElement('td');
-                noDataCell.setAttribute('colspan', '6'); // Set colspan to cover all columns
-                noDataCell.textContent = 'Không có dữ liệu';
-                noDataRow.appendChild(noDataCell);
-                reportsBody.appendChild(noDataRow);
-            } else {
-                // If there is data, create rows for each report
-                reports.forEach(report => {
-                    const row = document.createElement('tr');
+    if (reports.length === 0) {
+        // If no data, create a single row with a "No data" message
+        const noDataRow = document.createElement('tr');
+        const noDataCell = document.createElement('td');
+        noDataCell.setAttribute('colspan', '6'); // Set colspan to cover all columns
+        noDataCell.textContent = 'Không có dữ liệu';
+        noDataRow.appendChild(noDataCell);
+        reportsBody.appendChild(noDataRow);
+    } else {
+        // If there is data, create rows for each report
+        reports.forEach(report => {
+            const row = document.createElement('tr');
 
-                    row.innerHTML = `
+            row.innerHTML = `
                 <td>${report._id}</td>
                 <td>${report.email}</td>
                 <td>${report.ward}</td>
@@ -214,15 +252,44 @@
                 <td style="color: ${getColorByAction(report.actionHandler)}">${report.actionHandler}</td>
             `;
 
-                    row.addEventListener('dblclick', () => showDetails(report));
-                    row.addEventListener('click', () => highlightRow(row));
+            row.addEventListener('dblclick', () => showDetails(report));
+            row.addEventListener('click', () => highlightRow(row));
 
-                    reportsBody.appendChild(row);
-                });
-            }
+            reportsBody.appendChild(row);
+        });
+
+        const stateCount = { 0: 0, 1: 0, 2: 0 };
+
+        // Count the occurrences of each state
+        reports.forEach(report => {
+            stateCount[report.state]++;
+        });
+
+        // Calculate the data for the pie chart
+        const pieChartData = Object.values(stateCount);
+
+        // Get the pie chart canvas and context
+        const pieCanvas = document.getElementById('pieChart');
+        const pieContext = pieCanvas.getContext('2d');  
+
+        // Destroy the existing chart (if any)
+        if (window.myPieChart) {
+            window.myPieChart.destroy();
         }
 
-
+        // Create the pie chart using Chart.js
+        window.myPieChart = new Chart(pieContext, {
+            type: 'pie',
+            data: {
+                labels: ['Chưa xử lí', 'Đang xử lí', 'Đã xử lí'],
+                datasets: [{
+                    data: pieChartData,
+                    backgroundColor: ['red', 'gold', 'green'],
+                }],
+            },
+        });
+    }
+}
         function getColorByState(state) {
             switch (state) {
                 case 0:
@@ -285,7 +352,6 @@
             modal.style.display = 'block';
         }
 
-
         function closeModal() {
             const modal = document.getElementById('detailsModal');
             modal.style.display = 'none';
@@ -330,6 +396,37 @@
                 console.error('Error fetching ward and district data:', error);
             }
         }
+
+        async function populateWardsByDistrict() {
+            const districtSelect = document.getElementById('districtSelect');
+            const wardSelect = document.getElementById('wardSelect');
+
+            // Clear previous options
+            wardSelect.innerHTML = '<option value="">Tất Cả Phường</option>';
+
+            const selectedDistrict = districtSelect.value;
+
+            if (selectedDistrict) {
+                try {
+                    const wardResponse = await fetch(`http://localhost:3500/api/ward/getWard/${selectedDistrict}`);
+                    const wardData = await wardResponse.json();
+
+                    wardData.data.forEach(ward => {
+                        const option = document.createElement('option');
+                        option.value = ward.wardName;
+                        option.textContent = ward.wardName;
+                        wardSelect.appendChild(option);
+                    });
+
+                    filterReports();
+                } catch (error) {
+                    console.error('Error fetching ward data:', error);
+                }
+            }
+        }
+
+        // Attach the function to the change event of the district dropdown
+        document.getElementById('districtSelect').addEventListener('change', populateWardsByDistrict);
 
         populateDropdowns();
     </script>

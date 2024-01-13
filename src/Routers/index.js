@@ -11,9 +11,8 @@ const ReportImgRouter = require("./reportImg.routes");
 const UserRouter = require("./user.routes");
 const OtpRouter = require('./otp.routes');
 const controlWardDistrictRouter = require('./controlward_district.routes');
-
+const { authLogin } = require('../Middleware/authMiddleware');
 const reportStatisticsRouter = require('./reportStatistics.routes');
-
 const controlPanelTypeRouter = require('./controlPanelType.routes');
 const controlReportTypeRouter = require('./controlReportType.routes');
 const RegistrationRouter = require('./registration.routes');

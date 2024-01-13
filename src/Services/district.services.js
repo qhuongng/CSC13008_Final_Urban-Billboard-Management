@@ -63,6 +63,7 @@ const getDistrictName = (disId) => {
 };
 
 const updateDistrict = (disId, districtName) => {
+    console.log(disId);
     return new Promise(async (resolve, reject) => {
         try {
             console.log(districtName);
@@ -76,16 +77,20 @@ const updateDistrict = (disId, districtName) => {
                     message: "District Name is already in use"
                 })
             }
-            const updatedDistrict = await District.findOneAndUpdate(
-                { disId: disId },
-                districtName,
-                { new: true }
-            );
-            resolve({
-                status: 'OK',
-                message: 'Update District success',
-                data: updatedDistrict
-            });
+            else {
+                const updatedDistrict = await District.findOneAndUpdate(
+                    { disId: disId },
+                    { disName: districtName },
+                    { new: true }
+                );
+                console.log(updateDistrict);
+                resolve({
+                    status: 'OK',
+                    message: 'Update District success',
+                    data: updatedDistrict
+                });
+            }
+
         } catch (e) {
             reject(e);
         }

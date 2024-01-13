@@ -1,16 +1,12 @@
 const PanelService = require("../Services/panelType.services");
 
-const createTypePan = async (req, res) => {
+const createTypePanel = async (req, res) => {
   try {
-    const { panId, panName } = req.body;
-
-    if (!panId || !panName) {
-      return res.status(404).json({
-        status: "ERR",
-        message: "The input is required",
-      });
+    const panName = req.body.panName;
+    const response = await PanelService.createTypePan(panName);
+    if (response.status === "ERR") {
+      return res.status(205).json(response);
     }
-    const response = await PanelService.createTypePan(req.body);
     return res.status(200).json(response);
   } catch (e) {
     return res.status(404).json({
@@ -31,19 +27,38 @@ const getAllPanelType = async (req, res) => {
 
 const updatePanelType = async (req, res) => {
   try {
-    const { id, editedData } = req.body;
-    console.log(id, editedData);
-    return res.status(200).json({
-      message: "OK",
-    });
+    const { id, panName } = req.body;
+    const response = await PanelService.updatePanelType(id, panName);
+    if (response.status === "OK") {
+      return res.status(200).json(response);
+    } else {
+      return res.status(205).json(response);
+    }
   } catch (e) {
     return res.status(404).json({
       message: e,
     });
   }
 };
+
+const deletePanelType = async (req, res) => {
+  try {
+    const id = req.body.id;
+    const response = await PanelService.deletePanelType(id);
+    console.log(response);
+    if (response.status === "OK") {
+      return res.status(200).json(response);
+    }
+  } catch (e) {
+    return res.status(404).json({
+      message: e,
+    });
+  }
+}
+
 module.exports = {
-  createTypePan,
+  createTypePanel,
   getAllPanelType,
   updatePanelType,
+  deletePanelType
 };
