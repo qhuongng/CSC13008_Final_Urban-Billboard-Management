@@ -26,6 +26,7 @@
         display: none;
     }
 </style>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 
 <section class="vh-100" id="main-container">
     <div class="container h-100">
@@ -48,11 +49,20 @@
                         <input type="text" class="form-control form-control-lg" id="name" name="name"
                             placeholder="Nhập tên" required>
                     </div>
+
+                    <div class="form-group">
+                        <label for="dateOfBirth">Ngày Sinh</label>
+                        <input type="text" class="form-control form-control-lg" id="dateOfBirth" name="dateOfBirth"
+                            placeholder="Chọn ngày sinh" required>
+                    </div>
+
+
                     <div class="form-group">
                         <label for="email">Email</label>
                         <input type="email" class="form-control form-control-lg" id="email" name="email"
                             placeholder="Nhập địa chỉ email" required>
                     </div>
+
                     <div class="form-group">
                         <label for="phone">Số điện thoại</label>
                         <input type="tel" class="form-control form-control-lg" id="phone" name="phone"
@@ -129,6 +139,7 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.min.js"
     integrity="sha384-+sLIOodYLS7CIrQpBjl+C7nPvqq+FbNUBDunl/OZv93DB7Ln/533i8e/mZXLi/P+"
     crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script>
     var listWardOfEachDistrict = [];
     const selectDistrict = document.getElementById('selectDistrict');
@@ -216,6 +227,7 @@
     document.getElementById('registration').addEventListener('click', function () {
         const name = document.getElementById('name').value;
         const email = document.getElementById('email').value;
+        const date = document.getElementById('dateOfBirth').value;
         const password = document.getElementById('password').value;
         const confirmPassword = document.getElementById('confirmPassword').value;
         const phone = document.getElementById('phone').value;
@@ -223,15 +235,47 @@
         const wardRadio = document.getElementById('wardRadio');
         const selectDistrict = document.getElementById('selectDistrict').value;
         const selectWard = document.getElementById('selectWard').value;
-        date = (new Date()).toLocaleDateString('en-GB');
+        console.log(date);
         let role = [];
         if (districtRadio.checked) {
             role = ['-1', selectDistrict];
         } else {
             role = [selectWard, selectDistrict];
         }
-        if (password !== confirmPassword) {
+        if (name === '' || email === '' || password === '' || confirmPassword === '' || phone === '' || role === []) {
+            alert('Vui lòng nhập đầy đủ thông tin');
+        } else if (!districtRadio.checked && !wardRadio.checked) {
+            alert('Vui lòng chọn loại tài khoản');
+        } else if (phone.length < 10 || phone.length > 11) {
+            alert('Số điện thoại không hợp lệ');
+        } else if (isNaN(phone)) {
+            alert('Số điện thoại không hợp lệ');
+        } else if (password !== confirmPassword) {
             alert('Mật khẩu không khớp');
+        } else if (
+            !name.match(/^[a-zA-Z]+(([',. -][a-zA-Z ])?[a-zA-Z]*)*$/)
+        ) {
+            alert('Tên không hợp lệ');
+        } else if (
+            !email.match(/^[a-zA-Z0-9]+@[a-zA-Z0-9]+\.[A-Za-z]+$/)
+        ) {
+            alert('Email không hợp lệ');
+        } else if (
+            !phone.match(/^[0-9]+$/)
+        ) {
+            alert('Số điện thoại không hợp lệ');
+        } else if (
+            !password.match(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{6,}$/)
+        ) {
+            alert('Mật khẩu phải có ít nhất 6 ký tự, bao gồm chữ hoa, chữ thường và số');
+        } else if (
+            !confirmPassword.match(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{6,}$/)
+        ) {
+            alert('Mật khẩu phải có ít nhất 6 ký tự, bao gồm chữ hoa, chữ thường và số');
+        } else if (
+            !date.match(/^[0-9]{2}\/[0-9]{2}\/[0-9]{4}$/)
+        ) {
+            alert('Ngày sinh không hợp lệ');
         } else {
             fetch('http://localhost:3500/api/user/register', {
                 method: 'POST',
@@ -258,5 +302,13 @@
                 })
                 .catch(err => console.log(err));
         }
+    });
+
+    flatpickr("#dateOfBirth", {
+        dateFormat: "d/m/Y",
+        placeholder: "Chọn ngày sinh",
+        enableTime: false,
+        theme: "light",
+        wheel: true,
     });
 </script>
