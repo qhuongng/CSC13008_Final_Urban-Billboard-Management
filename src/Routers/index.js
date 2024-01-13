@@ -11,11 +11,12 @@ const ReportImgRouter = require("./reportImg.routes");
 const UserRouter = require("./user.routes");
 const OtpRouter = require('./otp.routes');
 const controlWardDistrictRouter = require('./controlward_district.routes');
-
+const { authLogin } = require('../Middleware/authMiddleware');
 const reportStatisticsRouter = require('./reportStatistics.routes');
-
 const controlPanelTypeRouter = require('./controlPanelType.routes');
 const controlReportTypeRouter = require('./controlReportType.routes');
+const RegistrationRouter = require('./registration.routes');
+
 
 const controlReportRouter = require('./controlReport.routes')
 
@@ -39,6 +40,7 @@ const routes = (app) => {
 
   app.use('/api/controlPanelType', controlPanelTypeRouter);
   app.use('/api/controlReportType', controlReportTypeRouter);
+  app.use('/api/registration', RegistrationRouter);
 
   app.use('/api/controlReport', controlReportRouter)
 
@@ -50,7 +52,7 @@ const routes = (app) => {
       });
     } else {
       res.render("index", {
-        authUserRole: JSON.stringify(res.locals.authUser)
+        authUserRole: JSON.stringify(res.locals.authUser).replace(/\s/g, '%20')
       });
     }
   });
