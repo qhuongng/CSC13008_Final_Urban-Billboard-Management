@@ -1,0 +1,262 @@
+<style>
+    #form-container {
+        max-width: 40vw;
+    }
+
+    #main-container {
+        width: 100%;
+        background-image: url("/login-bg.jpg");
+        background-size: cover;
+        background-repeat: no-repeat;
+    }
+
+    .card-registration .select-input.form-control[readonly]:not([disabled]) {
+        font-size: 1rem;
+        line-height: 2.15;
+        padding-left: .75em;
+        padding-right: .75em;
+    }
+
+    .card-registration .select-arrow {
+        top: 13px;
+    }
+
+    .district-dropdown,
+    .ward-dropdown {
+        display: none;
+    }
+</style>
+
+<section class="vh-100" id="main-container">
+    <div class="container h-100">
+        <div class="row d-flex justify-content-center align-items-center h-100">
+            <div class="card-body p-5 bg-opacity-75 rounded" id="form-container"
+                style="background-color:rgb(255,255,255,0.9)">
+                <h2 class="text-uppercase text-center mb-2">Đăng kí tài khoản</h2>
+                {{#if err_message}}
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <strong>Login failed!</strong>
+                    {{err_message}}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                {{/if}}
+                <form action="/api/user/register" method="post" class="w-100 h-100">
+                    <div class="form-group">
+                        <label for="name">Tên</label>
+                        <input type="text" class="form-control form-control-lg" id="name" name="name"
+                            placeholder="Nhập tên" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" class="form-control form-control-lg" id="email" name="email"
+                            placeholder="Nhập địa chỉ email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Số điện thoại</label>
+                        <input type="tel" class="form-control form-control-lg" id="phone" name="phone"
+                            placeholder="Nhập số điện thoại" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Mật khẩu</label>
+                        <div class="input-group">
+                            <input type="password" class="form-control form-control-lg" id="password" name="password"
+                                placeholder="Nhập mật khẩu" required>
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="confirmPassword">Xác nhận mật khẩu</label>
+                        <div class="input-group">
+                            <input type="password" class="form-control form-control-lg" id="confirmPassword"
+                                name="confirmPassword" placeholder="Nhập lại mật khẩu" required>
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="checkRole">Chọn loại tài khoản</label>
+                        <div class="d-flex justify-content-around">
+                            <div class="form-check">
+                                <label class="form-check-label">
+                                    <input type="radio" class="form-check-input" name="optradio" id="wardRadio"
+                                        value="ward">Phường
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <label class="form-check-label">
+                                    <input type="radio" class="form-check-input" name="optradio" id="districtRadio"
+                                        value="district">Quận
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group ward-dropdown" id="districtDropdown">
+                        <label for="selectDistrict">Chọn Quận</label>
+                        <select class="form-control form-control-lg" id="selectDistrict" name="selectDistrict">
+                        </select>
+                    </div>
+
+                    <div class="form-group district-dropdown" id="wardDropdown">
+                        <label for="selectWard">Chọn Phường</label>
+                        <select class="form-control form-control-lg" id="selectWard" name="selectWard">
+                        </select>
+                    </div>
+
+                    <div class="m-auto d-flex justify-content-center align-items-center"><button type="button"
+                            class="btn btn-primary mt-3 mx-auto w-100" id="registration">Đăng kí</button></div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+<script src="https://code.jquery.com/jquery-3.7.1.slim.min.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"
+    integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN"
+    crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.min.js"
+    integrity="sha384-+sLIOodYLS7CIrQpBjl+C7nPvqq+FbNUBDunl/OZv93DB7Ln/533i8e/mZXLi/P+"
+    crossorigin="anonymous"></script>
+<script>
+    var listWardOfEachDistrict = [];
+    const selectDistrict = document.getElementById('selectDistrict');
+    const selectWard = document.getElementById('selectWard');
+
+    selectDistrict.addEventListener('change', function () {
+        const selectedDistrictId = this.value;
+
+        const listWardOfSelectedDistrict = listWardOfEachDistrict.filter(ward => ward.districtRefId == selectedDistrictId);
+        selectWard.innerHTML = '';
+        listWardOfSelectedDistrict.forEach(ward => {
+            const option = document.createElement('option');
+            option.className = `${ward.wardId}`;
+            option.value = ward.wardId;
+            option.innerText = ward.wardName;
+            selectWard.appendChild(option);
+        });
+    });
+
+    fetch('http://localhost:3500/api/district/getAll-dis')
+        .then(response => response.json())
+        .then(data => {
+            const listWard = data.data;
+            const selectWard = document.getElementById('selectDistrict');
+            selectWard.innerHTML = '';
+            listWard.forEach(item => {
+                const option = document.createElement('option');
+                option.className = `${item.disId}`;
+                option.value = item.disId;
+                option.innerText = item.disName;
+                selectWard.appendChild(option);
+            });
+        });
+
+    fetch('http://localhost:3500/api/ward/getAll-ward')
+        .then(response => response.json())
+        .then(data => {
+            const listWard = data.data;
+            const selectWard = document.getElementById('selectWard');
+            selectWard.innerHTML = '';
+            const listDistrict = document.querySelectorAll('#selectDistrict option');
+            const districtRadio = document.getElementById('districtRadio');
+            listWard.forEach(ward => {
+                listWardOfEachDistrict.push(ward);
+            });
+            const listWardOfSelectedDistrict = listWardOfEachDistrict.filter(ward => ward.districtRefId == document.getElementById('selectDistrict').value);
+            selectWard.innerHTML = '';
+            listWardOfSelectedDistrict.forEach(ward => {
+                const option = document.createElement('option');
+                option.className = `${ward.wardId}`;
+                option.value = ward.wardId;
+                option.innerText = ward.wardName;
+                selectWard.appendChild(option);
+            });
+        });
+
+    document.querySelectorAll('input[name="optradio"]').forEach(function (radio) {
+        radio.addEventListener('change', function () {
+            const districtDropdown = document.getElementById('districtDropdown');
+            const wardDropdown = document.getElementById('wardDropdown');
+            if (this.value === 'ward') {
+                districtDropdown.style.display = 'block';
+                wardDropdown.style.display = 'block';
+            } else {
+                districtDropdown.style.display = 'block';
+                wardDropdown.style.display = 'none';
+            }
+        });
+    });
+
+    document.querySelectorAll('#togglePassword').forEach(button => {
+        button.addEventListener('click', function () {
+            const password = document.getElementById('password');
+            const confirmPassword = document.getElementById('confirmPassword');
+            if (password.type === 'password') {
+                password.type = 'text';
+                confirmPassword.type = 'text';
+            } else {
+                password.type = 'password';
+                confirmPassword.type = 'password';
+            }
+        });
+    });
+
+    document.getElementById('registration').addEventListener('click', function () {
+        const name = document.getElementById('name').value;
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+        const phone = document.getElementById('phone').value;
+        const districtRadio = document.getElementById('districtRadio');
+        const wardRadio = document.getElementById('wardRadio');
+        const selectDistrict = document.getElementById('selectDistrict').value;
+        const selectWard = document.getElementById('selectWard').value;
+        date = (new Date()).toLocaleDateString('en-GB');
+        let role = [];
+        if (districtRadio.checked) {
+            role = ['-1', selectDistrict];
+        } else {
+            role = [selectWard, selectDistrict];
+        }
+        if (password !== confirmPassword) {
+            alert('Mật khẩu không khớp');
+        } else {
+            fetch('http://localhost:3500/api/user/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    name,
+                    email,
+                    date,
+                    password,
+                    phone,
+                    role,
+                })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'OK') {
+                        alert('Đăng kí thành công');
+                        window.location.href = '/';
+                    } else {
+                        alert('Đăng kí thất bại \n' + 'Tài khoản đã tồn tại');
+                    }
+                })
+                .catch(err => console.log(err));
+        }
+    });
+</script>

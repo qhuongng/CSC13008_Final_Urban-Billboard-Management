@@ -15,6 +15,7 @@ const { authLogin } = require('../Middleware/authMiddleware');
 const reportStatisticsRouter = require('./reportStatistics.routes');
 const controlPanelTypeRouter = require('./controlPanelType.routes');
 const controlReportTypeRouter = require('./controlReportType.routes');
+const RegistrationRouter = require('./registration.routes');
 
 
 const routes = (app) => {
@@ -31,10 +32,13 @@ const routes = (app) => {
   app.use("/api/reportImg", ReportImgRouter);
   app.use('/api/user', UserRouter);
   app.use('/api/otp', OtpRouter);
-  app.use('/api/controlWardDistrict', authLogin, controlWardDistrictRouter);
-  app.use('/api/reportStatistics', authLogin, reportStatisticsRouter)
-  app.use('/api/controlPanelType', authLogin, controlPanelTypeRouter);
-  app.use('/api/controlReportType', authLogin, controlReportTypeRouter);
+  app.use('/api/controlWardDistrict', controlWardDistrictRouter);
+
+  app.use('/api/reportStatistics', reportStatisticsRouter)
+
+  app.use('/api/controlPanelType', controlPanelTypeRouter);
+  app.use('/api/controlReportType', controlReportTypeRouter);
+  app.use('/api/registration', RegistrationRouter);
 
   //
   app.get("/", (req, res) => {
