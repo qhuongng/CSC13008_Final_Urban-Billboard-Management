@@ -73,112 +73,188 @@
             </div>
             <div class="form-group">
                 <label for="name">Họ và tên người báo cáo:</label>
-                <input type="text" class="form-control" id="name" name="name" required>
+                <input type="text" class="form-control" id="name" name="name" autofocus>
             </div>
             <div class="form-group">
                 <label for="longitude">Email:</label>
-                <input type="email" class="form-control" id="email" name="email" required>
+                <input type="email" class="form-control" id="email" name="email" autofocus>
             </div>
             <div class="form-group">
                 <label for="phone">Điện thoại liên lạc:</label>
-                <input type="tel" class="form-control" id="phone" name="phone" pattern="[0-9]{10}" required>
+                <input type="tel" class="form-control" id="phone" name="phone" pattern="[0-9]{10}" autofocus>
             </div>
             <div class="form-group">
                 <label for="content">Nội dung báo cáo:</label>
                 <div id="content-container"><textarea class="form-control" id="content" name="content"
-                        required></textarea></div>
+                        autofocus></textarea></div>
             </div>
             <div class="form-group">
                 <label for="image">Ảnh chụp bảng quảng cáo:</label>
-                <input type="file" class="form-control" id="image" name="image" multiple>
+                <input type="file" class="form-control" id="image" name="image" multiple required>
                 <small class="form-text text-muted">Chọn một hoặc nhiều file.</small>
             </div>
             <div id="recaptcha" class="g-recaptcha" data-sitekey="6LewcUkpAAAAALnSqF9bYfyG95CVok0OYx9ABAAn"></div><br>
-            <button type="button" class="btn btn-primary" onclick="window.history.back()">Trở về Bản Đồ</button>
-            <button type="submit" class="btn btn-primary" onclick="postContent(event)">Tạo báo cáo</button>
+            <button type="button" class="btn btn-primary" onclick="window.history.back()">Quay lại</button>
+            <button type="submit" id="send-button" class="btn btn-primary">Gửi báo cáo</button>
         </form>
     </div>
-    <script defer>
-        async function postContent(event) {
-            event.preventDefault();
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const postContent = async (event) => {
+                event.preventDefault();
 
-            // lấy token reCAPTCHA
-            var recaptchaResponse = grecaptcha.getResponse();
-            if (!recaptchaResponse) {
-                toastr.error("Vui lòng xác nhận reCAPTCHA.");
-                return;
-            }
+                // lấy content từ editor TinyMCE đưa vào textarea gốc
+                var postContent = tinymce.activeEditor.getContent();
+                document.querySelector('#content').value = postContent;
 
-            // gửi request API đến Google để lấy kết quả verify reCAPTCHA
-            try {
-                const response = await fetch('http://localhost:3200/verify-recaptcha', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ token: recaptchaResponse }),
-                });
+                const nameInput = $('#name');
+                const emailInput = $('#email');
+                const phoneInput = $('#phone');
+                const contentInput = $('#content');
+                const contentContainer = $('#content-container');
+                const imageInput = $('#image');
 
-                const result = await response.json();
+                if (!emailInput.val() || !nameInput.val() || !phoneInput.val() || !contentInput.val()) {
+                    toastr.error("Vui lòng điền đầy đủ thông tin.");
 
-                if (result.success) {
-                    // lấy content từ editor TinyMCE đưa vào textarea gốc
-                    var postContent = tinymce.activeEditor.getContent();
-                    document.querySelector('#content').value = postContent;
+                    let inputs = [nameInput, emailInput, phoneInput, contentContainer];
 
-                    // Lấy form và dữ liệu từ form
-                    var form = document.querySelector('form');
-                    var formData = new FormData(form);
-
-                    // Gửi request POST đến máy chủ
-                    var reportId = document.getElementById('id').value;
-                    var reportAddress = document.getElementById('address').value;
-                    var reportLng = document.getElementById('lng').value;
-                    var reportLat = document.getElementById('lat').value;
-                    var reportDistrict = document.getElementById('district').value;
-                    var reportWard = document.getElementById('ward').value;
-
-                    fetch(`http://localhost:3500/api/report/${reportId}?address=${encodeURIComponent(reportAddress)}&lng=${reportLng}&lat=${reportLat}&district=${encodeURIComponent(reportDistrict)}&ward=${encodeURIComponent(reportWard)}`,
-                        {
-                            method: 'POST',
-                            body: formData,
-                        }).then(response => response.json()).then(data => {
-                            // Xử lý response và lưu vào localStorage
-                            localStorage.setItem(data._id, JSON.stringify(data));
-
-                            toastr.options.closeButton = true;
-                            toastr.options = {
-                                "closeButton": true,
-                                "debug": false,
-                                "newestOnTop": false,
-                                "progressBar": false,
-                                "positionClass": "toast-bottom-right",
-                                "preventDuplicates": false,
-                                "onclick": null,
-                                "showDuration": "300",
-                                "hideDuration": "300",
-                                "timeOut": "2000",
-                                "extendedTimeOut": "1000",
-                                "showEasing": "swing",
-                                "hideEasing": "linear",
-                                "showMethod": "fadeIn",
-                                "hideMethod": "fadeOut"
-                            }
-
-                            toastr.options.onHidden = () => { window.location.href = '/'; }
-                            toastr.success("Báo cáo đã được gửi thành công.");
-                        }).catch(error => {
-                            console.error('Error:', error);
-                        });
-                } else {
-                    // reCAPTCHA verification failed
-                    toastr.error('reCAPTCHA verification failed.');
+                    inputs.forEach((input) => {
+                        if (!input.val()) {
+                            input.addClass('border-danger');
+                            input.focus();
+                        }
+                    });
                 }
-            } catch (error) {
-                console.error('Error verifying reCAPTCHA:', error);
-                toastr.error('An error occurred while verifying reCAPTCHA.');
+                else if (/[0-9]{10}/.test(phoneInput)) {
+                    toastr.error("Số điện thoại không hợp lệ (số điện thoại gồm 10 chữ số).");
+
+                    let inputs = [nameInput, emailInput, contentContainer];
+
+                    inputs.forEach((input) => {
+                        input.removeClass('border-danger');
+                    });
+
+                    phoneInput.addClass('border-danger');
+                    phoneInput.focus();
+                }
+                else if (imageInput.prop('files').length === 0) {
+                    toastr.error("Vui lòng thêm hình ảnh đối tượng báo cáo (tối đa 2 ảnh).");
+
+                    let inputs = [nameInput, emailInput, phoneInput, contentContainer];
+
+                    inputs.forEach((input) => {
+                        input.removeClass('border-danger');
+                    });
+
+                    imageInput.addClass('border-danger');
+                    imageInput.focus();
+                }
+                else if (imageInput.prop('files').length > 2) {
+                    toastr.error("Số lượng hình ảnh vượt quá mức cho phép. Vui lòng chỉ thêm tối đa 2 ảnh.");
+
+                    let inputs = [nameInput, emailInput, phoneInput, contentContainer];
+
+                    inputs.forEach((input) => {
+                        input.removeClass('border-danger');
+                    });
+
+                    imageInput.addClass('border-danger');
+                    imageInput.focus();
+                }
+                else {
+                    let inputs = [nameInput, emailInput, phoneInput, contentContainer, imageInput];
+
+                    inputs.forEach((input) => {
+                        input.removeClass('border-danger');
+                    });
+
+                    // lấy token reCAPTCHA
+                    var recaptchaResponse = grecaptcha.getResponse();
+
+                    if (!recaptchaResponse) {
+                        toastr.error("Vui lòng xác nhận reCAPTCHA.");
+                        return;
+                    }
+
+                    console.log(`http://localhost:3200/verify-recaptcha?token=${recaptchaResponse}`);
+
+                    try {
+                        const captchaRes = await fetch('http://localhost:3200/verify-recaptcha', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({ token: recaptchaResponse }),
+                        });
+
+                        const captchaResult = await captchaRes.json();
+
+                        if (captchaResult.success) {
+                            // Lấy form và dữ liệu từ form
+                            var form = document.querySelector('form');
+                            var formData = new FormData(form);
+
+                            // Gửi request POST đến máy chủ
+                            var reportId = document.getElementById('id').value;
+                            var reportAddress = document.getElementById('address').value;
+                            var reportLng = document.getElementById('lng').value;
+                            var reportLat = document.getElementById('lat').value;
+                            var reportDistrict = document.getElementById('district').value;
+                            var reportWard = document.getElementById('ward').value;
+
+                            fetch(`http://localhost:3500/api/report/${reportId}?address=${encodeURIComponent(reportAddress)}&lng=${reportLng}&lat=${reportLat}&district=${encodeURIComponent(reportDistrict)}&ward=${encodeURIComponent(reportWard)}`,
+                                {
+                                    method: 'POST',
+                                    body: formData,
+                                }).then(response => response.json()).then(data => {
+                                    // Xử lý response và lưu vào localStorage
+                                    localStorage.setItem(data._id, JSON.stringify(data));
+
+                                    toastr.options.closeButton = true;
+                                    toastr.options = {
+                                        "closeButton": true,
+                                        "debug": false,
+                                        "newestOnTop": false,
+                                        "progressBar": false,
+                                        "positionClass": "toast-bottom-right",
+                                        "preventDuplicates": false,
+                                        "onclick": null,
+                                        "showDuration": "300",
+                                        "hideDuration": "300",
+                                        "timeOut": "2000",
+                                        "extendedTimeOut": "1000",
+                                        "showEasing": "swing",
+                                        "hideEasing": "linear",
+                                        "showMethod": "fadeIn",
+                                        "hideMethod": "fadeOut"
+                                    }
+
+                                    toastr.options.onHidden = () => { window.location.href = '/'; }
+                                    toastr.success("Báo cáo đã được gửi thành công.");
+                                }).catch(error => {
+                                    // report request failed
+                                    toastr.error('Có lỗi xảy ra khi gửi báo cáo. Vui lòng thử lại sau.');
+                                    console.error('Report sending error:', error);
+                                });
+                        } else {
+                            // reCAPTCHA verification failed
+                            toastr.error('Xác thực reCAPTCHA thất bại. Vui lòng thử lại.');
+                        }
+                    } catch (error) {
+                        console.error('Error verifying reCAPTCHA:', error);
+                        toastr.error('Có lỗi xảy ra khi xác thực reCAPTCHA. Vui lòng thử lại sau.');
+                    }
+                }
+            };
+
+            // Add click event listeners to buttons
+            const sendButton = document.getElementById('send-button');
+
+            if (sendButton) {
+                sendButton.addEventListener('click', postContent);
             }
-        }
+        });
     </script>
 </body>
 
