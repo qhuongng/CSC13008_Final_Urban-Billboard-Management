@@ -1,25 +1,35 @@
 const ReportType = require("../Models/ReportType");
 
-const createTypeReport = (newType) => {
+const createTypeReport = (reportName) => {
   return new Promise(async (resolve, reject) => {
-    const { reportId, reportName } = newType;
     try {
-      const checkType = await ReportType.findOne({
-        reportId: reportId,
+      const checkReportType = await ReportType.findOne({
+        reportName: reportName,
       });
-
-      if (checkType !== null) {
+      console.log(checkReportType);
+      if (checkReportType !== null) {
         reject({
           status: "ERR",
           message: "The Report Type is already",
         });
       }
 
-      if (checkType === null) {
+      if (checkReportType === null) {
+        const idBefore = (await ReportType.findOne({}).sort({ reportId: -1 })).reportId;
+        const count = parseInt(idBefore.slice(1), 10);
+        let id;
+        if (count < 10) {
+          id = "0" + (count + 1).toString();
+        } else {
+          id = (count + 1).toString();
+        }
+
+        const reportId = "R" + id;
         const newTypeReport = await ReportType.create({
-          reportId,
-          reportName,
+          reportId: reportId,
+          reportName: reportName,
         });
+        console.log(newTypeReport);
         if (newTypeReport) {
           resolve({
             status: "OK",
@@ -73,8 +83,53 @@ const getAllReportType = () => {
   });
 };
 
+const updateReportType = (reportId, reportName) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const updatereport = await ReportType.findOne({
+        reportName: reportName
+      })
+      if (updatereport !== null) {
+        resolve({
+          status: "ERR",
+          message: "ReportType Name is already"
+        })
+      } else {
+        const update = await ReportType.findOneAndUpdate(
+          { reportId: reportId },
+          { reportName: reportName },
+          { new: true }
+        )
+        resolve({
+          status: "OK",
+          message: "update compeleted"
+        })
+      }
+    }
+    catch (e) {
+      reject(e)
+    }
+  })
+}
+
+const deleteReportType = (reportId) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      await ReportType.findOneAndDelete({ reportId: reportId })
+      resolve({
+        status: "OK",
+        message: "delete complete"
+      })
+    } catch (e) {
+      reject(e)
+    }
+  })
+}
+
 module.exports = {
   createTypeReport,
   getReportTypeName,
   getAllReportType,
+  updateReportType,
+  deleteReportType
 };
