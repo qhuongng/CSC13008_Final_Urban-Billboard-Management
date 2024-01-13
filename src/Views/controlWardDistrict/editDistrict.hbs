@@ -69,8 +69,7 @@
     const sendPutRequest = async () => {
       const districtId = document.getElementById('districtId').value
       var districtNameInput = $('#txtDisName')
-      const districtName = document.getElementById('txtDisName').value
-      if (!districtName) {
+      if (!districtNameInput.val()) {
         toastr.error("Vui lòng điền tên quận mới.");
         districtNameInput.addClass('border-danger');
         districtNameInput.focus();
@@ -83,7 +82,7 @@
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            disName: districtName
+            disName: districtNameInput.val()
           }),
         });
 
@@ -100,6 +99,7 @@
 
     // Function to send DELETE request
     const sendDeleteRequest = async () => {
+      const districtId = document.getElementById('districtId').value
       try {
         const response = await fetch(`http://localhost:3500/api/district/delete-district/${districtId}`, {
           method: 'DELETE',
