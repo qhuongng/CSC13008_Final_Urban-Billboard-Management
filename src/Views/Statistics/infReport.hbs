@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.2/js/toastr.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
+    <style>
+        .table tbody tr.highlighted {
+            background-color: #dfdfdf;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="control-responsive p-4 d-flex flex-column align-items-center">
+        <div class="container mt-3">
+            <h2 class="mb-4">Thống kê báo cáo</h2>
+
+            <div class="d-flex justify-content-between align-items-end mb-4" id="filters-container">
+                <div class="row flex-fill mr-3" id="filters">
+                    <div class="form-group col-3">
+                        <label for="district">Quận</label>
+                        <select class="custom-select" id="districtSelect">
+                            <option value="">Tất cả quận</option>
+                        </select>
+                    </div>
+                    <div class="form-group col-3">
+                        <label for="ward">Phường</label>
+                        <select class="custom-select" id="wardSelect">
+                            <option value="">Tất cả phường</option>
+                        </select>
+                    </div>
+                    <div class="form-group col-6">
+                        <label for="email">Người gửi</label>
+                        <input type="text" class="form-control" id="emailInput"
+                            placeholder="Nhập email người gửi báo cáo">
+                    </div>
+                </div>
+                <div class="form-group ml-auto">
+                    <label>&nbsp;</label>
+                    <button type="button" class="btn btn-outline-primary float-right" onclick="filterReports()">
+                        <i class="bi bi-funnel"></i>
+                        Lọc
+                    </button>
+                </div>
+            </div>
+
+            <div class="d-flex" id="info-container">
+                <div class="d-flex flex-column align-items-center w-40 mr-3" id="chart-container">
+                    <h6 class="my-3">Thống kê theo tình trạng xử lí</h6>
+                    <canvas id="pieChart"></canvas>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover" id="reportsTable">
+                        <thead>
+                            <tr>
+                                <th>Địa chỉ email</th>
+                                <th>Phường</th>
+                                <th>Quận</th>
+                                <th>Tình trạng</th>
+                                <th>Cách xử lý</th>
+                            </tr>
+                        </thead>
+                        <tbody id="reportsBody">
+                            <!-- Reports will be dynamically added here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Modal for detailed information -->
+                <div class="modal fade" id="detailsModal" tabindex="-1" role="dialog" aria-labelledby="info-modal-title"
+                    aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="info-modal-title">Chi tiết báo cáo</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <div id="modalContent">
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">
+                                    Quay lại</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+    </div>
+
+    <script>
+        toastr.options.closeButton = true;
+        toastr.options = {
+            "closeButton": true,
+            "debug": false,
+            "newestOnTop": false,
+            "progressBar": false,
+            "positionClass": "toast-top-center",
+            "preventDuplicates": false,
+            "onclick": null,
+            "showDuration": "300",
+            "hideDuration": "300",
+            "timeOut": "2000",
+            "extendedTimeOut": "1000",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+        }
+
+        async function filterReports() {
+            const wardSelect = document.getElementById('wardSelect');
+            const districtSelect = document.getElementById('districtSelect');
+            const txtDisInput = $('#districtSelect');
+            const emailInput = document.getElementById('emailInput');
+
+            const wardInput = wardSelect.value;
+            const districtInput = districtSelect.value;
+            const emailInputValue = emailInput.value.trim();
+
+            let url;
+
+            if (!districtInput && wardInput) {
+                toastr.error("Vui lòng chọn quận trước.");
+                txtDisInput.addClass('border-danger');
+                txtDisInput.removeClass('border-danger');
+                txtDisInput.focus();
+                return;
+            }
+
+            if (wardInput && districtInput && emailInputValue) {
+                url = `http://localhost:3500/api/report/getReportByWardAndDisAndEmail/${wardInput}/${districtInput}/${emailInputValue}`;
+            } else if (wardInput && districtInput) {
+                url = `http://localhost:3500/api/report/getReportByWardAndDis/${wardInput}/${districtInput}`;
+            } else if (districtInput) {
+                url = `http://localhost:3500/api/report/getReportByDis/${districtInput}`;
+            } else if (emailInputValue) {
+                url = `http://localhost:3500/api/report/getReportByEmail/${emailInputValue}`;
+            } else {
+                url = 'http://localhost:3500/api/report/getAllReport';
+            }
+
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (data.status === 'OK') {
+                    displayReports(data.data);
+                } else {
+                    toastr.error(`Error: ${data.message}`);
+                }
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        }
+
+        async function displayReports(reports) {
+            const reportsBody = document.getElementById('reportsBody');
+            reportsBody.innerHTML = '';
+
+            if (reports.length === 0) {
+                // If no data, create a single row with a "No data" message
+                const noDataRow = document.createElement('tr');
+                const noDataCell = document.createElement('td');
+                noDataCell.setAttribute('colspan', '6'); // Set colspan to cover all columns
+                noDataCell.textContent = 'Không có dữ liệu';
+                noDataRow.appendChild(noDataCell);
+                reportsBody.appendChild(noDataRow);
+            } else {
+                // If there is data, create rows for each report
+                reports.forEach(report => {
+                    const row = document.createElement('tr');
+
+                    row.innerHTML = `
+                        <td>${report.email}</td>
+                        <td>${report.ward}</td>
+                        <td>${report.district}</td>
+                        <td style="color: ${getColorByState(report.state)}">${formatState(report.state)}</td>
+                        <td style="color: ${getColorByAction(report.actionHandler)}">${report.actionHandler}</td>
+                    `;
+
+                    row.addEventListener('dblclick', () => {
+                        loadDetails(report);
+                        $('#detailsModal').modal('show');
+                    });
+
+                    row.addEventListener('click', () => highlightRow(row));
+
+                    reportsBody.appendChild(row);
+                });
+
+                const stateCount = { 0: 0, 1: 0, 2: 0 };
+
+                // Count the occurrences of each state
+                reports.forEach(report => {
+                    stateCount[report.state]++;
+                });
+
+                // Calculate the data for the pie chart
+                const pieChartData = Object.values(stateCount);
+
+                // Get the pie chart canvas and context
+                const pieCanvas = document.getElementById('pieChart');
+                const pieContext = pieCanvas.getContext('2d');
+
+                // Destroy the existing chart (if any)
+                if (window.myPieChart) {
+                    window.myPieChart.destroy();
+                }
+
+                // Create the pie chart using Chart.js
+                window.myPieChart = new Chart(pieContext, {
+                    type: 'pie',
+                    data: {
+                        labels: ['Chưa xử lí', 'Đang xử lí', 'Đã xử lí'],
+                        datasets: [{
+                            data: pieChartData,
+                            backgroundColor: ['red', 'gold', 'green'],
+                        }],
+                    },
+                });
+            }
+        }
+        function getColorByState(state) {
+            switch (state) {
+                case 0:
+                    return 'red';
+                case 1:
+                    return 'gold';
+                case 2:
+                    return 'green';
+                default:
+                    return 'black';
+            }
+        }
+
+        function getColorByAction(actionHandler) {
+            switch (actionHandler) {
+                case 'Chưa xử lí':
+                    return 'red';
+                default:
+                    return 'green';
+            }
+        }
+
+        function formatState(state) {
+            switch (state) {
+                case 0:
+                    return 'Chưa xử lí';
+                case 1:
+                    return 'Đang xử lí';
+                case 2:
+                    return 'Đã xử lí';
+                default:
+                    return 'Unknown';
+            }
+        }
+
+        function loadDetails(report) {
+            document.getElementById('modalContent').innerHTML = "";
+
+            let imgDivs = "";
+
+            if (report.reportPicture.length === 2) {
+                imgDivs += `<img class="img-fluid" src="http://localhost:3500/api/reportImg/getImgReport/${report.reportPicture[0]}"" alt=""><br>
+                                        <img class="img-fluid" src="http://localhost:3500/api/reportImg/getImgReport/${report.reportPicture[1]}"" alt=""><br><br>`
+            }
+            else if (report.reportPicture.length === 1) {
+                imgDivs += `<img class="img-fluid" src="http://localhost:3500/api/reportImg/getImgReport/${report.reportPicture[0]}"" alt=""><br><br>`
+            }
+
+            const details = `<h6 class="card-subtitle mb-2 text-muted">${report.address}</h6>
+                                          <p class="card-text">Họ tên người gửi: <b>${report.name}</b><br>
+                                                            Email: <b>${report.email}</b><br>
+                                                            Số điện thoại: <b>${report.phone}</b><br>
+                                                            Hình thức báo cáo: <b>${report.reportType}</b><br>
+                                                            Nội dung: ${report.content}
+                                                            Hình ảnh đối tượng báo cáo:<br><br>
+                                                            ${imgDivs}
+                                                            Tình trạng xử lí: <b style="color:${getColorByState(report.state)}">${formatState(report.state)}</b><br>
+                                                            Hình thức xử lí: <b style="color:${getColorByAction(report.actionHandler)}">${report.actionHandler}</b></p>`;
+
+            document.getElementById('modalContent').innerHTML = details;
+        }
+
+        function highlightRow(row) {
+            // Remove highlight from all rows
+            const rows = document.querySelectorAll('#reportsBody tr');
+            rows.forEach(r => r.classList.remove('highlighted'));
+
+            // Add highlight to the clicked row
+            row.classList.add('highlighted');
+        }
+
+        async function populateDropdowns() {
+            const wardSelect = document.getElementById('wardSelect');
+            const districtSelect = document.getElementById('districtSelect');
+
+            try {
+                const wardResponse = await fetch('http://localhost:3500/api/ward/getAll-ward');
+                const wardData = await wardResponse.json();
+
+                wardData.data.forEach(ward => {
+                    const option = document.createElement('option');
+                    option.value = ward.wardName;
+                    option.textContent = ward.wardName;
+                    wardSelect.appendChild(option);
+                });
+
+                const districtResponse = await fetch('http://localhost:3500/api/district/getAll-dis');
+                const districtData = await districtResponse.json();
+
+                districtData.data.forEach(dis => {
+                    const option = document.createElement('option');
+                    option.value = dis.disName;
+                    option.textContent = dis.disName;
+                    districtSelect.appendChild(option);
+                });
+
+                filterReports();
+            } catch (error) {
+                console.error('Error fetching ward and district data:', error);
+            }
+        }
+
+        async function populateWardsByDistrict() {
+            const districtSelect = document.getElementById('districtSelect');
+            const wardSelect = document.getElementById('wardSelect');
+
+            // Clear previous options
+            wardSelect.innerHTML = '<option value="">Tất Cả Phường</option>';
+
+            const selectedDistrict = districtSelect.value;
+
+            if (selectedDistrict) {
+                try {
+                    const wardResponse = await fetch(`http://localhost:3500/api/ward/getWard/${selectedDistrict}`);
+                    const wardData = await wardResponse.json();
+
+                    wardData.data.forEach(ward => {
+                        const option = document.createElement('option');
+                        option.value = ward.wardName;
+                        option.textContent = ward.wardName;
+                        wardSelect.appendChild(option);
+                    });
+
+                    filterReports();
+                } catch (error) {
+                    console.error('Error fetching ward data:', error);
+                }
+            }
+        }
+
+        // Attach the function to the change event of the district dropdown
+        document.getElementById('districtSelect').addEventListener('change', populateWardsByDistrict);
+
+        populateDropdowns();
+    </script>
+
+</body>
+
+</html>

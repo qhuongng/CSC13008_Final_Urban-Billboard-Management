@@ -1,14 +1,12 @@
-<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
 <script src="http://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.2/js/toastr.min.js"></script>
 <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
-<div class="control-responsive border p-4 d-flex flex-column align-items-center">
+<div class="control-responsive p-4 d-flex flex-column align-items-center">
     <div class="container mt-3">
         <div class="mt-3 d-flex justify-content-between">
             <h2 class="mb-4">Loại hình quảng cáo</h2>
             <div>
-                <button class="btn btn-success mr-2" data-toggle="modal" data-target="#addModal">
-                    <i class="fas fa-plus"></i>
+                <button class="btn btn-outline-success mr-2" data-toggle="modal" data-target="#addModal">
+                    <i class="bi bi-plus-circle"></i>
                     Thêm loại hình quảng cáo
                 </button>
             </div>
@@ -19,8 +17,8 @@
                 <thead>
                     <tr>
                         <th scope="col">ID</th>
-                        <th scope="col">Phân loại</th>
-                        <th scope="col">Tác vụ</th>
+                        <th scope="col">Tên loại hình</th>
+                        <th scope="col">&nbsp;</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -29,16 +27,13 @@
         </div>
     </div>
 </div>
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
 <!-- Add Modal for Add and Edit -->
 <div class="modal fade" id="addModal" tabindex="-1" role="dialog" aria-labelledby="addModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="addModalLabel">Thêm loại bảng quảng cáo</h5>
+                <h5 class="modal-title" id="addModalLabel">Thêm loại hình quảng cáo</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -46,14 +41,19 @@
             <div class="modal-body">
                 <form id="addForm">
                     <div class="form-group">
-                        <label for="add-data">Loại bảng quảng cáo mới:</label>
-                        <input type="text" class="form-control" id="add-data" placeholder="Tên loại bảng" required />
+                        <label for="add-data">Tên loại hình quảng cáo</label>
+                        <input type="text" class="form-control" id="add-data" placeholder="VD: Bảng chuyển hình rolling"
+                            required />
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
-                <button type="button" class="btn btn-primary" onclick="addPanelType()">Thêm</button>
+                <button type="button" class="btn btn-outline-success" data-dismiss="modal">
+                    <i class="bi bi-skip-backward-fill"></i>
+                    Quay lại</button>
+                <button type="button" class="btn btn-outline-primary" onclick="addPanelType()">
+                    <i class="bi bi-check2"></i>
+                    Lưu</button>
             </div>
 
         </div>
@@ -64,7 +64,7 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="editModalLabel">Chỉnh sửa phân loại</h5>
+                <h5 class="modal-title" id="editModalLabel">Chỉnh sửa thông tin loại hình quảng cáo</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -72,22 +72,24 @@
             <div class="modal-body">
                 <form id="editForm">
                     <div class="form-group">
-                        <label for="edited-id">ID bảng quảng cáo: </label>
-                        <input type="text" id="edited-id" style="border: none;" readonly />
+                        <label for="edited-id">ID loại hình quảng cáo</label>
+                        <input type="text" class="form-control" id="edited-id" readonly />
                     </div>
                     <div class="form-group">
-                        <label for="edit-data">Chỉnh sửa tên loại bảng quảng cáo </label>
+                        <label for="edit-data">Tên loại hình quảng cáo mới</label>
                         <input type="text" class="form-control" id="edit-data"
                             placeholder="Nhập tên loại bảng quảng cáo" required />
-                        <div class="invalid-feedback">
-                            Cung cấp tên loại bảng quảng cáo mới
-                        </div>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
-                <button type="button" class="btn btn-primary" onclick="editSelectedRow()">Lưu thay đổi</button>
+                <button type="button" class="btn btn-outline-success" data-dismiss="modal">
+                    <i class="bi bi-skip-backward-fill"></i>
+                    Quay lại
+                </button>
+                <button type="button" class="btn btn-outline-primary" onclick="editSelectedRow()">
+                    <i class="bi bi-check2"></i>
+                    Lưu</button>
             </div>
         </div>
     </div>
@@ -104,13 +106,19 @@
                 </button>
             </div>
             <div class="modal-body">
-                <label for="delete-id">ID bảng quảng cáo: </label>
-                <input type="text" id="delete-id" style="border: none;" readonly />
-                <br>Bạn có chắc chắn muốn xóa loại bảng quảng cáo này?
+                <label for="delete-id">ID loại hình báo cáo</label>
+                <input type="text" class="form-control" id="delete-id" readonly />
+                <br>Bạn có chắc chắn muốn xóa loại hình quảng cáo này?
             </div>
-            <div class="modal-footer justify-content-center">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Quay lại</button>
-                <button type="button" class="btn btn-danger" onclick="deleteSelectedRow()">Xóa</button>
+            <div class="modal-footer justify-content-end">
+                <button type="button" class="btn btn-outline-success" data-dismiss="modal">
+                    <i class="bi bi-skip-backward-fill"></i>
+                    Quay lại
+                </button>
+                <button type="button" class="btn btn-outline-danger" onclick="deleteSelectedRow()">
+                    <i class="bi bi-trash-fill"></i>
+                    Xóa
+                </button>
             </div>
         </div>
     </div>
@@ -144,15 +152,15 @@
                                 <th scope="row">${item.panId}</th>
                                 <td>${item.panName}</td>
                                 <td class="text-nowrap overflow-hidden" style="width: 1%;">
-                                    <button class="btn btn-sm btn-primary" onclick="editRow('${item.panId}')" data-toggle="modal"
+                                    <button class="btn btn-sm btn-outline-primary" onclick="editRow('${item.panId}')" data-toggle="modal"
                                         data-target="#editModal">
-                                        <i class="bi bi-pencil"></i>
-                                        Edit
+                                        <i class="bi bi-pencil-square"></i>
+                                        Sửa
                                     </button>
-                                    <button class="btn btn-sm btn-danger" onclick="deleteRow('${item.panId}')" data-toggle="modal"
+                                    <button class="btn btn-sm btn-outline-danger" onclick="deleteRow('${item.panId}')" data-toggle="modal"
                                         data-target="#deleteModal">
-                                        <i class="bi bi-trash"></i>
-                                        Delete
+                                        <i class="bi bi-trash-fill"></i>
+                                        Xóa
                                     </button>
                                 </td>
                             </tr>`;
@@ -165,7 +173,7 @@
     async function addPanelType() {
         const newPanelType = $('#add-data');
         if (!newPanelType.val()) {
-            toastr.error("Cần điền tên của loại bảng quảng cáo mới");
+            toastr.error("Vui lòng điền tên của loại bảng quảng cáo mới.");
             newPanelType.addClass('border-danger');
             newPanelType.focus();
         } else {
@@ -182,13 +190,13 @@
                 })
                 if (response.status === 200) {
                     toastr.options.onHidden = () => { window.location.href = "/api/controlPanelType" }
-                    toastr.success("Khởi tạo loại hình quảng cáo thành công")
+                    toastr.success("Thêm loại hình quảng cáo thành công.")
                 }
                 else {
-                    toastr.error("Tên loại hình quảng cáo đã tồn tại")
+                    toastr.error("Tên loại hình quảng cáo đã tồn tại.")
                 }
             } catch (e) {
-                toastr.error("Có lỗi không mong đợi. Vui lòng thử lại.");
+                toastr.error("Có lỗi xảy ra. Vui lòng thử lại.");
             }
 
         }
@@ -223,7 +231,7 @@
         const editedData = $('#edit-data');
 
         if (!editedData.val()) {
-            toastr.error("Cần điền tên của loại bảng quảng cáo");
+            toastr.error("Vui lòng điền tên loại hình quảng cáo.");
             editedData.addClass('border-danger');
             editedData.focus();
         }
@@ -240,12 +248,12 @@
                 })
                 if (response.status === 200) {
                     toastr.options.onHidden = () => { window.location.href = "/api/controlPanelType" }
-                    toastr.success("Chỉnh sửa loại hình quảng cáo thành công")
+                    toastr.success("Chỉnh sửa thông tin loại hình quảng cáo thành công.")
                 } else {
-                    toastr.error("Tên loại hình quảng cáo đã tồn tại");
+                    toastr.error("Tên loại hình quảng cáo đã tồn tại.");
                 }
             } catch (e) {
-                toastr.error("Có lỗi không mong đợi. Vui lòng thử lại.");
+                toastr.error("Có lỗi xảy ra. Vui lòng thử lại.");
             }
         }
 
@@ -264,13 +272,13 @@
 
             if (response.status === 200) {
                 toastr.options.onHidden = () => { window.location.href = "/api/controlPanelType" }
-                toastr.success("Xóa loại hình quảng cáo thành công")
+                toastr.success("Xóa loại hình quảng cáo thành công.")
             } else {
                 // Handle error response
-                toastr.error('Xóa thất bại, vui lòng thử lại');
+                toastr.error('Xóa thất bại. Vui lòng thử lại.');
             }
         } catch (error) {
-            toastr.error("Có lỗi không mong đợi. Vui lòng thử lại.");
+            toastr.error("Có lỗi xảy ra. Vui lòng thử lại.");
         }
     }
 </script>
