@@ -3,8 +3,13 @@ const router = express.Router();
 // const controlPanelType = require("../Controllers/panelType.controllers");
 
 router.get("/", (req, res) => {
+  res.render("Registration/accounts");
+});
+
+router.get("/add", (req, res) => {
   res.render("Registration/registration");
 });
+
 
 router.post("/", (req, res) => {
   const { name, email, date, password, phone, role } = req.body;
