@@ -79,6 +79,7 @@ function toggleLayerVisibility(clickedLayer, visibility) {
     }
     else {
         map.setLayoutProperty("reported-point", "visibility", visibility);
+        map.setLayoutProperty("reported-point-zoned", "visibility", visibility);
         map.setLayoutProperty("free-point", "visibility", visibility);
     }
 }
@@ -408,6 +409,23 @@ function setupMap(center) {
             map.addLayer({
                 id: "reported-point",
                 type: "circle",
+                source: "unzonedPos",
+                filter: ["all", ["!", ["has", "point_count"]], ["any", ["!=", ["get", "pointReport"], 0], ["==", ["get", "isReportedAtPanelLevel"], true]]],
+                layout: {
+                    "visibility": "visible"
+                },
+                paint: {
+                    "circle-color": "#ff0000",
+                    "circle-radius": 10,
+                    "circle-stroke-width": 1,
+                    "circle-stroke-color": "#ffffff",
+                },
+            },
+            );
+
+            map.addLayer({
+                id: "reported-point-zoned",
+                type: "circle",
                 source: "billboardPos",
                 filter: ["all", ["!", ["has", "point_count"]], ["any", ["!=", ["get", "pointReport"], 0], ["==", ["get", "isReportedAtPanelLevel"], true]]],
                 layout: {
@@ -598,7 +616,7 @@ function setupMap(center) {
                 closeOnClick: false,
             });
 
-            map.on("mouseenter", ["unclustered-point", "unclustered-point-zoned", "reported-point"], (e) => {
+            map.on("mouseenter", ["unclustered-point", "unclustered-point-zoned", "reported-point", "reported-point-zoned"], (e) => {
                 const coordinates = e.features[0].geometry.coordinates.slice();
                 const long = e.features[0].properties.long;
                 const lat = e.features[0].properties.lat;
@@ -619,7 +637,7 @@ function setupMap(center) {
                 popup.setLngLat(coordinates).setHTML(description).addTo(map);
             });
 
-            map.on("click", ["unclustered-point", "unclustered-point-zoned", "reported-point"], (e) => {
+            map.on("click", ["unclustered-point", "unclustered-point-zoned", "reported-point", "reported-point-zoned"], (e) => {
                 const props = e.features[0].properties;
 
                 const pointId = props.id;
@@ -773,8 +791,6 @@ function setupMap(center) {
                                             actionHandler: panelReport.actionHandler
                                         };
 
-                                        console.log(reportInfo);
-
                                         const viewReportButton =
                                             `<button class="btn btn-outline-primary float-right" data-toggle="modal" data-target="#report-info-modal" onclick="loadReportDetail('${escapeHtml(JSON.stringify(reportInfo))}', false)">
                                                 <i class="bi bi-exclamation-octagon-fill"></i>
@@ -826,7 +842,7 @@ function setupMap(center) {
                     });
             });
 
-            map.on("mouseleave", ["unclustered-point", "unclustered-point-zoned", "reported-point"], () => {
+            map.on("mouseleave", ["unclustered-point", "unclustered-point-zoned", "reported-point", "reported-point-zoned"], () => {
                 map.getCanvas().style.cursor = "";
                 popup.remove();
             });
