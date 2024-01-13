@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Report Statistics</title>
+    <title>Thống kê báo cáo</title>
 
     <style>
         body {
@@ -109,20 +109,20 @@
 
 <body>
 
-    <h1>Report Statistics</h1>
+    <h1>Thống kê báo cáo</h1>
 
-    <label for="ward">Ward:</label>
+    <label for="ward">Phường:</label>
     <select id="wardSelect">
-        <option value="">All Wards</option>
+        <option value="">Tất Cả Phường</option>
     </select>
 
-    <label for="district">District:</label>
+    <label for="district">Quận:</label>
     <select id="districtSelect">
-        <option value="">All Districts</option>
+        <option value="">Tất Cả Quận</option>
     </select>
 
-    <label for="email">Email:</label>
-    <input type="text" id="emailInput" placeholder="Enter email">
+    <label for="email">Tìm kiếm:</label>
+    <input type="text" id="emailInput" placeholder="Vui lòng nhập email: ">
 
     <button onclick="filterReports()">Filter</button>
 
@@ -130,11 +130,11 @@
         <thead>
             <tr>
                 <th>ID</th>
-                <th>Email</th>
-                <th>Ward</th>
-                <th>District</th>
-                <th>Status</th>
-                <th>Action</th>
+                <th>Địa chỉ Email</th>
+                <th>Phường</th>
+                <th>Quận</th>
+                <th>Tình trạng</th>
+                <th>Cách xử lý</th>
             </tr>
         </thead>
         <tbody id="reportsBody">
@@ -192,24 +192,36 @@
             const reportsBody = document.getElementById('reportsBody');
             reportsBody.innerHTML = '';
 
-            reports.forEach(report => {
-                const row = document.createElement('tr');
+            if (reports.length === 0) {
+                // If no data, create a single row with a "No data" message
+                const noDataRow = document.createElement('tr');
+                const noDataCell = document.createElement('td');
+                noDataCell.setAttribute('colspan', '6'); // Set colspan to cover all columns
+                noDataCell.textContent = 'Không có dữ liệu';
+                noDataRow.appendChild(noDataCell);
+                reportsBody.appendChild(noDataRow);
+            } else {
+                // If there is data, create rows for each report
+                reports.forEach(report => {
+                    const row = document.createElement('tr');
 
-                row.innerHTML = `
-                    <td>${report._id}</td>
-                    <td>${report.email}</td>
-                    <td>${report.ward}</td>
-                    <td>${report.district}</td>
-                    <td style="color: ${getColorByState(report.state)}">${formatState(report.state)}</td>
-                    <td style="color: ${getColorByAction(report.actionHandler)}">${report.actionHandler}</td>
-                `;
+                    row.innerHTML = `
+                <td>${report._id}</td>
+                <td>${report.email}</td>
+                <td>${report.ward}</td>
+                <td>${report.district}</td>
+                <td style="color: ${getColorByState(report.state)}">${formatState(report.state)}</td>
+                <td style="color: ${getColorByAction(report.actionHandler)}">${report.actionHandler}</td>
+            `;
 
-                row.addEventListener('dblclick', () => showDetails(report));
-                row.addEventListener('click', () => highlightRow(row));
+                    row.addEventListener('dblclick', () => showDetails(report));
+                    row.addEventListener('click', () => highlightRow(row));
 
-                reportsBody.appendChild(row);
-            });
+                    reportsBody.appendChild(row);
+                });
+            }
         }
+
 
         function getColorByState(state) {
             switch (state) {
@@ -228,12 +240,8 @@
             switch (actionHandler) {
                 case 'Chưa xử lí':
                     return 'red';
-                case 'Đang xử lí':
-                    return 'gold';
-                case 'Đã xử lí':
-                    return 'green';
                 default:
-                    return 'black';
+                    return 'green';
             }
         }
 
