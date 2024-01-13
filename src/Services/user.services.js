@@ -12,7 +12,11 @@ const createUser = (newUser) => {
             })
 
             if (checkUser !== null) {
-                reject('The email is already');
+                resolve({
+                    status: "ERR",
+                    message: 'The email is already',
+                    data: checkUser
+                });
             }
             const hash = bcrypt.hashSync(password, 10)
 

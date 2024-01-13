@@ -48,7 +48,7 @@ const routes = (app) => {
       });
     } else {
       res.render("index", {
-        authUserRole: JSON.stringify(res.locals.authUser)
+        authUserRole: JSON.stringify(res.locals.authUser).replace(/\s/g, '%20')
       });
     }
   });

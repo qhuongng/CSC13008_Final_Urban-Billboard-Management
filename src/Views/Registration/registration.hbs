@@ -26,6 +26,8 @@
         display: none;
     }
 </style>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.2/js/toastr.min.js"></script>
+<link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 
 <section class="vh-100" id="main-container">
@@ -34,15 +36,6 @@
             <div class="card-body p-5 bg-opacity-75 rounded" id="form-container"
                 style="background-color:rgb(255,255,255,0.9)">
                 <h2 class="text-uppercase text-center mb-2">Đăng kí tài khoản</h2>
-                {{#if err_message}}
-                <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                    <strong>Login failed!</strong>
-                    {{err_message}}
-                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                {{/if}}
                 <form action="/api/user/register" method="post" class="w-100 h-100">
                     <div class="form-group">
                         <label for="name">Tên</label>
@@ -141,6 +134,24 @@
     crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script>
+    toastr.options.closeButton = true;
+    toastr.options = {
+        "closeButton": true,
+        "debug": false,
+        "newestOnTop": false,
+        "progressBar": false,
+        "positionClass": "toast-top-center",
+        "preventDuplicates": false,
+        "onclick": null,
+        "showDuration": "300",
+        "hideDuration": "300",
+        "timeOut": "2000",
+        "extendedTimeOut": "1000",
+        "showEasing": "swing",
+        "hideEasing": "linear",
+        "showMethod": "fadeIn",
+        "hideMethod": "fadeOut"
+    }
     var listWardOfEachDistrict = [];
     const selectDistrict = document.getElementById('selectDistrict');
     const selectWard = document.getElementById('selectWard');
@@ -224,17 +235,17 @@
         });
     });
 
-    document.getElementById('registration').addEventListener('click', function () {
-        const name = document.getElementById('name').value;
-        const email = document.getElementById('email').value;
-        const date = document.getElementById('dateOfBirth').value;
-        const password = document.getElementById('password').value;
-        const confirmPassword = document.getElementById('confirmPassword').value;
-        const phone = document.getElementById('phone').value;
+    document.getElementById('registration').addEventListener('click', async function () {
+        const name = $('#name');
+        const email = $('#email');
+        const date = $('#dateOfBirth');
+        const password = $('#password');
+        const confirmPassword = $('#confirmPassword');
+        const phone = $('#phone');
         const districtRadio = document.getElementById('districtRadio');
         const wardRadio = document.getElementById('wardRadio');
-        const selectDistrict = document.getElementById('selectDistrict').value;
-        const selectWard = document.getElementById('selectWard').value;
+        const selectDistrict = $('#selectDistrict');
+        const selectWard = $('#selectWard');
         let role = [];
 
         if (districtRadio.checked) {
@@ -243,61 +254,94 @@
             role = [selectWard, selectDistrict];
         }
 
-        if (name === '' || email === '' || password === '' || confirmPassword === '' || phone === '' || role === []) {
-            alert('Vui lòng nhập đầy đủ thông tin');
+        if (!name.val() || !email.val() || !password.val() || !confirmPassword.val() || !phone.val() || role === []) {
+            toastr.error('Vui lòng nhập đầy đủ thông tin');
         } else if (!districtRadio.checked && !wardRadio.checked) {
-            alert('Vui lòng chọn loại tài khoản');
-        } else if (phone.length < 10 || phone.length > 11) {
-            alert('Số điện thoại không hợp lệ');
-        } else if (isNaN(phone)) {
-            alert('Số điện thoại không hợp lệ');
-        } else if (
-            !email.match(/^[a-zA-Z0-9]+@[a-zA-Z0-9]+\.[A-Za-z]+$/)
-        ) {
-            alert('Email không hợp lệ');
-        } else if (
-            !phone.match(/^[0-9]+$/)
-        ) {
-            alert('Số điện thoại không hợp lệ');
-        } else if (
-            !password.match(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{6,}$/)
-        ) {
-            alert('Mật khẩu phải có ít nhất 6 ký tự, bao gồm chữ hoa, chữ thường và số');
-        } else if (
-            !confirmPassword.match(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{6,}$/)
-        ) {
-            alert('Mật khẩu phải có ít nhất 6 ký tự, bao gồm chữ hoa, chữ thường và số');
-        } else if (
-            !date.match(/^[0-9]{2}\/[0-9]{2}\/[0-9]{4}$/)
-        ) {
-            alert('Ngày sinh không hợp lệ');
-        } else if (password !== confirmPassword) {
-            alert('Mật khẩu không khớp');
+            toastr.error('Vui lòng chọn loại tài khoản');
+            name.removeClass('border-danger');
+            email.removeClass('border-danger');
+            password.removeClass('border-danger');
+            confirmPassword.removeClass('border-danger');
+            phone.removeClass('border-danger');
+        } else if (phone.val().length < 10 || phone.val().length > 11) {
+            toastr.error('Số điện thoại không hợp lệ');
+            name.removeClass('border-danger');
+            email.removeClass('border-danger');
+            password.removeClass('border-danger');
+            confirmPassword.removeClass('border-danger');
+            phone.addClass('border-danger');
+            phone.focus();
+        } else if (isNaN(phone.val())) {
+            toastr.error('Số điện thoại không hợp lệ');
+            name.removeClass('border-danger');
+            email.removeClass('border-danger');
+            password.removeClass('border-danger');
+            confirmPassword.removeClass('border-danger');
+            phone.addClass('border-danger');
+            phone.focus();
+        } else if (!phone.val().match(/^[0-9]+$/)) {
+            toastr.error('Số điện thoại không hợp lệ');
+            name.removeClass('border-danger');
+            email.removeClass('border-danger');
+            password.removeClass('border-danger');
+            confirmPassword.removeClass('border-danger');
+            phone.addClass('border-danger');
+            phone.focus();
+        } else if (!email.val().match(/^[a-zA-Z0-9]+@[a-zA-Z0-9]+\.[A-Za-z]+$/)) {
+            toastr.error('Email không hợp lệ');
+            name.removeClass('border-danger');
+            phone.removeClass('border-danger');
+            password.removeClass('border-danger');
+            confirmPassword.removeClass('border-danger');
+            email.addClass('border-danger');
+            email.focus();
+        } else if (!password.val().match(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{6,}$/)) {
+            toastr.error('Mật khẩu phải có ít nhất 6 ký tự, bao gồm chữ hoa, chữ thường và số');
+            name.removeClass('border-danger');
+            phone.removeClass('border-danger');
+            email.removeClass('border-danger');
+            confirmPassword.removeClass('border-danger');
+            password.addClass('border-danger');
+            password.focus();
+        } else if (!confirmPassword.val().match(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{6,}$/)) {
+            toastr.error('Mật khẩu phải có ít nhất 6 ký tự, bao gồm chữ hoa, chữ thường và số');
+            name.removeClass('border-danger');
+            phone.removeClass('border-danger');
+            email.removeClass('border-danger');
+            password.removeClass('border-danger');
+            confirmPassword.addClass('border-danger');
+            confirmPassword.focus();
+        } else if (!date.val().match(/^[0-9]{2}\/[0-9]{2}\/[0-9]{4}$/)) {
+            toastr.error('Ngày sinh không hợp lệ');
+        } else if (password.val() !== confirmPassword.val()) {
+            toastr.error('Mật khẩu không khớp');
+            name.removeClass('border-danger');
+            phone.removeClass('border-danger');
+            email.removeClass('border-danger');
+            password.removeClass('border-danger');
+            confirmPassword.addClass('border-danger');
+            confirmPassword.focus();
         } else {
-            fetch('http://localhost:3500/api/user/register', {
+            const response = await fetch('http://localhost:3500/api/user/register', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    name,
-                    email,
-                    date,
-                    password,
-                    phone,
+                    name: name.val(),
+                    email: email.val(),
+                    date: date.val(),
+                    password: password.val(),
+                    phone: phone.val(),
                     role,
                 })
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'OK') {
-                        alert('Đăng kí thành công');
-                        window.location.href = '/';
-                    } else {
-                        alert('Đăng kí thất bại \n' + 'Tài khoản đã tồn tại');
-                    }
-                })
-                .catch(err => console.log(err));
+            });
+            if (response.status == 200) {
+                toastr.options.onHidden = () => { window.location.href = "/" }
+                toastr.success("Đăng kí cán bộ mới thành công.")
+            } else {
+                toastr.error('Email đã tồn tại');
+            }
         }
     });
 

@@ -3,7 +3,12 @@ const UserService = require('../Services/user.services');
 const createUser = async (req, res) => {
     try {
         const response = await UserService.createUser(req.body)
-        return res.status(200).json(response)
+        if (response.status === "OK") {
+            return res.status(200).json(response)
+        } else {
+            return res.status(205).json(response)
+        }
+
         //sau này render lại trang tạo account
     } catch (e) {
         //render lại trang tại account và báo lỗi
@@ -34,9 +39,7 @@ const loginUser = async (req, res) => {
             })
         }
         const response = await UserService.loginUser(req.body)
-
         const userLogin = response.checkUser;
-        const token = response.accessToken;
         delete userLogin.password;
         req.session.auth = true;
         req.session.authUser = userLogin;
