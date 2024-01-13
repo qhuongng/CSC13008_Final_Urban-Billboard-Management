@@ -80,6 +80,7 @@ const createReport = (idPanel, locate, newReport, imgId, district, ward, address
         }
     })
 }
+
 const getAllReport = () => {
     return new Promise(async (resolve, reject) => {
         try {
@@ -108,6 +109,7 @@ const getAllReport = () => {
         }
     })
 }
+
 const updateAction = (reportId, state, action) => {
     return new Promise(async (resolve, reject) => {
         try {
@@ -215,6 +217,23 @@ const getReportByEmail = async (email) => {
     }
 };
 
+const getReportByWardAndDisAndEmail = async (wardName,disName,email) => {
+    try {
+        const reports = await Report.find({ ward: wardName, district: disName, email: email });
+
+        return {
+            status: 'OK',
+            message: 'SUCCESS',
+            data: reports,
+        };
+    } catch (error) {
+        return {
+            status: 'ERR',
+            message: error.message,
+        };
+    }
+};
+
 module.exports = {
     getReportbyId,
     createReport,
@@ -222,5 +241,6 @@ module.exports = {
     getReportByWard,
     getReportByDis,
     getReportByWardAndDis,
-    getReportByEmail
+    getReportByEmail,
+    getReportByWardAndDisAndEmail
 }
