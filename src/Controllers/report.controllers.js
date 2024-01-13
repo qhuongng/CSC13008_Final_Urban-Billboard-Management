@@ -111,6 +111,27 @@ const getReportByWardAndDisAndEmail = async (req, res) => {
     }
 }
 
+
+const updateReport = async (req, res) => {
+    try {
+        const reportId = req.params.id
+        const data = req.body
+        if (!reportId) {
+            return res.status(404).json({
+                status: 'ERR',
+                message: 'The reportId is required'
+            })
+        }
+
+        const response = await reportService.updateReport(reportId, data)
+        return res.status(200).json(response)
+    } catch (e) {
+        return res.status(404).json({
+            message: e
+        })
+    }
+}
+
 module.exports = {
     getReport,
     createReport,
@@ -120,5 +141,6 @@ module.exports = {
     getReportByDis,
     getReportByWardAndDis,
     getReportByEmail,
-    getReportByWardAndDisAndEmail
+    getReportByWardAndDisAndEmail,
+    updateReport
 };

@@ -234,6 +234,27 @@ const getReportByWardAndDisAndEmail = async (wardName,disName,email) => {
     }
 };
 
+const updateReport = (id, data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const checkReport = await Report.findOne({
+                _id: id
+            })
+            if (checkReport === null) {
+                reject('The Report is not defined');
+            }
+            const updatedReport = await Report.findByIdAndUpdate(id, data, { new: true })
+            resolve({
+                status: 'OK',
+                message: 'Update Report success',
+                data: updatedReport
+            })
+        } catch (e) {
+            reject(e)
+        }
+    })
+}
+
 module.exports = {
     getReportbyId,
     createReport,
@@ -242,5 +263,6 @@ module.exports = {
     getReportByDis,
     getReportByWardAndDis,
     getReportByEmail,
-    getReportByWardAndDisAndEmail
+    getReportByWardAndDisAndEmail,
+    updateReport
 }
