@@ -235,13 +235,14 @@
         const wardRadio = document.getElementById('wardRadio');
         const selectDistrict = document.getElementById('selectDistrict').value;
         const selectWard = document.getElementById('selectWard').value;
-        console.log(date);
         let role = [];
+
         if (districtRadio.checked) {
             role = ['-1', selectDistrict];
         } else {
             role = [selectWard, selectDistrict];
         }
+
         if (name === '' || email === '' || password === '' || confirmPassword === '' || phone === '' || role === []) {
             alert('Vui lòng nhập đầy đủ thông tin');
         } else if (!districtRadio.checked && !wardRadio.checked) {
@@ -250,12 +251,6 @@
             alert('Số điện thoại không hợp lệ');
         } else if (isNaN(phone)) {
             alert('Số điện thoại không hợp lệ');
-        } else if (password !== confirmPassword) {
-            alert('Mật khẩu không khớp');
-        } else if (
-            !name.match(/^[a-zA-Z]+(([',. -][a-zA-Z ])?[a-zA-Z]*)*$/)
-        ) {
-            alert('Tên không hợp lệ');
         } else if (
             !email.match(/^[a-zA-Z0-9]+@[a-zA-Z0-9]+\.[A-Za-z]+$/)
         ) {
@@ -276,6 +271,8 @@
             !date.match(/^[0-9]{2}\/[0-9]{2}\/[0-9]{4}$/)
         ) {
             alert('Ngày sinh không hợp lệ');
+        } else if (password !== confirmPassword) {
+            alert('Mật khẩu không khớp');
         } else {
             fetch('http://localhost:3500/api/user/register', {
                 method: 'POST',
