@@ -6,118 +6,39 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="http://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.2/js/toastr.min.js"></script>
   <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
-  <style>
-    .container {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0;
-    }
-
-    .card {
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      margin: 20px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-      line-height: 2.15;
-      max-width: 700px;
-      width: 100%;
-    }
-
-    .card-header {
-      text-align: center;
-      background-color: #3498db;
-      color: #ffffff;
-      padding: 15px;
-      border-bottom: 1px solid #ddd;
-      border-radius: 7px 7px 0 0;
-    }
-
-    .card-body {
-      padding: 20px;
-    }
-
-    .form-group {
-      margin-bottom: 20px;
-    }
-
-    label {
-      display: block;
-      margin-bottom: 5px;
-      color: #333;
-    }
-
-    input.form-control {
-      width: 100%;
-      padding: 10px;
-      margin-top: 5px;
-      margin-bottom: 10px;
-      box-sizing: border-box;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-    }
-
-    .card-footer {
-      border-top: 1px solid #ddd;
-      padding: 15px;
-      text-align: right;
-      border-radius: 0 0 7px 7px;
-    }
-
-    .btn-outline-success {
-      color: #28a745;
-      border: 2px solid #28a745;
-      background-color: #ffffff;
-    }
-
-    .btn-outline-success:hover {
-      background-color: #28a745;
-      color: #ffffff;
-    }
-
-    .btn-primary {
-      background-color: #3498db;
-      color: #ffffff;
-      border: 2px solid #3498db;
-    }
-
-    .btn-primary:hover {
-      background-color: #2e86de;
-      border: 2px solid #2e86de;
-    }
-  </style>
 </head>
 
 <body>
 
   <form action="" method="">
-    <div class="container">
-      <div class="card">
+    <div class="control-responsive p-4 d-flex flex-column align-items-center">
+      <div class="card w-50">
         <h5 class="card-header">
-          New Ward
+          Thêm phường
         </h5>
         <div class="card-body">
           <div class="form-group">
-            <label for="wardId">Ward ID</label>
-            <input type="text" class="form-control" id="wardId" name="wardId" placeholder="P01" autofocus>
-
-            <label for="wardName">Ward Name</label>
-            <input type="text" class="form-control" id="wardName" name="wardName" placeholder="Phường 1" autofocus>
-
-            <label for="districtRefId">District ID</label>
+            <label for="districtRefId">ID quận</label>
             <input type="text" class="form-control" id="districtRefId" name="districtRefId" value="{{districtId}}"
               readonly>
-
+          </div>
+          <div class="form-group">
+            <label for="wardId">ID phường</label>
+            <input type="text" class="form-control" id="wardId" name="wardId" placeholder="P01" autofocus>
+          </div>
+          <div class="form-group">
+            <label for="wardName">Tên phường</label>
+            <input type="text" class="form-control" id="wardName" name="wardName" placeholder="Phường 1" autofocus>
           </div>
         </div>
-        <div class="card-footer text-muted">
-          <a class="btn btn-outline-success" href="/api/controlWardDistrict" role="button">
+        <div class="card-footer text-muted d-flex justify-content-end">
+          <a class="btn btn-outline-success mr-2" href="/api/controlWardDistrict" role="button">
             <i class="bi bi-skip-backward-fill"></i>
-            Back
+            Quay lại
           </a>
-          <button type="button" class="btn btn-primary" id="saveButton">
+          <button type="button" class="btn btn-outline-primary" id="saveButton">
             <i class="bi bi-check2"></i>
-            Save
+            Lưu
           </button>
         </div>
       </div>
@@ -132,7 +53,7 @@
       "debug": false,
       "newestOnTop": false,
       "progressBar": false,
-      "positionClass": "toast-bottom-right",
+      "positionClass": "toast-top-center",
       "preventDuplicates": false,
       "onclick": null,
       "showDuration": "300",
@@ -153,20 +74,20 @@
       const sendPostRequest = async () => {
         const districtRefId = document.getElementById('districtRefId').value;
         if (!txtWardIdInput.val() && !txtWardNameInput.val()) {
-          toastr.error("Error: Ward Id and Ward Name is require.");
+          toastr.error("Vui lòng điền đầy đủ ID phường và tên phường.");
           txtWardIdInput.addClass('border-danger');
           txtWardIdInput.focus();
           txtWardNameInput.addClass('border-danger');
           txtWardNameInput.focus();
         }
         else if (!txtWardIdInput.val() && txtWardNameInput.val()) {
-          toastr.error("Error: Ward Id is require.");
+          toastr.error("Vui lòng điền ID phường.");
           txtWardIdInput.addClass('border-danger');
           txtWardNameInput.removeClass('border-danger');
           txtWardIdInput.focus();
         }
         else if (txtWardIdInput.val() && !txtWardNameInput.val()) {
-          toastr.error("Error: Ward Name is require.");
+          toastr.error("Vui lòng điền tên phường.");
           txtWardNameInput.addClass('border-danger');
           txtWardIdInput.removeClass('border-danger');
           txtWardNameInput.focus();
@@ -186,13 +107,13 @@
             });
             if (response.status === 200) {
               toastr.options.onHidden = () => { window.location.href = "/api/controlWardDistrict" }
-              toastr.success("Create Ward Successful")
+              toastr.success("Thêm phường thành công.")
             } else {
               // Handle error response
-              toastr.error("The Ward is already");
+              toastr.error("Phường đã tồn tại.");
             }
           } catch (error) {
-            toastr.error("An error occurred. Please try again.");
+            toastr.error("Có lỗi xảy ra. Vui lòng thử lại.");
           }
         }
       };
