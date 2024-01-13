@@ -119,6 +119,19 @@ const getReportByEmail = async (req, res) => {
         res.status(400).json({ message: error.message })
     }
 }
+
+const getReportByWardAndDisAndEmail = async (req, res) => {
+    try {
+        const { wardName, districtName, email } = req.params;
+        const report = await reportService.getReportByWardAndDisAndEmail(wardName, districtName, email);
+        if (report) {
+            res.status(200).json(report);
+        }
+    } catch (error) {
+        res.status(400).json({ message: error.message })
+    }
+}
+
 module.exports = {
     getReport,
     createReport,
@@ -127,5 +140,6 @@ module.exports = {
     getReportByWard,
     getReportByDis,
     getReportByWardAndDis,
-    getReportByEmail
+    getReportByEmail,
+    getReportByWardAndDisAndEmail
 };

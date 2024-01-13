@@ -6,124 +6,44 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="http://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.2/js/toastr.min.js"></script>
   <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
-  <style>
-    .container {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0;
-    }
-
-    .card {
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      margin: 20px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-      line-height: 2.15;
-      max-width: 700px;
-      width: 100%;
-    }
-
-    .card-header {
-      text-align: center;
-      background-color: #3498db;
-      color: #ffffff;
-      padding: 15px;
-      border-bottom: 1px solid #ddd;
-      border-radius: 7px 7px 0 0;
-    }
-
-    .card-body {
-      padding: 20px;
-    }
-
-    .form-group {
-      margin-bottom: 20px;
-    }
-
-    label {
-      display: block;
-      margin-bottom: 5px;
-      color: #333;
-    }
-
-    input.form-control {
-      width: 100%;
-      padding: 10px;
-      margin-top: 5px;
-      margin-bottom: 10px;
-      box-sizing: border-box;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-    }
-
-    .card-footer {
-      border-top: 1px solid #ddd;
-      padding: 15px;
-      text-align: right;
-      border-radius: 0 0 7px 7px;
-    }
-
-    .btn-outline-success {
-      color: #28a745;
-      border: 2px solid #28a745;
-      background-color: #ffffff;
-    }
-
-    .btn-outline-success:hover {
-      background-color: #28a745;
-      color: #ffffff;
-    }
-
-    .btn-primary {
-      background-color: #3498db;
-      color: #ffffff;
-      border: 2px solid #3498db;
-    }
-
-    .btn-primary:hover {
-      background-color: #2e86de;
-      border: 2px solid #2e86de;
-    }
-  </style>
 </head>
 
 <body>
 
   <form id="editWardForm" action="" method="">
-    <div class="container">
-      <div class="card">
+    <div class="control-responsive p-4 d-flex flex-column align-items-center">
+      <div class="card w-50">
         <h5 class="card-header">
-          Edit Ward
+          Chỉnh sửa thông tin phường
         </h5>
         <div class="card-body">
           <div class="form-group">
-            <label for="districtRefId">District ID</label>
+            <label for="districtRefId">ID quận</label>
             <input type="text" name="districtRefId" id="districtRefId" class="form-control" readonly
               value="{{districtRefId}}">
           </div>
           <div class="form-group">
-            <label for="wardId">Ward ID</label>
+            <label for="wardId">ID phường</label>
             <input type="text" name="wardId" id="wardId" class="form-control" readonly value="{{wardId}}">
           </div>
           <div class="form-group">
-            <label for="txtWardName">Ward Name</label>
+            <label for="txtWardName">Tên phường</label>
             <input type="text" name="wardName" id="txtWardName" class="form-control" placeholder="{{wardName}}"
               autofocus>
           </div>
         </div>
-        <div class="card-footer text-muted">
-          <a class="btn btn-outline-success" href="/api/controlWardDistrict" role="button">
+        <div class="card-footer text-muted d-flex justify-content-end">
+          <a class="btn btn-outline-success mr-2" href="/api/controlWardDistrict" role="button">
             <i class="bi bi-skip-backward-fill"></i>
-            Back
+            Quay lại
           </a>
-          <button type="button" class="btn btn-danger" id="deleteButton">
+          <button type="button" class="btn btn-outline-danger mr-2" id="deleteButton">
             <i class="bi bi-trash-fill"></i>
-            Delete
+            Xóa phường
           </button>
-          <button type="button" class="btn btn-primary" id="saveButton">
+          <button type="button" class="btn btn-outline-primary" id="saveButton">
             <i class="bi bi-check2"></i>
-            Save
+            Lưu
           </button>
         </div>
       </div>
@@ -137,7 +57,7 @@
       "debug": false,
       "newestOnTop": false,
       "progressBar": false,
-      "positionClass": "toast-bottom-right",
+      "positionClass": "toast-top-center",
       "preventDuplicates": false,
       "onclick": null,
       "showDuration": "300",
@@ -156,7 +76,7 @@
         const wardId = document.getElementById('wardId').value;
         const districtRefId = document.getElementById('districtRefId').value;
         if (!txtWardNameInput.val()) {
-          toastr.error("Error: Ward Name is require.");
+          toastr.error("Vui lòng điền tên phường mới.");
           txtWardNameInput.addClass('border-danger');
           txtWardNameInput.focus();
         }
@@ -176,12 +96,12 @@
 
             if (response.status === 200) {
               toastr.options.onHidden = () => { window.location.href = "/api/controlWardDistrict" }
-              toastr.success("Update Ward Successful")
+              toastr.success("Thay đổi thông tin phường thành công.")
             } else {
-              toastr.error("The Ward Name is already");
+              toastr.error("Tên phường đã tồn tại.");
             }
           } catch (error) {
-            toastr.error("An error occurred. Please try again.");
+            toastr.error("Có lỗi xảy ra. Vui lòng thử lại.");
           }
         }
 
@@ -204,12 +124,12 @@
 
           if (response.ok) {
             toastr.options.onHidden = () => { window.location.href = "/api/controlWardDistrict" }
-            toastr.success("Delete Ward Successful")
+            toastr.success("Xóa phường thành công.")
           } else {
-            toastr.error("Delete failed. Please try again.");
+            toastr.error("Xóa thất bại. Vui lòng thử lại.");
           }
         } catch (error) {
-          toastr.error("An error occurred. Please try again.");
+          toastr.error("Có lỗi xảy ra. Vui lòng thử lại.");
         }
       };
 

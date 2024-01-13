@@ -1,149 +1,78 @@
 <!DOCTYPE html>
-<html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Department Page</title>
     <script src="http://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.2/js/toastr.min.js"></script>
     <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        html {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f9f9f9;
-        }
-
-        #container {
-            display: flex;
-            margin: 20px;
-            background-color: #ffffff;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-
-        #districts,
-        #wards {
-            flex: 1;
-            padding: 20px;
-            border-radius: 8px;
-            margin-right: 20px;
-        }
-
-        #districts {
-            background-color: #3498db;
-            color: #ffffff;
-        }
-
-        #wards {
-            background-color: #ecf0f1;
-        }
-
-        .title-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        h2 {
-            color: #2c3e50;
-            text-align: center;
-        }
-
-        .btn {
-            display: inline-block;
-            padding: 10px 20px;
-            font-size: 14px;
-            font-weight: bold;
-            text-decoration: none;
-            text-align: center;
-            border-radius: 5px;
-            transition: background-color 0.3s ease;
-        }
-
-        .btn-outline-primary {
-            color: #3498db;
-            border: 2px solid #3498db;
-            background-color: #ffffff;
-        }
-
-        .btn-outline-primary:hover {
-            background-color: #3498db;
-            color: #ffffff;
-        }
-
-        table {
-            border-collapse: collapse;
-            width: 100%;
-            margin-top: 20px;
-        }
-
-        th,
-        td {
-            border: 1px solid #ddd;
-            padding: 12px;
-            text-align: left;
-        }
-
-        th {
-            background-color: #FFA07A;
-        }
-
-        tr:hover {
-            background-color: #d5dbdb;
+        .table tbody tr.selected-district {
+            background-color: #dfdfdf;
         }
     </style>
 </head>
 
 <body>
-    <div id="container">
-        <div id="districts">
-            <div class="title-container">
-                <h2>Districts</h2>
-                <a class="btn btn-outline-primary" href="/api/controlWardDistrict/addDistrict" role="button">
-                    <i class="bi bi-plus-circle"></i>
-                    New District
-                </a>
-            </div>
-            <table id="districtTable">
-                <tbody id="districtBody">
-                </tbody>
-            </table>
-        </div>
+    <div class="control-responsive p-4 d-flex flex-column align-items-center">
+        <div class="container mt-3 d-flex" style="gap:30px">
+            <div class="flex-fill" id="district-table">
+                <div class="d-flex mb-4" id="table-heading">
+                    <h2>Quận</h2>
+                    <a class="btn btn-outline-success mb-2 ml-auto" href="/api/controlWardDistrict/addDistrict"
+                        role="button">
+                        <i class="bi bi-plus-circle"></i>
+                        Thêm quận
+                    </a>
+                </div>
 
-        <div id="wards">
-            <div class="title-container">
-                <h2>Wards</h2>
-                <a id="newWardBtn" class="btn btn-outline-primary" href="/api/controlWardDistrict/addWard" role="button"
-                    disabled>
-                    <i class="bi bi-plus-circle"></i>
-                    New Ward
-                </a>
-
+                <div class="table-responsive">
+                    <table class="table" id="districtTable" style="table-layout:fixed">
+                        <thead>
+                            <tr>
+                                <th scope="col">ID quận</th>
+                                <th scope="col">Tên quận</th>
+                                <th scope="col">&nbsp;</th>
+                            </tr>
+                        </thead>
+                        <tbody id="districtBody">
+                        </tbody>
+                    </table>
+                </div>
             </div>
-            <table id="wardTable">
-                <tbody id="wardBody">
-                </tbody>
-            </table>
+            <div class="flex-fill" id="ward-table">
+                <div class="d-flex mb-4" id="table-heading">
+                    <h2>Phường</h2>
+                    <a class="btn btn-outline-success mb-2 ml-auto" id="newWardBtn"
+                        href="/api/controlWardDistrict/addWard" role="button">
+                        <i class="bi bi-plus-circle"></i>
+                        Thêm phường
+                    </a>
+                </div>
+                <div class="table-responsive">
+                    <table class="table" id="wardTable" style="table-layout:fixed">
+                        <thead>
+                            <tr>
+                                <th scope="col">ID phường</th>
+                                <th scope="col">Tên phường</th>
+                                <th scope="col">&nbsp;</th>
+                            </tr>
+                        </thead>
+                        <tbody id="wardBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
-
         toastr.options.closeButton = true;
         toastr.options = {
             "closeButton": true,
             "debug": false,
             "newestOnTop": false,
             "progressBar": false,
-            "positionClass": "toast-bottom-right",
+            "positionClass": "toast-top-center",
             "preventDuplicates": false,
             "onclick": null,
             "showDuration": "300",
@@ -155,6 +84,7 @@
             "showMethod": "fadeIn",
             "hideMethod": "fadeOut"
         }
+
         document.getElementById('newWardBtn').addEventListener('click', function (event) {
             event.preventDefault(); // Prevent the default behavior of the anchor tag
 
@@ -167,12 +97,10 @@
                 if (districtId) {
                     window.location.href = `/api/controlWardDistrict/addWard?districtId=${districtId}`;
                 } else {
-                    //alert("Error: District ID is not available.");
-                    toastr.error("Error: District ID is not available.");
+                    toastr.error("ID quận không hợp lệ.");
                 }
             } else {
-                //alert("Please choose a district first.");
-                toastr.error("Please choose a district first.")
+                toastr.error("Vui lòng chọn một quận.")
             }
         });
 
@@ -183,27 +111,24 @@
 
                 if (Array.isArray(data.data)) {
                     const districtTableBody = document.getElementById('districtBody');
+
                     data.data.forEach(district => {
-                        const row = districtTableBody.insertRow();
-                        const cell = row.insertCell(0);
+                        const tableBody = document.getElementById("districtBody");
+                        const newRow = document.createElement('tr');
 
-                        const container = document.createElement('div');
-                        container.classList.add('d-flex', 'justify-content-between', 'align-items-center');
+                        newRow.innerHTML = `
+                            <th scope="row">${district.disId}</th>
+                            <td>${district.disName}</td>
+                            <td>
+                                <a role="button" class="btn btn-sm btn-outline-primary float-right" href="controlWardDistrict/editDistrict?districtId=${district.disId}&districtName=${encodeURIComponent(district.disName)}">
+                                <i class="bi bi-pencil-square"></i> Sửa
+                                </a>
+                            </td>
+                        `;
 
-                        const districtName = document.createElement('span');
-                        districtName.textContent = district.disName;
-                        container.appendChild(districtName);
+                        tableBody.appendChild(newRow);
 
-                        const editButton = document.createElement('a');
-                        editButton.href = `controlWardDistrict/editDistrict?districtId=${district.disId}&districtName=${encodeURIComponent(district.disName)}`;
-                        editButton.classList.add('btn', 'btn-sm', 'btn-primary');
-                        editButton.role = 'button';
-                        editButton.innerHTML = '<i class="bi bi-pencil-square"></i> Edit';
-                        container.appendChild(editButton);
-
-                        cell.appendChild(container);
-
-                        row.onclick = function () {
+                        newRow.onclick = function () {
                             showWards(district.disId);
 
                             // Enable the "New Ward" button and mark the selected district
@@ -217,7 +142,7 @@
                             });
 
                             // Add the 'selected-district' class to the clicked row
-                            row.classList.add('selected-district');
+                            newRow.classList.add('selected-district');
 
                             // Define selectedDistrict within the click event handler
                             const selectedDistrict = document.querySelector('.selected-district');
@@ -229,9 +154,6 @@
                 }
             })
             .catch(error => console.error('Error fetching districts:', error));
-
-
-
 
         function showWards(district) {
             console.log(district);
@@ -245,27 +167,19 @@
                         wardTableBody.innerHTML = ''; // Clear previous content
 
                         data.data.forEach(ward => {
-                            const row = wardTableBody.insertRow();
-                            const cell = row.insertCell(0);
+                            const tableBody = document.getElementById("wardBody");
+                            const newRow = document.createElement('tr');
 
-                            // Create a container for ward name and edit button
-                            const container = document.createElement('div');
-                            container.classList.add('d-flex', 'justify-content-between', 'align-items-center');
+                            newRow.innerHTML = `<th scope="row">${ward.wardId}</th>
+                                                <td>${ward.wardName}</td>
+                                                <td>
+                                                    <a role="button" class="btn btn-sm btn-outline-primary float-right" href="controlWardDistrict/editWard?wardId=${ward.wardId}&wardName=${encodeURIComponent(ward.wardName)}&districtRefId=${district}">
+                                                    <i class="bi bi-pencil-square"></i> Sửa
+                                                    </a>
+                                                </td>`;
 
-                            // Ward name
-                            const wardName = document.createElement('span');
-                            wardName.textContent = ward.wardName; // Adjust property name as needed
-                            container.appendChild(wardName);
+                            tableBody.appendChild(newRow);
 
-                            // Edit button
-                            const editButton = document.createElement('a');
-                            editButton.href = `controlWardDistrict/editWard?wardId=${ward.wardId}&wardName=${encodeURIComponent(ward.wardName)}&districtRefId=${district}`;
-                            editButton.classList.add('btn', 'btn-sm', 'btn-primary');
-                            editButton.role = 'button';
-                            editButton.innerHTML = '<i class="bi bi-pencil-square"></i> Edit';
-                            container.appendChild(editButton);
-
-                            cell.appendChild(container);
                         });
                     } else {
                         console.error('Error: Data is not an array');
