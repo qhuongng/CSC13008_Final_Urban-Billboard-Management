@@ -1,0 +1,292 @@
+<script src="http://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.2/js/toastr.min.js"></script>
+<link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
+<div class="control-responsive p-4 d-flex flex-column align-items-center">
+    <div class="container mt-3">
+        <!-- Page Title -->
+        <div class="mt-3 d-flex justify-content-between">
+            <h2 class="mb-4">Các điểm đặt</h2>
+            <div>
+                <button class="btn btn-outline-success mr-2" data-toggle="modal" data-target="#addModal">
+                    <i class="bi bi-plus-circle"></i>
+                    Thêm hình thức báo cáo
+                </button>
+
+            </div>
+        </div>
+        <!-- Table -->
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">ID</th>
+                        <th scope="col">Tên hình thức</th>
+                        <th scope="col">&nbsp;</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<!-- Add Modal for Add and Edit -->
+<div class="modal fade" id="addModal" tabindex="-1" role="dialog" aria-labelledby="addModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addModalLabel">Thêm hình thức báo cáo</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="addForm">
+                    <div class="form-group">
+                        <label for="add-data">Tên hình thức báo cáo</label>
+                        <input type="text" class="form-control" id="add-data" placeholder="VD: Tên hình thức báo cáo"
+                            required />
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-success" data-dismiss="modal">
+                    <i class="bi bi-skip-backward-fill"></i>
+                    Quay lại
+                </button>
+                <button type="button" class="btn btn-outline-primary" onclick="addReportType()">
+                    <i class="bi bi-check2"></i>
+                    Lưu
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editModalLabel">Chỉnh sửa thông tin hình thức báo cáo</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="editForm">
+                    <div class="form-group">
+                        <label for="edited-id">ID hình thức báo cáo </label>
+                        <input type="text" class="form-control" id="edited-id" readonly />
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-data">Tên hình thức báo cáo mới</label>
+                        <input type="text" class="form-control" id="edit-data" placeholder="Nhập tên hình thức báo cáo"
+                            required />
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-success" data-dismiss="modal">
+                    <i class="bi bi-skip-backward-fill"></i>
+                    Quay lại
+                </button>
+                <button type="button" class="btn btn-outline-primary" onclick="editSelectedRow()">
+                    <i class="bi bi-check2"></i>
+                    Lưu
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Xác nhận xóa hình thức báo cáo</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <label for="deleted-id">ID hình thức báo cáo</label>
+                <input type="text" class="form-control" id="deleted-id" readonly />
+                <br>Bạn có chắc chắn muốn xóa hình thức báo cáo này?
+            </div>
+            <div class="modal-footer justify-content-end">
+                <button type="button" class="btn btn-outline-success" data-dismiss="modal">
+                    <i class="bi bi-skip-backward-fill"></i>
+                    Quay lại
+                </button>
+                <button type="button" class="btn btn-outline-danger" onclick="deleteSelectedRow()">
+                    <i class="bi bi-trash-fill"></i>
+                    Xóa
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    toastr.options.closeButton = true;
+    toastr.options = {
+        "closeButton": true,
+        "debug": false,
+        "newestOnTop": false,
+        "progressBar": false,
+        "positionClass": "toast-top-center",
+        "preventDuplicates": false,
+        "onclick": null,
+        "showDuration": "300",
+        "hideDuration": "300",
+        "timeOut": "2000",
+        "extendedTimeOut": "1000",
+        "showEasing": "swing",
+        "hideEasing": "linear",
+        "showMethod": "fadeIn",
+        "hideMethod": "fadeOut"
+    }
+    fetch('http://localhost:3500/api/reportType/getAllReportType')
+        .then(response => response.json())
+        .then(data => {
+            const listReportType = data.data;
+            listReportType.forEach(item => {
+                const row = `<tr>
+                                <th scope="row">${item.reportId}</th>
+                                <td>${item.reportName}</td>
+                                <td class="text-nowrap overflow-hidden" style="width: 1%;">
+                                    <button class="btn btn-sm btn-outline-primary" onclick="editRow('${item.reportId}')" data-toggle="modal"
+                                        data-target="#editModal">
+                                        <i class="bi bi-pencil"></i>
+                                        Edit
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger" onclick="deleteRow('${item.reportId}')" data-toggle="modal"
+                                        data-target="#deleteModal">
+                                        <i class="bi bi-trash"></i>
+                                        Delete
+                                    </button>
+                                </td>
+                            </tr>`;
+                $('tbody').append(row);
+            });
+        })
+        .catch(err => console.log(err));
+
+    async function addReportType() {
+        const newReportType = $('#add-data');
+        if (!newReportType.val()) {
+            toastr.error("Vui lòng điền tên hình thức báo cáo mới.");
+            newReportType.addClass('border-danger');
+            newReportType.focus();
+        } else {
+            try {
+                newReportType.removeClass('border-danger');
+                const response = await fetch('http://localhost:3500/api/reportType/createTypeReport', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        reportName: newReportType.val()
+                    })
+                })
+                if (response.status === 200) {
+                    toastr.options.onHidden = () => { window.location.href = "/api/controlReportType" }
+                    toastr.success("Thêm hình thức báo cáo thành công.")
+                }
+                else {
+                    toastr.error("Tên hình thức báo cáo đã tồn tại.")
+                }
+            } catch (e) {
+                toastr.error("Có lỗi xảy ra. Vui lòng thử lại.");
+            }
+
+        }
+    }
+
+    function editRow(rowIdentifier) {
+        const numericPart = parseInt(rowIdentifier.slice(1), 10);
+
+        const row = document.querySelector(`tbody tr:nth-child(${numericPart})`);
+
+        if (row) {
+            console.log(`Editing row ${rowIdentifier}`);
+            document.getElementById('edited-id').value = rowIdentifier;
+        } else {
+            console.log(`Row ${rowIdentifier} not found.`);
+        }
+    }
+
+    function deleteRow(rowIdentifier) {
+        console.log(rowIdentifier)
+        const numericPart = parseInt(rowIdentifier.slice(1), 10);
+        const row = document.querySelector(`tbody tr:nth-child(${numericPart})`);
+
+        if (row) {
+            console.log(`Deleting row ${rowIdentifier}`);
+            document.getElementById('deleted-id').value = rowIdentifier;
+        } else {
+            console.log(`Row ${rowIdentifier} not found.`);
+        }
+    }
+
+    async function editSelectedRow() {
+        const id = document.getElementById('edited-id').value;
+        const editedData = $('#edit-data');
+
+        if (!editedData.val()) {
+            toastr.error("Vui lòng điền tên hình thức báo cáo.");
+            editedData.addClass('border-danger');
+            editedData.focus();
+        }
+        else {
+            editedData.removeClass('border-danger');
+            try {
+                //đang sửa tới đây
+                const response = await fetch('http://localhost:3500/api/reportType/updateReportType', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ id: id, reportName: editedData.val() })
+                })
+                if (response.status === 200) {
+                    toastr.options.onHidden = () => { window.location.href = "/api/controlReportType" }
+                    toastr.success("Chỉnh sửa thông tin hình thức báo cáo thành công.")
+                } else {
+                    toastr.error("Tên hình thức báo cáo đã tồn tại.");
+                }
+            } catch (e) {
+                toastr.error("Có lỗi xảy ra. Vui lòng thử lại.");
+            }
+        }
+
+    }
+
+    async function deleteSelectedRow() {
+        const id = document.getElementById('deleted-id').value;
+        try {
+            const response = await fetch('http://localhost:3500/api/reportType/deleteReportType', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ id: id })
+            });
+
+            if (response.status === 200) {
+                toastr.options.onHidden = () => { window.location.href = "/api/controlReportType" }
+                toastr.success("Xóa hình thức báo cáo thành công.")
+            } else {
+                // Handle error response
+                toastr.error('Xóa thất bại. Vui lòng thử lại.');
+            }
+        } catch (error) {
+            toastr.error("Có lỗi xảy ra. Vui lòng thử lại.");
+        }
+    }
+</script>
