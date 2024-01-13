@@ -15,6 +15,8 @@ router.get('/getReportByWardAndDis/:wardName/:districtName', reportController.ge
 router.get('/getReportByEmail/:email', reportController.getReportByEmail)
 router.get('/getReportByWardAndDisAndEmail/:wardName/:districtName/:email', reportController.getReportByWardAndDisAndEmail);
 
+router.put("/updateReport/:id", reportController.updateReport);
+
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 

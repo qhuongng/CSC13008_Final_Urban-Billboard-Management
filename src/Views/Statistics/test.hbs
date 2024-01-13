@@ -358,45 +358,50 @@
             if (reportIdText.startsWith('ID Report:')) {
                 // Extract only the ID part
                 const reportId = reportIdText.replace('ID Report:', '').trim();
-
-                const statusSelect = document.getElementById('statusSelect');
-                const handlingMethodInput = document.getElementById('handlingMethodInput');
-
-                const newState = statusSelect.value;
-                const newAction = handlingMethodInput.value;
-
-                const updateData = {
-                    state: newState,
-                    actionHandler: newAction
-                };
-
-                try {
-                    const response = await fetch(`http://localhost:3500/api/report/updateReport/${reportId}`, {
-                        method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify(updateData),
-                    });
-
-                    const data = await response.json();
-
-                    if (data.status === 'OK') {
-                        toastr.options.onHidden = () => { window.location.href = "/api/controlReport" }
-                        toastr.success("Cập nhật thành công.")
-                    } else {
-                        toastr.error("Cập nhật thất bại.");
-                    }
-                } catch (error) {
-                    console.error('Error updating report:', error);
-                }
-
-                // Close the modal after updating
-                $('#detailsModal').modal('hide');
+                console.log(reportId);
             } else {
                 // If the format is different, log the entire content
                 console.log(reportIdText);
             }
+
+            const statusSelect = document.getElementById('statusSelect');
+            const handlingMethodInput = document.getElementById('handlingMethodInput');
+
+            const newState = statusSelect.value;
+            const newAction = handlingMethodInput.value;
+
+            // You can perform additional validation or checks here if needed
+
+            const updateData = {
+                state: newState,
+                actionHandler: newAction
+            };
+
+            try {
+                const response = await fetch(`http://localhost:3500/api/report/updateReport/${reportId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(updateData),
+                });
+
+                const data = await response.json();
+
+                if (data.status === 'OK') {
+                    toastr.success('Cập nhật thành công');
+                    // Optionally, you can update the UI or perform other actions after a successful update
+                } else {
+                    toastr.error(`Error: ${data.message}`);
+                }
+            } catch (error) {
+                console.error('Error updating report:', error);
+                toastr.error('Error updating report');
+            }
+
+            // Close the modal after updating
+            $('#detailsModal').modal('hide');
+
         }
 
         function highlightRow(row) {
