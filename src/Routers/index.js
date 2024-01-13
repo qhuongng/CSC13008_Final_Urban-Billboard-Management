@@ -16,8 +16,8 @@ const reportStatisticsRouter = require('./reportStatistics.routes');
 const controlPanelTypeRouter = require('./controlPanelType.routes');
 const controlReportTypeRouter = require('./controlReportType.routes');
 const RegistrationRouter = require('./registration.routes');
-
-const controlReportRouter = require('./controlReport.routes')
+const controlReportRouter = require('./controlReport.routes');
+const licenseRouter = require('./license.routes');
 
 const routes = (app) => {
   // đường dẫn dùng cho citizen
@@ -34,15 +34,12 @@ const routes = (app) => {
   app.use('/api/user', UserRouter);
   app.use('/api/otp', OtpRouter);
   app.use('/api/controlWardDistrict', controlWardDistrictRouter);
-
-  app.use('/api/reportStatistics', reportStatisticsRouter)
-
+  app.use('/api/reportStatistics', reportStatisticsRouter);
   app.use('/api/controlPanelType', controlPanelTypeRouter);
   app.use('/api/controlReportType', controlReportTypeRouter);
   app.use('/api/registration', RegistrationRouter);
-
-  app.use('/api/controlReport', controlReportRouter)
-
+  app.use('/api/controlReport', controlReportRouter);
+  app.use('/api/license', licenseRouter);
   //
   app.get("/", (req, res) => {
     if (res.locals.auth == false) {

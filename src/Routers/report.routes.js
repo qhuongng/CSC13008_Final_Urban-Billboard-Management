@@ -19,7 +19,6 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
 router.post('/:id', upload.array('image', 2), reportController.createReport);
-//đường dẫn để xem 1 file ảnh: /img/filepath
 
 module.exports = router;
 

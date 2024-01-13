@@ -120,6 +120,9 @@
 
                     <div class="m-auto d-flex justify-content-center align-items-center"><button type="button"
                             class="btn btn-primary mt-3 mx-auto w-100" id="registration">Đăng kí</button></div>
+                    <a class="justify-self-center" href="/api/registration">
+                        Quay lại
+                    </a>
                 </form>
             </div>
         </div>
@@ -249,9 +252,9 @@
         let role = [];
 
         if (districtRadio.checked) {
-            role = ['-1', selectDistrict];
+            role = ['-1', selectDistrict.val()];
         } else {
-            role = [selectWard, selectDistrict];
+            role = [selectWard.val(), selectDistrict.val()];
         }
 
         if (!name.val() || !email.val() || !password.val() || !confirmPassword.val() || !phone.val() || role === []) {
@@ -337,7 +340,7 @@
                 })
             });
             if (response.status == 200) {
-                toastr.options.onHidden = () => { window.location.href = "/" }
+                toastr.options.onHidden = () => { window.location.href = "/api/registration" }
                 toastr.success("Đăng kí cán bộ mới thành công.")
             } else {
                 toastr.error('Email đã tồn tại');
