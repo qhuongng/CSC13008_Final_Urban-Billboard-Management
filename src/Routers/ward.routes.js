@@ -9,4 +9,6 @@ router.delete("/delete-ward/:id", wardController.deleteWard);
 router.get("/getAll-ward", wardController.getAllWard);
 router.get("/getDetail-ward/:id", wardController.getDetailWard);
 
+router.get("/getWard/:name", wardController.getWardsByDistrictName);
+
 module.exports = router
