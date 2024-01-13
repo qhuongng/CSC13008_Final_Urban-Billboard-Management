@@ -17,6 +17,7 @@ const controlPanelTypeRouter = require('./controlPanelType.routes');
 const controlReportTypeRouter = require('./controlReportType.routes');
 const RegistrationRouter = require('./registration.routes');
 
+const controlReportRouter = require('./controlReport.routes')
 
 const routes = (app) => {
   // đường dẫn dùng cho citizen
@@ -39,6 +40,8 @@ const routes = (app) => {
   app.use('/api/controlPanelType', controlPanelTypeRouter);
   app.use('/api/controlReportType', controlReportTypeRouter);
   app.use('/api/registration', RegistrationRouter);
+
+  app.use('/api/controlReport', controlReportRouter)
 
   //
   app.get("/", (req, res) => {
