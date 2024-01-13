@@ -123,10 +123,35 @@ const getAllDis = () => {
     })
 }
 
+const getDisById = (disId) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const checkDistrict = await District.findOne({
+                disId: disId,
+            });
+            if (checkDistrict == null) {
+                reject({
+                    status: "ERR",
+                    message: "The dis not found",
+                });
+            } else {
+                resolve({
+                    status: "OK",
+                    message: "SUCCESS",
+                    data: checkDistrict,
+                });
+            }
+        } catch (error) {
+            reject(error);
+        }
+    });
+};
+
 module.exports = {
     createDistrict,
     getDistrictName,
     updateDistrict,
     deleteDistrict,
-    getAllDis
+    getAllDis,
+    getDisById
 };

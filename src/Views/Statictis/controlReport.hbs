@@ -11,8 +11,34 @@
         .table tbody tr.highlighted {
             background-color: #dfdfdf;
         }
-        th,td{
+
+        h2{
             text-align: center;
+        }
+        
+        th,
+        td {
+            padding: 12px;
+            text-align: center;
+            border: 1px solid #ddd;
+            
+            width: calc(100% / 9);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+
+        }
+
+        th:nth-child(3),
+        th:nth-child(4),
+        th:nth-child(8),
+        th:nth-child(9) {
+            max-width: 200px;
+        }
+
+        th {
+            background-color: #4CAF50;
+            color: white;
         }
     </style>
 </head>
@@ -20,21 +46,19 @@
 <body>
     <div class="control-responsive p-4 d-flex flex-column align-items-center">
         <div class="container mt-3">
-            <h2 class="mb-4">Thống kê báo cáo</h2>
+            <h2 class="mb-4">Xử lý báo cáo</h2>
 
             <div class="d-flex justify-content-between align-items-end mb-4" id="filters-container">
                 <div class="row flex-fill mr-3" id="filters">
                     <div class="form-group col-3">
-                        <label for="district">Quận</label>
-                        <select class="custom-select" id="districtSelect">
-                            <option value="">Tất cả quận</option>
-                        </select>
+                        <label for="district">Phường</label>
+                        <input type="text" class="form-control" id="ward" name="ward" value="{{authUser.role.[0]}}"
+                            readonly>
                     </div>
                     <div class="form-group col-3">
-                        <label for="ward">Phường</label>
-                        <select class="custom-select" id="wardSelect">
-                            <option value="">Tất cả phường</option>
-                        </select>
+                        <label for="ward">Quận</label>
+                        <input type="text" class="form-control" id="district" name="district"
+                            value="{{authUser.role.[1]}}" readonly>
                     </div>
                     <div class="form-group col-6">
                         <label for="email">Người gửi</label>
@@ -52,18 +76,18 @@
             </div>
 
             <div class="d-flex" id="info-container">
-                <div class="d-flex flex-column align-items-center w-40 mr-3" id="chart-container">
-                    <h6 class="my-3">Thống kê theo tình trạng xử lí</h6>
-                    <canvas id="pieChart"></canvas>
-                </div>
 
                 <div class="table-responsive">
                     <table class="table table-hover" id="reportsTable">
                         <thead>
                             <tr>
-                                <th>Địa chỉ email</th>
+                                <th>Thời điểm gửi</th>
+                                <th>Địa chỉ Email</th>
+                                <th>Tên người gửi</th>
+                                <th>Số điện thoại</th>
                                 <th>Phường</th>
                                 <th>Quận</th>
+                                <th>Địa chỉ</th>
                                 <th>Tình trạng</th>
                                 <th>Cách xử lý</th>
                             </tr>
@@ -102,6 +126,9 @@
     </div>
     </div>
 
+
+
+
     <script>
         toastr.options.closeButton = true;
         toastr.options = {
@@ -122,10 +149,46 @@
             "hideMethod": "fadeOut"
         }
 
+        document.addEventListener('DOMContentLoaded', async function () {
+            // Replace wardId and disId with actual values or variables
+            var wardId = document.getElementById('ward').value;
+            var disId = document.getElementById('district').value;
+
+            // Fetch wardName
+            try {
+                const wardResponse = await fetch(`http://localhost:3500/api/ward/getWardById/${wardId}`);
+                const wardData = await wardResponse.json();
+
+                // Assuming the response data structure includes wardName property
+                var wardName = wardData.data.wardName;
+
+                // Set the value of the ward input field
+                document.getElementById('ward').value = wardName;
+            } catch (error) {
+                console.error('Error fetching ward data:', error);
+            }
+
+            // Fetch disName
+            try {
+                const disResponse = await fetch(`http://localhost:3500/api/district/getDisById/${disId}`);
+                const disData = await disResponse.json();
+
+                // Assuming the response data structure includes disName property
+                var disName = disData.data.disName;
+
+                // Set the value of the district input field
+                document.getElementById('district').value = disName;
+            } catch (error) {
+                console.error('Error fetching district data:', error);
+            }
+
+            // Call filterReports after fetching ward and district values
+            filterReports();
+        });
+
         async function filterReports() {
-            const wardSelect = document.getElementById('wardSelect');
-            const districtSelect = document.getElementById('districtSelect');
-            const txtDisInput = $('#districtSelect');
+            const wardSelect = document.getElementById('ward');
+            const districtSelect = document.getElementById('district');
             const emailInput = document.getElementById('emailInput');
 
             const wardInput = wardSelect.value;
@@ -133,14 +196,6 @@
             const emailInputValue = emailInput.value.trim();
 
             let url;
-
-            if (!districtInput && wardInput) {
-                toastr.error("Vui lòng chọn quận trước.");
-                txtDisInput.addClass('border-danger');
-                txtDisInput.removeClass('border-danger');
-                txtDisInput.focus();
-                return;
-            }
 
             if (wardInput && districtInput && emailInputValue) {
                 url = `http://localhost:3500/api/report/getReportByWardAndDisAndEmail/${wardInput}/${districtInput}/${emailInputValue}`;
@@ -168,6 +223,12 @@
             }
         }
 
+        function formatTimestamp(timestamp) {
+            const date = new Date(timestamp);
+            const formattedDate = date.toLocaleString(); // Adjust the formatting as needed
+            return formattedDate;
+        }
+
         async function displayReports(reports) {
             const reportsBody = document.getElementById('reportsBody');
             reportsBody.innerHTML = '';
@@ -176,7 +237,7 @@
                 // If no data, create a single row with a "No data" message
                 const noDataRow = document.createElement('tr');
                 const noDataCell = document.createElement('td');
-                noDataCell.setAttribute('colspan', '6'); // Set colspan to cover all columns
+                noDataCell.setAttribute('colspan', '9'); // Set colspan to cover all columns
                 noDataCell.textContent = 'Không có dữ liệu';
                 noDataRow.appendChild(noDataCell);
                 reportsBody.appendChild(noDataRow);
@@ -186,12 +247,16 @@
                     const row = document.createElement('tr');
 
                     row.innerHTML = `
-                        <td>${report.email}</td>
-                        <td>${report.ward}</td>
-                        <td>${report.district}</td>
-                        <td style="color: ${getColorByState(report.state)}">${formatState(report.state)}</td>
-                        <td style="color: ${getColorByAction(report.actionHandler)}">${report.actionHandler}</td>
-                    `;
+                <td>${formatTimestamp(report.createdAt)}</td>
+                <td>${report.email}</td>
+                <td data-tooltip="${report.name}">${report.name}</td>
+                <td>${report.phone}</td>
+                <td>${report.ward}</td>
+                <td>${report.district}</td>
+                <td data-tooltip="${report.address}">${report.address}</td>
+                <td style="color: ${getColorByState(report.state)}">${formatState(report.state)}</td>
+                <td style="color: ${getColorByAction(report.actionHandler)}">${report.actionHandler}</td>
+            `;
 
                     row.addEventListener('dblclick', () => {
                         loadDetails(report);
@@ -202,39 +267,9 @@
 
                     reportsBody.appendChild(row);
                 });
-
-                const stateCount = { 0: 0, 1: 0, 2: 0 };
-
-                // Count the occurrences of each state
-                reports.forEach(report => {
-                    stateCount[report.state]++;
-                });
-
-                // Calculate the data for the pie chart
-                const pieChartData = Object.values(stateCount);
-
-                // Get the pie chart canvas and context
-                const pieCanvas = document.getElementById('pieChart');
-                const pieContext = pieCanvas.getContext('2d');
-
-                // Destroy the existing chart (if any)
-                if (window.myPieChart) {
-                    window.myPieChart.destroy();
-                }
-
-                // Create the pie chart using Chart.js
-                window.myPieChart = new Chart(pieContext, {
-                    type: 'pie',
-                    data: {
-                        labels: ['Chưa xử lí', 'Đang xử lí', 'Đã xử lí'],
-                        datasets: [{
-                            data: pieChartData,
-                            backgroundColor: ['red', 'gold', 'green'],
-                        }],
-                    },
-                });
             }
         }
+
         function getColorByState(state) {
             switch (state) {
                 case 0:
@@ -306,69 +341,6 @@
             row.classList.add('highlighted');
         }
 
-        async function populateDropdowns() {
-            const wardSelect = document.getElementById('wardSelect');
-            const districtSelect = document.getElementById('districtSelect');
-
-            try {
-                const wardResponse = await fetch('http://localhost:3500/api/ward/getAll-ward');
-                const wardData = await wardResponse.json();
-
-                wardData.data.forEach(ward => {
-                    const option = document.createElement('option');
-                    option.value = ward.wardName;
-                    option.textContent = ward.wardName;
-                    wardSelect.appendChild(option);
-                });
-
-                const districtResponse = await fetch('http://localhost:3500/api/district/getAll-dis');
-                const districtData = await districtResponse.json();
-
-                districtData.data.forEach(dis => {
-                    const option = document.createElement('option');
-                    option.value = dis.disName;
-                    option.textContent = dis.disName;
-                    districtSelect.appendChild(option);
-                });
-
-                filterReports();
-            } catch (error) {
-                console.error('Error fetching ward and district data:', error);
-            }
-        }
-
-        async function populateWardsByDistrict() {
-            const districtSelect = document.getElementById('districtSelect');
-            const wardSelect = document.getElementById('wardSelect');
-
-            // Clear previous options
-            wardSelect.innerHTML = '<option value="">Tất Cả Phường</option>';
-
-            const selectedDistrict = districtSelect.value;
-
-            if (selectedDistrict) {
-                try {
-                    const wardResponse = await fetch(`http://localhost:3500/api/ward/getWard/${selectedDistrict}`);
-                    const wardData = await wardResponse.json();
-
-                    wardData.data.forEach(ward => {
-                        const option = document.createElement('option');
-                        option.value = ward.wardName;
-                        option.textContent = ward.wardName;
-                        wardSelect.appendChild(option);
-                    });
-
-                    filterReports();
-                } catch (error) {
-                    console.error('Error fetching ward data:', error);
-                }
-            }
-        }
-
-        // Attach the function to the change event of the district dropdown
-        document.getElementById('districtSelect').addEventListener('change', populateWardsByDistrict);
-
-        populateDropdowns();
     </script>
 
 </body>
