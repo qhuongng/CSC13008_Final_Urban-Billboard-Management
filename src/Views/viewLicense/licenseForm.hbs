@@ -1,0 +1,245 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.2/js/toastr.min.js"></script>
+    <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+    <style>
+        .tox-statusbar__path-item {
+            display: none !important;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container mt-5 mb-5">
+        <h2 class="mb-4">Gửi yêu cầu cấp phép</h2>
+        <form action="" method="post" enctype="multipart/form-data">
+            <!-- Input fields for new report information -->
+            <div class="form-group">
+                <label for="point">Điểm đặt bảng quảng cáo</label>
+                <input class="form-control" type="text" name="point" id="point" readonly>
+            </div>
+            <div class="form-group">
+                <label for="panel">Bảng quảng cáo cần cấp phép</label>
+                <input class="form-control" type="text" name="panel" id="panel" readonly>
+            </div>
+            <div class="form-group">
+                <label for="image">Nội dung quảng cáo</label>
+                <input type="file" class="form-control" id="image" name="image" required>
+                <small class="form-text text-muted">Chọn một ảnh thể hiện nội dung bảng quảng cáo</small>
+            </div>
+            <p class="my-5">
+            <h5>Thông tin công ty xin cấp phép</h5>
+            </p>
+            <div class="form-group">
+                <label for="company-name">Tên công ty</label>
+                <input class="form-control" type="text" name="company-name" id="company-name" autofocus>
+            </div>
+            <div class="form-group">
+                <label for="email">Email công ty</label>
+                <input type="email" class="form-control" id="email" name="email" autofocus>
+            </div>
+            <div class="form-group">
+                <label for="phone">Điện thoại liên lạc</label>
+                <input type="tel" class="form-control" id="phone" name="phone" pattern="[0-9]{10}" autofocus>
+            </div>
+            <div class="form-group">
+                <label for="address">Địa chỉ công ty</label>
+                <input class="form-control" type="text" name="address" id="address" autofocus>
+            </div>
+            <div class="form-group">
+                <label for="start-date">Ngày bắt đầu hợp đồng</label>
+                <input type="text" class="form-control" id="start-date" name="start-date"
+                    placeholder="Chọn ngày bắt đầu hợp đồng" required>
+            </div>
+            <div class="form-group">
+                <label for="end-date">Ngày kết thúc hợp đồng</label>
+                <input type="text" class="form-control" id="end-date" name="end-date"
+                    placeholder="Chọn ngày kết thúc hợp đồng" required>
+            </div>
+            <br>
+            <button type="button" class="btn btn-outline-success" onclick="window.history.back()">
+                <i class="bi bi-skip-backward-fill"></i>
+                &nbsp;Quay lại
+            </button>
+            <button type="submit" id="send-button" class="btn btn-outline-primary">
+                <i class="bi bi-check2"></i>
+                &nbsp;Gửi yêu cầu</button>
+        </form>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script>
+        toastr.options.closeButton = true;
+        toastr.options = {
+            "closeButton": true,
+            "debug": false,
+            "newestOnTop": false,
+            "progressBar": false,
+            "positionClass": "toast-bottom-right",
+            "preventDuplicates": false,
+            "onclick": null,
+            "showDuration": "300",
+            "hideDuration": "300",
+            "timeOut": "2000",
+            "extendedTimeOut": "1000",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const postContent = async (event) => {
+                event.preventDefault();
+
+                const comNameInput = $('#company-name');
+                const emailInput = $('#email');
+                const phoneInput = $('#phone');
+                const addressInput = $('#address')
+                const imageInput = $('#image');
+                const startDate = $('#start-date');
+                const endDate = $('#end-date');
+
+                if (!emailInput.val() || !comNameInput.val() || !phoneInput.val() || !addressInput.val() || !startDate.val() || !endDate.val()) {
+                    toastr.error("Vui lòng điền đầy đủ thông tin.");
+
+                    let inputs = [comNameInput, emailInput, phoneInput, addressInput];
+
+                    inputs.forEach((input) => {
+                        if (!input.val()) {
+                            input.addClass('border-danger');
+                            input.focus();
+                        }
+                    });
+                }
+                else if (!/^[0-9]{10}$/.test(phoneInput.val())) {
+                    toastr.error("Số điện thoại không hợp lệ (số điện thoại gồm 10 chữ số).");
+
+                    let inputs = [comNameInput, emailInput, addressInput];
+
+                    inputs.forEach((input) => {
+                        input.removeClass('border-danger');
+                    });
+
+                    phoneInput.addClass('border-danger');
+                    phoneInput.focus();
+                }
+                else if (imageInput.prop('files').length === 0) {
+                    toastr.error("Vui lòng thêm hình ảnh nội dung quảng cáo.");
+
+                    let inputs = [comNameInput, emailInput, phoneInput, addressInput];
+
+                    inputs.forEach((input) => {
+                        input.removeClass('border-danger');
+                    });
+
+                    imageInput.addClass('border-danger');
+                    imageInput.focus();
+                }
+                else if (imageInput.prop('files').length > 1) {
+                    toastr.error("Số lượng hình ảnh vượt quá mức cho phép. Vui lòng chỉ thêm 1 ảnh.");
+
+                    let inputs = [comNameInput, emailInput, phoneInput, addressInput];
+
+                    inputs.forEach((input) => {
+                        input.removeClass('border-danger');
+                    });
+
+                    imageInput.addClass('border-danger');
+                    imageInput.focus();
+                }
+                else if (!startDate.val().match(/^[0-9]{2}\/[0-9]{2}\/[0-9]{4}$/)) {
+                    toastr.error('Ngày bắt đầu hợp đồng không hợp lệ.');
+
+                    let inputs = [comNameInput, emailInput, phoneInput, addressInput, imageInput];
+
+                    inputs.forEach((input) => {
+                        input.removeClass('border-danger');
+                    });
+
+                    startDate.addClass('border-danger');
+                }
+                else if (!endDate.val().match(/^[0-9]{2}\/[0-9]{2}\/[0-9]{4}$/)) {
+                    toastr.error('Ngày kết thúc hợp đồng không hợp lệ.');
+
+                    let inputs = [comNameInput, emailInput, phoneInput, addressInput, imageInput];
+
+                    inputs.forEach((input) => {
+                        input.removeClass('border-danger');
+                    });
+
+                    endDate.addClass('border-danger');
+                }
+                else {
+                    let inputs = [comNameInput, emailInput, phoneInput, addressInput, imageInput, startDate, endDate];
+
+                    inputs.forEach((input) => {
+                        input.removeClass('border-danger');
+                    });
+
+                    // lấy form và dữ liệu từ form
+                    var form = document.querySelector('form');
+                    var formData = new FormData(form);
+
+                    // fetch(`ble`,
+                    //     {
+                    //         method: 'POST',
+                    //         body: formData,
+                    //     }).then(response => response.json()).then(data => {
+                    //         toastr.options.onHidden = () => { window.location.href = '/'; }
+                    //         toastr.success("Yêu cầu đã được gửi thành công.");
+                    //     }).catch(error => {
+                    //         // report request failed
+                    //         toastr.error('Có lỗi xảy ra khi gửi yêu cầu. Vui lòng thử lại sau.');
+                    //         console.error('License request sending error:', error);
+                    //     });
+
+                    // tạm thời để đây để check handle
+                    toastr.success("Pass xử lí lỗi.")
+                }
+            };
+
+            // Add click event listeners to buttons
+            const sendButton = document.getElementById('send-button');
+
+            if (sendButton) {
+                sendButton.addEventListener('click', postContent);
+            }
+        });
+
+        flatpickr("#start-date", {
+            dateFormat: "d/m/Y",
+            placeholder: "Chọn ngày bắt đầu hợp đồng",
+            enableTime: false,
+            theme: "light",
+            wheel: true,
+        });
+
+        flatpickr("#end-date", {
+            dateFormat: "d/m/Y",
+            placeholder: "Chọn ngày kết thúc hợp đồng",
+            enableTime: false,
+            theme: "light",
+            wheel: true,
+            onClose: function (selectedDates, dateStr, instance) {
+                var startDateStr = document.getElementById("start-date").value;
+                var endDateStr = document.getElementById("end-date").value;
+
+                var startDate = flatpickr.parseDate(startDateStr, "d/m/Y");
+                var endDate = flatpickr.parseDate(endDateStr, "d/m/Y");
+
+                if (startDate && endDate && endDate <= startDate) {
+                    toastr.error("Ngày kết thúc hợp đồng phải trễ hơn ngày bắt đầu hợp đồng.");
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>
