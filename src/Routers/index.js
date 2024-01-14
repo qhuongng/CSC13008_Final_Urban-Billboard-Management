@@ -20,6 +20,7 @@ const RegistrationRouter = require('./registration.routes');
 const controlPointRouter = require('./controlPoint.routes');
 const controlReportRouter = require('./controlReport.routes');
 const licenseRouter = require('./license.routes');
+const ProfileRouter = require('./profile.routes')
 
 const routes = (app) => {
   // đường dẫn dùng cho citizen
@@ -44,6 +45,7 @@ const routes = (app) => {
   app.use('/api/controlPoint', controlPointRouter);
   app.use('/api/controlReport', controlReportRouter);
   app.use('/api/license', licenseRouter);
+  app.use('/api/profile', ProfileRouter)
   //
   app.get("/", (req, res) => {
     if (res.locals.auth == false) {

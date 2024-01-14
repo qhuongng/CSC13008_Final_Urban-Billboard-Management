@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.2/js/toastr.min.js"></script>
+    <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
+    <title>User Profile</title>
+    <style>
+        #profile-container {
+            background-color: #f5f5f5;
+            color: #333;
+            font-family: Roboto, sans-serif;
+            font-size: 16px;
+            line-height: 1.6;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            margin: 80px auto;
+            max-width: 500px;
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .property {
+            margin-bottom: 15px;
+        }
+
+        strong {
+            color: #222;
+        }
+
+        .edit-link {
+            margin-left: 10px;
+            color: #007bff;
+            display: none;
+            /* Hide initially */
+        }
+
+        .property:hover .edit-link {
+            display: inline-block;
+            /* Show on hover */
+        }
+
+        .edit-link:hover {
+            text-decoration: underline;
+        }
+
+        .back-button {
+            background-color: #4caf50;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 20px;
+            float: right;
+        }
+
+        .back-button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="profile-container">
+        <h1>Thông tin cá nhân</h1>
+        <div class="property">
+            <strong>Họ và tên:</strong>
+            <span id="name"> </span>
+            <a onclick="loadDetails('Họ và tên', document.getElementById('name').innerText)" class="edit-link"
+                href="#"><i class="bi bi-pencil-square"></i> Sửa</a>
+        </div>
+
+        <div class="property">
+            <strong>Ngày tháng năm sinh:</strong>
+            <span id="dateOfBirth"> </span>
+            <a onclick="loadDetails('Ngày tháng năm sinh', document.getElementById('dateOfBirth').innerText)"
+                class="edit-link" href="#"><i class="bi bi-pencil-square"></i> Sửa</a>
+        </div>
+
+        <div class="property">
+            <strong>Email:</strong>
+            <span id="email"> </span>
+            <a onclick="loadDetails('Email', document.getElementById('email').innerText)" class="edit-link" href="#"><i
+                    class="bi bi-pencil-square"></i> Sửa</a>
+        </div>
+
+        <div class="property">
+            <strong>Điện thoại liên lạc:</strong>
+            <span id="phone"> </span>
+            <a onclick="loadDetails('Phone', document.getElementById('phone').innerText)" class="edit-link" href="#"><i
+                    class="bi bi-pencil-square"></i> Sửa</a>
+        </div>
+
+        <a type="button" class="back-button" href="/"> <i class="bi bi-skip-backward-fill"></i> Quay lại</a>
+
+        <!-- Modal for detailed information -->
+        <div class="modal fade" id="detailsModal" tabindex="-1" role="dialog" aria-labelledby="info-modal-title"
+            aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="info-modal-title">Thông tin cập nhật</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="modalContent">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-success" data-dismiss="modal">
+                            <i class="bi bi-skip-backward-fill"></i>
+                            Quay lại
+                        </button>
+                        <button class="btn btn-primary" id="saveButton">
+                            <i class="bi bi-pencil-square"></i>
+                            Save
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            toastr.options.closeButton = true;
+            toastr.options = {
+                "closeButton": true,
+                "debug": false,
+                "newestOnTop": false,
+                "progressBar": false,
+                "positionClass": "toast-top-center",
+                "preventDuplicates": false,
+                "onclick": null,
+                "showDuration": "300",
+                "hideDuration": "300",
+                "timeOut": "2000",
+                "extendedTimeOut": "1000",
+                "showEasing": "swing",
+                "hideEasing": "linear",
+                "showMethod": "fadeIn",
+                "hideMethod": "fadeOut"
+            }
+
+            function formatDate(dateString) {
+                const parts = dateString.split('/');
+                if (parts.length === 3) {
+                    const year = parts[0];
+                    const month = parts[1];
+                    const day = parts[2];
+                    return `${day}/${month}/${year}`;
+                }
+                return dateString; // Return the original string if the format is unexpected
+            }
+            function formatDateForServer(dateString) {
+                const parts = dateString.split('/');
+                if (parts.length === 3) {
+                    const year = parts[2];
+                    const month = parts[1];
+                    const day = parts[0];
+                    return `${year}/${month}/${day}`;
+                }
+                return dateString; // Return the original string if the format is unexpected
+            }
+
+            // Get userId from the URL path
+            const userId = window.location.pathname.split('/').pop();
+            // Fetch user details from the server
+            fetch(`http://localhost:3500/api/user/getDetails-user/${userId}`)
+                .then(response => response.json())
+                .then(data => {
+                    // Update the HTML elements with user details
+                    document.getElementById("name").innerText = data.data.name;
+                    document.getElementById("dateOfBirth").innerText = formatDate(data.data.date);
+                    document.getElementById("email").innerText = data.data.email;
+                    document.getElementById("phone").innerText = data.data.phone;
+                })
+                .catch(error => console.error('Error fetching user details:', error));
+
+            function loadDetails(property, value) {
+                $('#detailsModal').modal('show');
+
+                const details = `<h6 class="card-subtitle mb-2 text-muted">${property}</h6>
+                                 <input type="text" id="updatedValue" class="form-control" value="${value}">`;
+
+                document.getElementById('modalContent').innerHTML = details;
+            }
+
+            // Save button click event
+            $('#saveButton').on('click', function () {
+                const updatedValue = document.getElementById('updatedValue').value;
+
+                let updateData = {};
+                if (document.getElementById('modalContent').querySelector('h6').innerText == 'Họ và tên') {
+                    updateData = {
+                        name: updatedValue
+                    };
+                } else if (document.getElementById('modalContent').querySelector('h6').innerText == 'Ngày tháng năm sinh') {
+                    updateData = {
+                        date: formatDateForServer(updatedValue)
+                    };
+                } else if (document.getElementById('modalContent').querySelector('h6').innerText == 'Email') {
+                    updateData = {
+                        email: updatedValue
+                    };
+                } else if (document.getElementById('modalContent').querySelector('h6').innerText == 'Phone') {
+                    updateData = {
+                        phone: updatedValue
+                    };
+                }
+
+                // Call the update API here
+                fetch(`http://localhost:3500/api/user/update-user/${userId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(updateData),
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'OK') {
+                            toastr.options.onHidden = () => { window.location.href = `/api/profile/${userId}` }
+                            toastr.success("Cập nhật thành công.")
+                        } else {
+                            toastr.error("Cập nhật thất bại.");
+                        }
+                        $('#detailsModal').modal('hide');
+                    })
+                    .catch(error => {
+                        // Handle error or show a notification
+                        toastr.error('Error updating user details');
+                    });
+            });
+
+        </script>
+    </div>
+</body>
+
+</html>
