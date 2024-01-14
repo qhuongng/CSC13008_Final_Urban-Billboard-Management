@@ -386,7 +386,7 @@
                     <p><strong>Hình thức quảng cáo:</strong> ${point.formAdvertising}</p>
                     <p><strong>Có quảng cáo:</strong> ${point.havePanel ? "Có" : "Không"}</p>
                     <p><strong>Đã quy hoạch:</strong> ${point.isZoning ? "V" : "X"}</p>
-                    <p><strong>Ảnh:</strong> <img class="img-fluid" src="https://lh3.google.com/u/0/d/${point.picturePoint}" referrerpolicy="no-referrer" ></p>
+                    <p><strong>Ảnh:</strong> <img class="img-fluid" src="http/api/" referrerpolicy="no-referrer" ></p>
                    
                 `;
                 }).catch(err => console.log(err));
@@ -567,6 +567,10 @@
 
     function updateInputAddress(inputName, inputAddress) {
         document.getElementById("address").value = `${inputName}, ${inputAddress}`;
+    }
+
+    function updateInputWardDistrict(inputWard, inputDistrict) {
+        console.log(inputWard, inputDistrict);
     }
 
     function showPosition(lng, lat) {
