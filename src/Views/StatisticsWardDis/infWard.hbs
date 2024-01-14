@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.2/js/toastr.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
+
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f8f9fa;
+        }
+
+        .container {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            text-align: center;
+            color: #007bff;
+        }
+
+        #filters-container {
+            margin-bottom: 20px;
+        }
+
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        #info-container {
+            display: flex;
+            flex-direction: column;
+            /* Adjust to column layout */
+            align-items: center;
+        }
+
+        #pointsTable {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        #pointsTable th,
+        #pointsTable td {
+            padding: 12px;
+            text-align: center;
+            border: 1px solid #ddd;
+
+            width: calc(100% / 7);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        #pointsTable th:nth-child(6) {
+            max-width: 200px;
+        }
+
+        #pointsTable tr:nth-child(3) {
+            max-width: 200px;
+        }
+
+        .table tbody tr.highlighted {
+            background-color: #dfdfdf;
+        }
+
+        .modal-content {
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .modal-title {
+            color: #007bff;
+        }
+
+        .modal-body {
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+
+        .modal-footer {
+            justify-content: space-between;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+
+        .btn-outline-secondary {
+            color: #007bff;
+            border-color: #007bff;
+        }
+
+        .btn-outline-secondary:hover {
+            background-color: #007bff;
+            color: #ffffff;
+        }
+    </style>
+</head>
+
+<body>
+    {{#ifCond authUser.role.[0] '===' "-1"}}
+    <h2>Quận</h2>
+
+    {{else}}
+    <div class="control-responsive p-4 d-flex flex-column align-items-center">
+        <div class="container">
+            <h2 class="mb-4">Xử lý báo cáo</h2>
+
+            <div class="row justify-content-center mb-4">
+                <!-- Center the filters section -->
+                <div class="col-6">
+                    <div class="d-flex justify-content-between align-items-center" id="filters-container">
+                        <div class="row flex-fill" id="filters">
+                            <div class="form-group col-6">
+                                <label for="district">Phường</label>
+                                <input type="text" class="form-control" id="ward" name="ward"
+                                    value="{{authUser.role.[0]}}" readonly>
+                            </div>
+                            <div class="form-group col-6">
+                                <label for="ward">Quận</label>
+                                <input type="text" class="form-control" id="district" name="district"
+                                    value="{{authUser.role.[1]}}" readonly>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex" id="info-container">
+
+                <div class="table-responsive">
+                    <table class="table table-hover" id="pointsTable">
+                        <thead>
+                            <tr>
+                                <th>Tên địa chỉ</th>
+                                <th>Địa chỉ cụ thể</th>
+                                <th>Phường</th>
+                                <th>Quận</th>
+                                <th>Loại vị trí</th>
+                                <th>Loại hình quảng cáo</th>
+                                <th>Quy hoạch</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pointsBody">
+                            <!-- points will be dynamically added here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Modal for detailed information -->
+                <div class="modal fade" id="detailsModal" tabindex="-1" role="dialog" aria-labelledby="info-modal-title"
+                    aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="info-modal-title">Chi tiết báo cáo</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <div id="modalContent">
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button class="btn btn-primary" id="saveButton">Yêu cầu chỉnh sửa</button>
+                                <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">
+                                    Quay lại</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+    </div>
+
+    <script>
+        toastr.options.closeButton = true;
+        toastr.options = {
+            "closeButton": true,
+            "debug": false,
+            "newestOnTop": false,
+            "progressBar": false,
+            "positionClass": "toast-top-center",
+            "preventDuplicates": false,
+            "onclick": null,
+            "showDuration": "300",
+            "hideDuration": "300",
+            "timeOut": "2000",
+            "extendedTimeOut": "1000",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+        }
+
+        document.addEventListener('DOMContentLoaded', async function () {
+            // Replace wardId and disId with actual values or variables
+            var wardId = document.getElementById('ward').value;
+            var disId = document.getElementById('district').value;
+
+            // Fetch wardName
+            try {
+                const wardResponse = await fetch(`http://localhost:3500/api/ward/getWardById/${wardId}`);
+                const wardData = await wardResponse.json();
+
+                // Assuming the response data structure includes wardName property
+                var wardName = wardData.data.wardName;
+
+                // Set the value of the ward input field
+                document.getElementById('ward').value = wardName;
+            } catch (error) {
+                console.error('Error fetching ward data:', error);
+            }
+
+            // Fetch disName
+            try {
+                const disResponse = await fetch(`http://localhost:3500/api/district/getDisById/${disId}`);
+                const disData = await disResponse.json();
+
+                // Assuming the response data structure includes disName property
+                var disName = disData.data.disName;
+
+                // Set the value of the district input field
+                document.getElementById('district').value = disName;
+            } catch (error) {
+                console.error('Error fetching district data:', error);
+            }
+
+            // Call filterPoints after fetching ward and district values
+            filterPoints();
+        });
+
+        async function filterPoints() {
+            const wardSelect = document.getElementById('ward');
+            const districtSelect = document.getElementById('district');
+
+            const wardInput = wardSelect.value;
+            const districtInput = districtSelect.value;
+
+            let url;
+
+            if (wardInput && districtInput) {
+                url = `http://localhost:3500/api/point/getPointByWardAndDis/${wardInput}/${districtInput}`;
+            } else if (districtInput) {
+                url = `http://localhost:3500/api/point/getPointByDis/${districtInput}`;
+            }
+
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (data.status === 'OK') {
+                    displayPoints(data.data);
+                } else {
+                    toastr.error(`Error: ${data.message}`);
+                }
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        }
+
+        async function displayPoints(points) {
+            const pointsBody = document.getElementById('pointsBody');
+            pointsBody.innerHTML = '';
+
+            if (points.length === 0) {
+                // If no data, create a single row with a "No data" message
+                const noDataRow = document.createElement('tr');
+                const noDataCell = document.createElement('td');
+                noDataCell.setAttribute('colspan', '10');
+                noDataCell.textContent = 'Không có dữ liệu';
+                noDataRow.appendChild(noDataCell);
+                pointsBody.appendChild(noDataRow);
+            } else {
+                // If there is data, create rows for each point
+                points.forEach(point => {
+                    const row = document.createElement('tr');
+
+                    row.innerHTML = `
+                <td>${point.name}</td>
+                <td>${point.address}</td>
+                <td>${point.area.ward}</td>
+                <td>${point.area.district}</td>
+                <td>${point.positionType}</td>
+                <td>${point.formAdvertising}</td>
+                <td>${point.isZoning ? 'Đã quy hoạch' : 'Chưa quy hoạch'}</td>
+            `;
+
+                    row.addEventListener('dblclick', () => {
+                        loadDetails(point);
+                        $('#detailsModal').modal('show');
+                    });
+
+                    row.addEventListener('click', () => highlightRow(row));
+
+                    pointsBody.appendChild(row);
+                });
+            }
+        }
+
+        function loadDetails(point) {
+            document.getElementById('modalContent').innerHTML = "";
+
+            const imgUrl = `https://lh3.google.com/u/0/d/${point.picturePoint}`;
+
+
+            const details = `<h6 class="card-subtitle mb-2 text-muted">${point.name}</h6>
+                      <p class="card-text">
+                          <strong id="pointId">ID point: ${point._id}</strong><br>
+                          <strong>Địa chỉ cụ thể:</strong> ${point.address}<br>
+                          <strong>Phường:</strong> ${point.area.ward}<br>
+                          <strong>Quận:</strong> ${point.area.district}<br>
+                          <strong>Kinh độ:</strong> ${point.locate[0]}<br>
+                          <strong>Vĩ độ:</strong> ${point.locate[1]}<br>
+                          <strong>Loại vị trí:</strong> ${point.positionType}<br>
+                          <strong>Loại hình quảng cáo</strong> ${point.formAdvertising}<br>
+                          <strong>Hình ảnh điểm đặt:</strong><br><br>
+                          <img class="img-fluid" src="${imgUrl}" referrerpolicy="no-referrer" alt=""><br>
+                          </p>`;
+
+            document.getElementById('modalContent').innerHTML = details;
+        }
+
+
+        function highlightRow(row) {
+            // Remove highlight from all rows
+            const rows = document.querySelectorAll('#pointsBody tr');
+            rows.forEach(r => r.classList.remove('highlighted'));
+
+            // Add highlight to the clicked row
+            row.classList.add('highlighted');
+        }
+
+    </script>
+    {{/ifCond}}
+
+</body>
+
+</html>
