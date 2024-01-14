@@ -7,75 +7,42 @@
     <script src="http://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.2/js/toastr.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
-
-    <style>
-        .table tbody tr.highlighted {
-            background-color: #dfdfdf;
-        }
-
-        h2 {
-            text-align: center;
-        }
-
-        th,
-        td {
-            padding: 12px;
-            text-align: center;
-            border: 1px solid #ddd;
-
-            width: calc(100% / 9);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-
-        }
-
-        th:nth-child(3),
-        th:nth-child(4),
-        th:nth-child(8),
-        th:nth-child(9) {
-            max-width: 200px;
-        }
-
-        th {
-            background-color: #4CAF50;
-            color: white;
-        }
-    </style>
 </head>
 
 <body>
     {{#ifCond authUser.role.[0] '===' "-1"}}
-    <div class="control-responsive p-4 d-flex flex-column align-items-center">
+    <div class="control-responsive p-4 d-flex flex-column">
         <div class="container mt-3">
             <h2 class="mb-4">Xử lý báo cáo</h2>
 
-            <div class="d-flex justify-content-between align-items-end mb-4" id="filters-container">
-                <div class="row flex-fill mr-3" id="filters">
-                    <div class="form-group col-12">
-                        <label for="district">Phường</label>
-                        <div id="wardCheckboxes" class="d-flex flex-wrap">
-                            <!-- Checkboxes for wards will be dynamically added here -->
-                        </div>
-
-                    </div>
-                    <div class="form-group col-3">
+            <div class="d-flex flex-column mb-4" id="filters-container">
+                <div class="row d-flex" id="location-filters">
+                    <div class="form-group col-2">
                         <label for="ward">Quận</label>
                         <input type="text" class="form-control" id="district" name="district"
                             value="{{authUser.role.[1]}}" readonly>
                     </div>
-                    <div class="form-group col-6">
+                    <div class="form-group col-9 ml-auto">
+                        <label for="district">Phường</label>
+                        <div id="wardCheckboxes" class="d-flex flex-wrap mt-2">
+                            <!-- Checkboxes for wards will be dynamically added here -->
+                        </div>
+                    </div>
+                </div>
+                <div class="row d-flex align-items-end" id="email-filter">
+                    <div class="form-group col-10">
                         <label for="email">Người gửi</label>
                         <input type="text" class="form-control" id="emailInput"
                             placeholder="Nhập email người gửi báo cáo">
                     </div>
-                </div>
-                <div class="form-group ml-auto">
-                    <label>&nbsp;</label>
-                    <button type="button" class="btn btn-outline-primary float-right" onclick="filterReports()">
-                        <i class="bi bi-funnel"></i>
-                        Lọc
-                    </button>
+                    <div class="form-group col-2 ml-auto">
+                        <label>&nbsp;</label>
+                        <button type="button" class="btn btn-outline-primary btn-block float-right"
+                            onclick="filterReports()">
+                            <i class="bi bi-funnel"></i>
+                            Lọc
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -118,9 +85,14 @@
                                 </div>
                             </div>
                             <div class="modal-footer">
-                                <button class="btn btn-primary" id="saveButton">Cập nhật</button>
-                                <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">
-                                    Quay lại</button>
+                                <button type="button" class="btn btn-outline-success" data-dismiss="modal">
+                                    <i class="bi bi-skip-backward-fill"></i>
+                                    Quay lại
+                                </button>
+                                <button class="btn btn-primary" id="saveButton">
+                                    <i class="bi bi-check2"></i>
+                                    Lưu
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -380,23 +352,29 @@
 
             const details = `<h6 class="card-subtitle mb-2 text-muted">${report.address}</h6>
                       <p class="card-text">
-                          <strong id="reportId">ID Report: ${report._id}</strong><br>
-                          <strong>Họ tên người gửi:</strong> ${report.name}<br>
-                          <strong>Email:</strong> ${report.email}<br>
-                          <strong>Số điện thoại:</strong> ${report.phone}<br>
-                          <strong>Hình thức báo cáo:</strong> ${report.reportType}<br>
-                          <strong>Nội dung:</strong> ${report.content}<br>
-                          <strong>Hình ảnh đối tượng báo cáo:</strong><br><br>
+                          <div id="reportId">ID Report: <b>${report._id}</b><br>
+                          Họ tên người gửi: <b>${report.name}</b><br>
+                          Email: <b>${report.email}</b><br>
+                          Số điện thoại: <b>${report.phone}</b><br>
+                          Hình thức báo cáo: <b>${report.reportType}</b><br>
+                          Nội dung: ${report.content}
+                          Hình ảnh đối tượng báo cáo:</strong><br><br>
                           ${imgDivs}
-                          <strong>Tình trạng xử lý:</strong> 
-                          <select class="form-select" id="statusSelect">
-                              <option value="0" ${report.state === 0 ? 'selected' : ''}>Chưa xử lí</option>
-                              <option value="1" ${report.state === 1 ? 'selected' : ''}>Đang xử lí</option>
-                              <option value="2" ${report.state === 2 ? 'selected' : ''}>Đã xử lí xong</option>
-                          </select><br>
-                          <strong>Cách thức xử lý:</strong> 
-                          <input type="text" class="form-control max-height-150 overflow-auto" id="handlingMethodInput" value="${report.actionHandler}">
+                          <br>
+                          <div class="form-group">
+                            <label for="statusSelect">Tình trạng xử lý</label>
+                            <select class="custom-select" id="statusSelect">
+                                <option value="0" ${report.state === 0 ? 'selected' : ''}>Chưa xử lí</option>
+                                <option value="1" ${report.state === 1 ? 'selected' : ''}>Đang xử lí</option>
+                                <option value="2" ${report.state === 2 ? 'selected' : ''}>Đã xử lí xong</option>
+                            </select>
+                          </div>
+                          <div class="form-group">
+                            <label for="handlingMethodInput">Cách thức xử lý</label>
+                            <input type="text" class="form-control overflow-auto" id="handlingMethodInput" value="${report.actionHandler}">
+                          </div>
                       </p>`;
+
 
             document.getElementById('modalContent').innerHTML = details;
         }
@@ -540,9 +518,14 @@
                                 </div>
                             </div>
                             <div class="modal-footer">
-                                <button class="btn btn-primary" id="saveButton">Cập nhật</button>
-                                <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">
-                                    Quay lại</button>
+                                <button type="button" class="btn btn-outline-success" data-dismiss="modal">
+                                    <i class="bi bi-skip-backward-fill"></i>
+                                    Quay lại
+                                </button>
+                                <button class="btn btn-primary" id="saveButton">
+                                    <i class="bi bi-check2"></i>
+                                    Lưu
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -578,7 +561,7 @@
             var wardId = document.getElementById('ward').value;
             var disId = document.getElementById('district').value;
 
-             // Fetch wardName
+            // Fetch wardName
             try {
                 const wardResponse = await fetch(`http://localhost:3500/api/ward/getWardById/${wardId}`);
                 const wardData = await wardResponse.json();
@@ -741,22 +724,27 @@
 
             const details = `<h6 class="card-subtitle mb-2 text-muted">${report.address}</h6>
                       <p class="card-text">
-                          <strong id="reportId">ID Report: ${report._id}</strong><br>
-                          <strong>Họ tên người gửi:</strong> ${report.name}<br>
-                          <strong>Email:</strong> ${report.email}<br>
-                          <strong>Số điện thoại:</strong> ${report.phone}<br>
-                          <strong>Hình thức báo cáo:</strong> ${report.reportType}<br>
-                          <strong>Nội dung:</strong> ${report.content}<br>
-                          <strong>Hình ảnh đối tượng báo cáo:</strong><br><br>
+                          <div id="reportId">ID Report: <b>${report._id}</b><br>
+                          Họ tên người gửi: <b>${report.name}</b><br>
+                          Email: <b>${report.email}</b><br>
+                          Số điện thoại: <b>${report.phone}</b><br>
+                          Hình thức báo cáo: <b>${report.reportType}</b><br>
+                          Nội dung: ${report.content}
+                          Hình ảnh đối tượng báo cáo:</strong><br><br>
                           ${imgDivs}
-                          <strong>Tình trạng xử lý:</strong> 
-                          <select class="form-select" id="statusSelect">
-                              <option value="0" ${report.state === 0 ? 'selected' : ''}>Chưa xử lí</option>
-                              <option value="1" ${report.state === 1 ? 'selected' : ''}>Đang xử lí</option>
-                              <option value="2" ${report.state === 2 ? 'selected' : ''}>Đã xử lí xong</option>
-                          </select><br>
-                          <strong>Cách thức xử lý:</strong> 
-                          <input type="text" class="form-control max-height-150 overflow-auto" id="handlingMethodInput" value="${report.actionHandler}">
+                          <br>
+                          <div class="form-group">
+                            <label for="statusSelect">Tình trạng xử lý</label>
+                            <select class="custom-select" id="statusSelect">
+                                <option value="0" ${report.state === 0 ? 'selected' : ''}>Chưa xử lí</option>
+                                <option value="1" ${report.state === 1 ? 'selected' : ''}>Đang xử lí</option>
+                                <option value="2" ${report.state === 2 ? 'selected' : ''}>Đã xử lí xong</option>
+                            </select>
+                          </div>
+                          <div class="form-group">
+                            <label for="handlingMethodInput">Cách thức xử lý</label>
+                            <input type="text" class="form-control overflow-auto" id="handlingMethodInput" value="${report.actionHandler}">
+                          </div>
                       </p>`;
 
             document.getElementById('modalContent').innerHTML = details;
