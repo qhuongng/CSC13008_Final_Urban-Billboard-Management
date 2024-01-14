@@ -105,7 +105,7 @@
                   <div class="modal-body" id="free-report-modal-body">
                   </div>
                   <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">
+                    <button type="button" class="btn btn-outline-success" data-dismiss="modal">
                       <i class="bi bi-skip-backward-fill"></i>
                       &nbsp;Quay lại
                     </button>
@@ -147,8 +147,6 @@
   }
 
   function loadReportDetail(item, isFreePoint) {
-    console.log(item);
-
     if (isFreePoint === true) {
       document.getElementById("free-report-modal-body").innerHTML = "";
     }
@@ -174,7 +172,7 @@
                                       Nội dung: ${info.content}
                                       Hình ảnh đối tượng báo cáo:<br><br>
                                       ${imgDivs}
-                                      Tình trạng xử lí: <b>${info.state == 0 ? "Chưa xử lí" : "Đã xử lí"}</b><br>
+                                      Tình trạng xử lí: ${info.state == 0 ? '<b style="color:red">Chưa xử lí' : info.state == 1 ? '<b style="color:gold">Đang xử lí' : '<b style="color:green">Đã xử lí'}</b><br>
                                       Hình thức xử lí: <b>${info.actionHandler}</b></p>`
 
     if (isFreePoint === true) {

@@ -182,8 +182,6 @@
                         return;
                     }
 
-                    console.log(`http://localhost:3200/verify-recaptcha?token=${recaptchaResponse}`);
-
                     try {
                         const captchaRes = await fetch('http://localhost:3200/verify-recaptcha', {
                             method: 'POST',

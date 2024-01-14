@@ -257,9 +257,10 @@ function setupMap(center) {
                             if (JSON.parse(report).locate[0] == coords[0] && JSON.parse(report).locate[1] == coords[1]) {
                                 // nếu là report của ĐỊA ĐIỂM thì add
                                 if (JSON.parse(report).idPanel === "1") {
-                                    // update tình trạng xử lí
                                     reportId = reportData[j]._id;
-                                    localStorage.setItem(JSON.parse(report)._id, report);
+
+                                    // update tình trạng xử lí
+                                    localStorage.setItem(reportData[j]._id, JSON.stringify(reportData[j]));
                                     break;
                                 }
                                 else {
@@ -314,12 +315,11 @@ function setupMap(center) {
             for (let i = 0; i < reportData.length; i++) {
                 if (reportData[i]) {
                     let report = localStorage.getItem(reportData[i]._id);
-                    console.log(report);
 
                     let reportJson;
 
                     if (report) {
-                        reportJson = JSON.parse(report);
+                        reportJson = reportData[i];
 
                         if (reportJson.idPanel == "0") {
                             let point = {
@@ -748,15 +748,20 @@ function setupMap(center) {
                                     panelReport: 0
                                 };
 
-                                for (let i = 0; i < reportIds.length; i++) {
-                                    const report = localStorage.getItem(reportIds[i]);
+                                for (let i = 0; i < reportData.length; i++) {
+                                    const report = localStorage.getItem(reportData[i]._id);
 
                                     if (report) {
                                         if (JSON.parse(report).idPanel == info.panelId) {
-                                            info.panelReport = reportIds[i];
+                                            info.panelReport = reportData[i]._id;
+
+                                            // update tình trạng xử lí
+                                            localStorage.setItem(reportData[i]._id, JSON.stringify(reportData[i]));
                                         }
                                     }
                                 }
+
+                                console.log(info.panelReport);
 
                                 if (info.panelReport === 0) {
                                     if (!(map.getLayoutProperty("unclustered-point", "visibility") !== "visible" && map.getLayoutProperty("unclustered-point-zoned", "visibility") !== "visible")) {
@@ -854,12 +859,13 @@ function setupMap(center) {
 
             map.on("mouseenter", "free-point", (e) => {
                 map.getCanvas().style.cursor = "pointer";
+                const props = e.features[0].properties;
                 const coordinates = e.features[0].geometry.coordinates.slice();
-                const long = e.features[0].properties.long;
-                const lat = e.features[0].properties.lat;
+                const long = props.long;
+                const lat = props.lat;
                 const description = `<strong>Điểm được bạn báo cáo</strong><br>
-                                                Tình trạng: <b>${e.features[0].properties.actionHandler}</b><br><br>
-                                                <em>Bấm để xem chi tiết</em>`;
+                                    Tình trạng xử lí: ${props.state == 0 ? '<b style="color:red">Chưa xử lí' : props.state == 1 ? '<b style="color:gold">Đang xử lí' : '<b style="color:green">Đã xử lí'}</b><br><br>
+                                    <em>Bấm để xem chi tiết</em>`;
 
                 // Ensure that if the map is zoomed out such that
                 // multiple copies of the feature are visible, the
@@ -873,7 +879,6 @@ function setupMap(center) {
 
             map.on("click", "free-point", (e) => {
                 const props = e.features[0].properties;
-                console.log(props);
 
                 const reportInfo = {
                     name: props.name,
