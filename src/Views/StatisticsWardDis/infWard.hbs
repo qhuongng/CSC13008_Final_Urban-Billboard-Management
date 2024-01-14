@@ -7,133 +7,42 @@
     <script src="http://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.2/js/toastr.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
-
-    <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f8f9fa;
-        }
-
-        .container {
-            background-color: #ffffff;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        h2 {
-            text-align: center;
-            color: #007bff;
-        }
-
-        #filters-container {
-            margin-bottom: 20px;
-        }
-
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        #info-container {
-            display: flex;
-            flex-direction: column;
-            /* Adjust to column layout */
-            align-items: center;
-        }
-
-        #pointsTable {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-        }
-
-        #pointsTable th,
-        #pointsTable td {
-            padding: 12px;
-            text-align: center;
-            border: 1px solid #ddd;
-
-            width: calc(100% / 7);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        #pointsTable th:nth-child(6) {
-            max-width: 200px;
-        }
-
-        #pointsTable tr:nth-child(3) {
-            max-width: 200px;
-        }
-
-        .table tbody tr.highlighted {
-            background-color: #dfdfdf;
-        }
-
-        .modal-content {
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .modal-title {
-            color: #007bff;
-        }
-
-        .modal-body {
-            max-height: 60vh;
-            overflow-y: auto;
-        }
-
-        .modal-footer {
-            justify-content: space-between;
-        }
-
-        .btn-primary {
-            background-color: #007bff;
-            border-color: #007bff;
-        }
-
-        .btn-outline-secondary {
-            color: #007bff;
-            border-color: #007bff;
-        }
-
-        .btn-outline-secondary:hover {
-            background-color: #007bff;
-            color: #ffffff;
-        }
-    </style>
 </head>
 
 <body>
     {{#ifCond authUser.role.[0] '===' "-1"}}
     <div class="control-responsive p-4 d-flex flex-column align-items-center">
         <div class="container mt-3">
-            <h2 class="mb-4">Xử lý báo cáo</h2>
+            <h2 class="mb-4">Thống kê điểm đặt bảng quảng cáo</h2>
 
-            <div class="d-flex justify-content-between align-items-end mb-4" id="filters-container">
-                <div class="row flex-fill mr-3" id="filters">
-                    <div class="form-group col-12">
-                        <label for="district">Phường</label>
-                        <div id="wardCheckboxes" class="d-flex flex-wrap">
-                            <!-- Checkboxes for wards will be dynamically added here -->
-                        </div>
-
-                    </div>
-                    <div class="form-group col-3">
+            <div class="d-flex flex-column mb-4" id="filters-container">
+                <div class="row d-flex" id="location-filters">
+                    <div class="form-group col-2">
                         <label for="ward">Quận</label>
                         <input type="text" class="form-control" id="district" name="district"
                             value="{{authUser.role.[1]}}" readonly>
                     </div>
+                    <div class="form-group col-9 ml-auto">
+                        <label for="district">Phường</label>
+                        <div id="wardCheckboxes" class="d-flex flex-wrap mt-2">
+                            <!-- Checkboxes for wards will be dynamically added here -->
+                        </div>
+                    </div>
                 </div>
-                <div class="form-group ml-auto">
-                    <label>&nbsp;</label>
-                    <button type="button" class="btn btn-outline-primary float-right" onclick="filterPoints()">
-                        <i class="bi bi-funnel"></i>
-                        Lọc
-                    </button>
+                <div class="row d-flex align-items-end" id="email-filter">
+                    <div class="form-group col-10">
+                        <label for="email">Người gửi</label>
+                        <input type="text" class="form-control" id="emailInput"
+                            placeholder="Nhập email người gửi báo cáo">
+                    </div>
+                    <div class="form-group col-2 ml-auto">
+                        <label>&nbsp;</label>
+                        <button type="button" class="btn btn-outline-primary btn-block float-right"
+                            onclick="filterReports()">
+                            <i class="bi bi-funnel"></i>
+                            Lọc
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -164,7 +73,7 @@
                     <div class="modal-dialog modal-dialog-centered" role="document">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h5 class="modal-title" id="info-modal-title">Chi tiết báo cáo</h5>
+                                <h5 class="modal-title" id="info-modal-title">Chi tiết điểm đặt</h5>
                                 <button type="button" class="close" data-dismiss="modal" aria-label="close">
                                     <span aria-hidden="true">&times;</span>
                                 </button>
@@ -174,9 +83,14 @@
                                 </div>
                             </div>
                             <div class="modal-footer">
-                                <button class="btn btn-primary" id="saveButton1">Yêu cầu chỉnh sửa</button>
-                                <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">
-                                    Quay lại</button>
+                                <button type="button" class="btn btn-outline-success" data-dismiss="modal">
+                                    <i class="bi bi-skip-backward-fill"></i>
+                                    Quay lại
+                                </button>
+                                <button class="btn btn-primary" id="saveButton1">
+                                    <i class="bi bi-pencil-square"></i>
+                                    Yêu cầu chỉnh sửa
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -359,7 +273,7 @@
                 <td>${point.area.district}</td>
                 <td>${point.positionType}</td>
                 <td>${point.formAdvertising}</td>
-                <td>${point.isZoning ? 'Đã quy hoạch' : 'Chưa quy hoạch'}</td>
+                <td>${point.isZoning ? '<h6 style="color:green">Đã quy hoạch' : '<h6 style="color:red">Chưa quy hoạch'}</h6></td>
             `;
 
                     row.addEventListener('dblclick', () => {
@@ -382,15 +296,13 @@
 
             const details = `<h6 class="card-subtitle mb-2 text-muted">${point.name}</h6>
                       <p class="card-text">
-                          <strong id="pointId">ID point: ${point._id}</strong><br>
-                          <strong>Địa chỉ cụ thể:</strong> ${point.address}<br>
-                          <strong>Phường:</strong> ${point.area.ward}<br>
-                          <strong>Quận:</strong> ${point.area.district}<br>
-                          <strong>Kinh độ:</strong> ${point.locate[0]}<br>
-                          <strong>Vĩ độ:</strong> ${point.locate[1]}<br>
-                          <strong>Loại vị trí:</strong> ${point.positionType}<br>
-                          <strong>Loại hình quảng cáo</strong> ${point.formAdvertising}<br>
-                          <strong>Hình ảnh điểm đặt:</strong><br><br>
+                          <div id="pointId">ID điểm đặt: <b>${point._id}</b></div>
+                          Địa chỉ: <b>${point.address}, ${point.area.ward}, ${point.area.district}</b><br>
+                          Kinh độ: <b>${point.locate[0]}</b><br>
+                          Vĩ độ: <b>${point.locate[1]}</b><br>
+                          Loại vị trí: <b>${point.positionType}</b><br>
+                          Loại hình quảng cáo: <b>${point.formAdvertising}</b><br>
+                          Hình ảnh điểm đặt:<br><br>
                           <img class="img-fluid" src="${imgUrl}" referrerpolicy="no-referrer" alt=""><br>
                           </p>`;
 
@@ -412,9 +324,9 @@
     {{else}}
     <div class="control-responsive p-4 d-flex flex-column align-items-center">
         <div class="container">
-            <h2 class="mb-4">Xử lý báo cáo</h2>
+            <h2 class="mb-4">Thống kê điểm đặt bảng quảng cáo</h2>
 
-            <div class="row justify-content-center mb-4">
+            <div class="row d-flex justify-content-center mb-4">
                 <!-- Center the filters section -->
                 <div class="col-6">
                     <div class="d-flex justify-content-between align-items-center" id="filters-container">
@@ -461,7 +373,7 @@
                     <div class="modal-dialog modal-dialog-centered" role="document">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h5 class="modal-title" id="info-modal-title">Chi tiết báo cáo</h5>
+                                <h5 class="modal-title" id="info-modal-title">Chi tiết điểm đặt</h5>
                                 <button type="button" class="close" data-dismiss="modal" aria-label="close">
                                     <span aria-hidden="true">&times;</span>
                                 </button>
@@ -471,10 +383,14 @@
                                 </div>
                             </div>
                             <div class="modal-footer">
-                                <button class="btn btn-primary" id="saveButton1">Yêu cầu chỉnh sửa</button>
-                                <button class="btn btn-primary" id="saveButton2">Yêu cầu cấp phép</button>
-                                <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">
-                                    Quay lại</button>
+                                <button type="button" class="btn btn-outline-success" data-dismiss="modal">
+                                    <i class="bi bi-skip-backward-fill"></i>
+                                    Quay lại
+                                </button>
+                                <button class="btn btn-outline-primary" id="saveButton1">
+                                    <i class="bi bi-pencil-square"></i>
+                                    Yêu cầu chỉnh sửa
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -595,7 +511,7 @@
                 <td>${point.area.district}</td>
                 <td>${point.positionType}</td>
                 <td>${point.formAdvertising}</td>
-                <td>${point.isZoning ? 'Đã quy hoạch' : 'Chưa quy hoạch'}</td>
+                <td>${point.isZoning ? '<h6 style="color:green">Đã quy hoạch' : '<h6 style="color:red">Chưa quy hoạch'}</h6></td>
             `;
 
                     row.addEventListener('dblclick', () => {
@@ -618,15 +534,13 @@
 
             const details = `<h6 class="card-subtitle mb-2 text-muted">${point.name}</h6>
                       <p class="card-text">
-                          <strong id="pointId">ID point: ${point._id}</strong><br>
-                          <strong>Địa chỉ cụ thể:</strong> ${point.address}<br>
-                          <strong>Phường:</strong> ${point.area.ward}<br>
-                          <strong>Quận:</strong> ${point.area.district}<br>
-                          <strong>Kinh độ:</strong> ${point.locate[0]}<br>
-                          <strong>Vĩ độ:</strong> ${point.locate[1]}<br>
-                          <strong>Loại vị trí:</strong> ${point.positionType}<br>
-                          <strong>Loại hình quảng cáo</strong> ${point.formAdvertising}<br>
-                          <strong>Hình ảnh điểm đặt:</strong><br><br>
+                          <div id="pointId">ID điểm đặt: <b>${point._id}</b></div>
+                          Địa chỉ: <b>${point.address}, ${point.area.ward}, ${point.area.district}</b><br>
+                          Kinh độ: <b>${point.locate[0]}</b><br>
+                          Vĩ độ: <b>${point.locate[1]}</b><br>
+                          Loại vị trí: <b>${point.positionType}</b><br>
+                          Loại hình quảng cáo: <b>${point.formAdvertising}</b><br>
+                          Hình ảnh điểm đặt:<br><br>
                           <img class="img-fluid" src="${imgUrl}" referrerpolicy="no-referrer" alt=""><br>
                           </p>`;
 
