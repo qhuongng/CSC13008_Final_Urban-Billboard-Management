@@ -5,19 +5,20 @@ const createLicense = async (req, res) => {
     try {
 
         const file = {
-            data: req.files.buffer,
-            contentType: req.files.mimetype
+            data: req.file.buffer,
+            contentType: req.file.mimetype
         }
         const savedFile = (await licenseImgServices.sendLicenseImg(file)).data;
         const imageId = savedFile._id;
         const { idPoint, idPanel, content, companyName, companyEmail, companyPhone, startDay, endDay } = req.body;
+        console.log(req.body);
         const response = await licenseServices.createLicense(idPoint, idPanel, content, imageId, companyName, companyEmail, companyPhone, startDay, endDay);
         if (response.status === "OK") {
             res.status(200).json(response)
         }
     } catch (error) {
         return res.status(404).json({
-            message: e
+            message: error
         });
     }
 }

@@ -1,22 +1,23 @@
 const PointService = require("../Services/point.services");
+const pointImgServices = require('../Services/pointImg.services')
 
 const createPoint = async (req, res) => {
     try {
-        const { _id, name, address, area, locate, positionType, formAdvertising, picturePoint, isZoning } = req.body;
-        const reg = /\/d\/(.+?)\//;
-        const IDPicture = picturePoint.match(reg);
-        if (!_id || !name || !address || !area || !locate || !positionType || !formAdvertising || !IDPicture || isZoning == null) {
+        const file = {
+            data: req.file.buffer,
+            contentType: req.file.mimetype
+        }
+        const savedFile = (await pointImgServices.sendPointImg(file)).data;
+
+
+        const { _id, name, address, area, locate, positionType, formAdvertising } = req.body;
+        if (!_id || !name || !address || !area || !locate || !positionType || !formAdvertising) {
             return res.status(404).json({
                 status: "ERR",
                 message: "The input is required",
             });
-        } else if (IDPicture == null) {
-            return res.status(404).json({
-                status: "ERR",
-                message: "The input picture Point is not link Google Drive",
-            });
         }
-        req.body.picturePoint = IDPicture[1];
+        req.body.picturePoint = savedFile._id;
         const response = await PointService.createPoint(req.body);
         return res.status(200).json(response);
     } catch (e) {
