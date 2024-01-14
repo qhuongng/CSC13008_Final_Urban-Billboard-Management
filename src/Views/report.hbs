@@ -10,8 +10,6 @@
     <script src="https://cdn.tiny.cloud/1/ezd73nxbzc7bu6e86g2l82jbbffke0mwevwrnyvc5q8h89j6/tinymce/6/tinymce.min.js"
         referrerpolicy="origin"></script>
 
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-
     <script src="http://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.2/js/toastr.min.js"></script>
     <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
 
@@ -63,7 +61,7 @@
         <form action="" method="post" enctype="multipart/form-data">
             <!-- Input fields for new report information -->
             <div class="form-group">
-                <label for="ads-form">Hình thức quảng cáo:</label>
+                <label for="ads-form">Hình thức quảng cáo</label>
                 <select class="form-control" id="ads-form" name="reportType">
                     <option value="R01">Tố giác sai phạm</option>
                     <option value="R02">Đăng ký nội dung</option>
@@ -72,30 +70,35 @@
                 </select>
             </div>
             <div class="form-group">
-                <label for="name">Họ và tên người báo cáo:</label>
+                <label for="name">Họ và tên người báo cáo</label>
                 <input type="text" class="form-control" id="name" name="name" autofocus>
             </div>
             <div class="form-group">
-                <label for="longitude">Email:</label>
+                <label for="longitude">Email</label>
                 <input type="email" class="form-control" id="email" name="email" autofocus>
             </div>
             <div class="form-group">
-                <label for="phone">Điện thoại liên lạc:</label>
+                <label for="phone">Điện thoại liên lạc</label>
                 <input type="tel" class="form-control" id="phone" name="phone" pattern="[0-9]{10}" autofocus>
             </div>
             <div class="form-group">
-                <label for="content">Nội dung báo cáo:</label>
+                <label for="content">Nội dung báo cáo</label>
                 <div id="content-container"><textarea class="form-control" id="content" name="content"
                         autofocus></textarea></div>
             </div>
             <div class="form-group">
-                <label for="image">Ảnh chụp bảng quảng cáo:</label>
+                <label for="image">Ảnh chụp bảng quảng cáo</label>
                 <input type="file" class="form-control" id="image" name="image" multiple required>
                 <small class="form-text text-muted">Chọn một hoặc nhiều file.</small>
             </div>
             <div id="recaptcha" class="g-recaptcha" data-sitekey="6LewcUkpAAAAALnSqF9bYfyG95CVok0OYx9ABAAn"></div><br>
-            <button type="button" class="btn btn-primary" onclick="window.history.back()">Quay lại</button>
-            <button type="submit" id="send-button" class="btn btn-primary">Gửi báo cáo</button>
+            <button type="button" class="btn btn-outline-success" onclick="window.history.back()">
+                <i class="bi bi-skip-backward-fill"></i>
+                &nbsp;Quay lại
+            </button>
+            <button type="submit" id="send-button" class="btn btn-outline-primary">
+                <i class="bi bi-check2"></i>
+                &nbsp;Gửi báo cáo</button>
         </form>
     </div>
     <script>
