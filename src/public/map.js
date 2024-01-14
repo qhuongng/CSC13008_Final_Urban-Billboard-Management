@@ -117,6 +117,7 @@ function setupMap(center) {
         accessToken: mapboxgl.accessToken,
         mapboxgl: mapboxgl,
         reverseGeocode: true,
+        marker: false,
         language: "en-US, vi-VN",
     });
 
@@ -130,6 +131,10 @@ function setupMap(center) {
         if (marker) {
             marker.remove();
         }
+
+        marker = new mapboxgl.Marker({ color: "#0000ff" })
+            .setLngLat(e.result.center)
+            .addTo(map);
 
         var billboardInfoPaneExists = document.getElementById("billboard-info-pane");
 
@@ -191,7 +196,7 @@ function setupMap(center) {
             var isFreeReportedPoint = false;
 
             if (features[0] !== undefined && features[0].properties.name !== undefined) {
-                if (features[0].layer.id == "unclustered-point" || features[0].layer.id == "unclustered-point-label" || features[0].layer.id == "reported-point" || features[0].layer.id == "unclustered-point-zoned" || features[0].layer.id == "unclustered-point-zoned-label") {
+                if (features[0].layer.id == "unclustered-point" || features[0].layer.id == "unclustered-point-label" || features[0].layer.id == "reported-point" || features[0].layer.id == "reported-point-zoned" || features[0].layer.id == "unclustered-point-zoned" || features[0].layer.id == "unclustered-point-zoned-label") {
                     return;
                 }
 
