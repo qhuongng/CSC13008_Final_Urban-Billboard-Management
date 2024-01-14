@@ -94,6 +94,15 @@
                             placeholder="Click me to open subwindow">
                     </div>
                     <div class="form-group">
+                        <label for="district">Quận</label>
+                        <input type="text" class="form-control" id="district" name="district" value="" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="ward">Phường</label>
+                        <input type="text" class="form-control" id="ward" name="ward" value="" readonly>
+                    </div>
+
+                    <div class="form-group">
                         <label for="add-data">Loại vị trí</label>
                         <select class="form-control" id="selectPositionType" name="selectPositionType">
                         </select>
@@ -386,7 +395,7 @@
                     <p><strong>Hình thức quảng cáo:</strong> ${point.formAdvertising}</p>
                     <p><strong>Có quảng cáo:</strong> ${point.havePanel ? "Có" : "Không"}</p>
                     <p><strong>Đã quy hoạch:</strong> ${point.isZoning ? "V" : "X"}</p>
-                    <p><strong>Ảnh:</strong> <img class="img-fluid" src="http/api/" referrerpolicy="no-referrer" ></p>
+                    <p><strong>Ảnh:</strong> <img class="img-fluid" src="http://localhost:3500/api/pointImg/getImgPoint/${point.picturePoint}" referrerpolicy="no-referrer" ></p>
                    
                 `;
                 }).catch(err => console.log(err));
@@ -570,7 +579,8 @@
     }
 
     function updateInputWardDistrict(inputWard, inputDistrict) {
-        console.log(inputWard, inputDistrict);
+        document.getElementById("ward").value = inputWard;
+        document.getElementById("district").value = inputDistrict;
     }
 
     function showPosition(lng, lat) {

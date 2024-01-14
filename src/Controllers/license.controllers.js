@@ -36,7 +36,7 @@ const getAllLicense = async (req, res) => {
 
 const getAcceptedLicenseByIdPanel = async (req, res) => {
     try {
-        const idPanel = req.params.idPanel
+        const idPanel = req.params.id
         const listLicense = await licenseServices.getAcceptedLicenseByIdPanel(idPanel);
         res.status(200).json(listLicense);
     } catch (error) {
