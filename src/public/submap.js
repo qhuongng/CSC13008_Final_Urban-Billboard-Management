@@ -52,13 +52,17 @@ function setupMap(center) {
         .then((response) => response.json())
         .then((data) => {
           if (data.features && data.features.length > 0) {
+            console.log(data.features[0])
             const [name, ...addressParts] =
               data.features[0].place_name.split(",");
             const address = addressParts.join(",");
-            console.log(name, address);
+            const ward = data.features[0].context[0].text;
+            const district = data.features[0].context[2].text;
+            console.log(name, address, ward, district);
             if (window.opener) {
               window.opener.updateInputLnglat(e.lngLat.lng, e.lngLat.lat);
               window.opener.updateInputAddress(name, address);
+              window.opener.updateInputWardDistrict(ward, district);
             }
           }
         });

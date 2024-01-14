@@ -2,22 +2,15 @@ const PanelService = require('../Services/panel.services')
 
 const createPanel = async (req, res) => {
     try {
-        const { idPoint, Paneltype, amount, size, picturePanel, expDate } = req.body
+        const { idPoint, Paneltype, amount, size } = req.body
         //isService: {type: Boolean, default: false, require: true},
-        const reg = /\/d\/(.+?)\//;
-        const IDPicture = picturePanel.match(reg);
-        if (!idPoint || !Paneltype || !amount || !size || !IDPicture || !expDate) {
+
+        if (!idPoint || !Paneltype || !amount || !size) {
             return res.status(404).json({
                 status: 'ERR',
                 message: 'The input is required'
             })
-        } else if (IDPicture == null) {
-            return res.status(404).json({
-                status: 'ERR',
-                message: 'The input picture Panel is not link Google Drive'
-            })
         }
-        req.body.picturePanel = IDPicture[1]
         const response = await PanelService.createPanel(req.body)
         console.log(response);
         return res.status(200).json(response)

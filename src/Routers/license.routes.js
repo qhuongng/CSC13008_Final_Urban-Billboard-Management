@@ -11,7 +11,7 @@ router.get('/', (req, res) => {
 
 router.post('/createLicense', upload.single('image'), licenseController.createLicense);
 router.get('/getAllLicense', licenseController.getAllLicense);
-router.get('/getLicenseByIdPanel', licenseController.getAcceptedLicenseByIdPanel);
+router.get('/getLicenseByIdPanel/:id', licenseController.getAcceptedLicenseByIdPanel);
 router.put('/udpateAccept', licenseController.updateAccept);
 
 module.exports = router;

@@ -5,7 +5,7 @@ const PointService = require("../Services/point.services")
 
 const createPanel = (newPanel) => {
     return new Promise(async (resolve, reject) => {
-        const { idPoint, Paneltype, amount, size, picturePanel, expDate } = newPanel
+        const { idPoint, Paneltype, amount, size } = newPanel
         try {
             const checkPoint = await Point.findOne({
                 _id: idPoint
@@ -28,8 +28,6 @@ const createPanel = (newPanel) => {
                     Paneltype,
                     amount,
                     size,
-                    picturePanel,
-                    expDate
                 };
                 const newPanel = await Panel.create(newPanelData);
                 if (newPanel) {

@@ -7,9 +7,6 @@ const panelSchema = new mongoose.Schema(
         Paneltype: { type: String, require: true },
         amount: { type: Number, require: true },
         size: { type: String, require: true },// 2.3m x 10m
-        picturePanel: { type: String },
-        //ngày hết hạn
-        expDate: { type: Date },
     },
     {
         timestamps: true,
