@@ -55,9 +55,21 @@ const getAllDis = async (req, res) => {
     }
 }
 
+const getDisById = async (req, res) => {
+    const disId = req.params.id;
+
+    try {
+        const response = await DistrictService.getDisById(disId);
+        return res.status(200).json(response);
+    } catch (e) {
+        return res.status(500).json({ message: e.message });
+    }
+};
+
 module.exports = {
     createDistrict,
     updateDistrict,
     deleteDistrict,
-    getAllDis
+    getAllDis,
+    getDisById
 }

@@ -120,16 +120,16 @@
             Quản lí tài khoản cán bộ
           </a>
         </li>
-        <li class="nav-item">
-          <a class="nav-link side-link" href="#">
-            Phân công khu vực
-          </a>
-        </li>
         {{/ifCond}}
         {{else}}
         <li class="nav-item">
+          <a class="nav-link side-link" href="/api/wardStatistics">
+            Thống kê điểm đặt quảng cáo
+          </a>
+        </li>
+        <li class="nav-item">
           <a class="nav-link side-link" href="#">
-            Thống kê điểm đặt, biển quảng cáo
+            Thống kê biển quảng cáo
           </a>
         </li>
         <li class="nav-item">
@@ -138,25 +138,21 @@
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link side-link" href="#">
+          <a class="nav-link side-link" href="/api/controlReport">
             Xử lí báo cáo
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link side-link" href="#">
-            Tạo yêu cầu cấp phép quảng cáo
+          <a class="nav-link side-link" href="/api/license">
+            Gửi yêu cầu cấp phép quảng cáo
           </a>
         </li>
         {{/ifCond}}
       </ul>
     </div>
   </nav>
-  <script>
-    $(document).ready(function () {
-      // Initialize Bootstrap dropdowns
-      $('.dropdown-toggle').dropdown();
-    });
 
+  <script>
     const urlParams = new URLSearchParams(window.location.search);
     const path = window.location.pathname;
 

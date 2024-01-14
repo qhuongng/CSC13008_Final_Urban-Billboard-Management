@@ -15,11 +15,12 @@ router.get('/getReportByWardAndDis/:wardName/:districtName', reportController.ge
 router.get('/getReportByEmail/:email', reportController.getReportByEmail)
 router.get('/getReportByWardAndDisAndEmail/:wardName/:districtName/:email', reportController.getReportByWardAndDisAndEmail);
 
+router.put("/updateReport/:id", reportController.updateReport);
+
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
 router.post('/:id', upload.array('image', 2), reportController.createReport);
-//đường dẫn để xem 1 file ảnh: /img/filepath
 
 module.exports = router;
 

@@ -1,13 +1,13 @@
-const reportImg = require('../Models/ImageReport')
+const licenseImg = require('../Models/ImageLicense')
 
-const getReportImg = (id) => {
+const getLicenseImg = (id) => {
     return new Promise(async (resolve, reject) => {
         try {
-            const checkId = await reportImg.findById(id);
+            const checkId = await licenseImg.findById(id);
             if (!checkId) {
                 reject({
                     status: 'ERR',
-                    message: 'The ImgReport not found'
+                    message: 'The ImgLicense not found'
                 })
             }
             resolve({
@@ -21,10 +21,10 @@ const getReportImg = (id) => {
     })
 }
 
-const sendReportImg = (files) => {
+const sendLicenseImg = (files) => {
     return new Promise(async (resolve, reject) => {
         try {
-            const upImg = await reportImg.create(files);
+            const upImg = await licenseImg.create(files);
             if (!upImg) {
                 reject({
                     status: 'ERR',
@@ -42,6 +42,6 @@ const sendReportImg = (files) => {
     })
 }
 module.exports = {
-    getReportImg,
-    sendReportImg
+    getLicenseImg,
+    sendLicenseImg
 }

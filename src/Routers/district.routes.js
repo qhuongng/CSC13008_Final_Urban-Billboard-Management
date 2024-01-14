@@ -8,4 +8,6 @@ router.delete("/delete-district/:id", districtController.deleteDistrict);
 
 router.get("/getAll-dis", districtController.getAllDis);
 
+router.get("/getDisById/:id", districtController.getDisById)
+
 module.exports = router

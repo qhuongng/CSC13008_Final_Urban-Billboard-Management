@@ -203,44 +203,88 @@ const updatePoint = (id, data) => {
   });
 };
 const updateHavePanel = (id) => {
-  return new Promise(async (resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const checkPoint = await Point.findOne({
+                _id: id,
+            });
+            if (checkPoint === null) {
+                reject("The Point is not defined")
+            }
+            const checkPanel = await Panel.findOne({
+                idPoint: id
+            })
+            if (checkPanel) {
+                const update = { $set: { havePanel: true } }
+                const updatePoint = Point.findOneAndUpdate(
+                    { _id: id },
+                    update,
+                    { new: true }
+                )
+                resolve({
+                    data: updatePoint
+                })
+            }
+            else {
+                const update = { $set: { havePanel: false } }
+                const updatePoint = Point.findOneAndUpdate(
+                    { _id: id },
+                    update,
+                    { new: true }
+                )
+                resolve({
+                    data: updatePoint
+                })
+            }
+        } catch (e) {
+            reject(e)
+        }
+    })
+}
+
+const getPointByDis = async (disName) => {
     try {
-      const checkPoint = await Point.findOne({
-        _id: id,
-      });
-      if (checkPoint === null) {
-        reject("The Point is not defined");
-      }
-      const checkPanel = await Panel.findOne({
-        idPoint: id,
-      });
-      if (checkPanel) {
-        const update = { $set: { havePanel: true } };
-        const updatePoint = Point.findOneAndUpdate({ _id: id }, update, {
-          new: true,
-        });
-        resolve({
-          data: updatePoint,
-        });
-      } else {
-        const update = { $set: { havePanel: false } };
-        const updatePoint = Point.findOneAndUpdate({ _id: id }, update, {
-          new: true,
-        });
-        resolve({
-          data: updatePoint,
-        });
-      }
-    } catch (e) {
-      reject(e);
+        const district = await District.findOne({ disName: disName });
+        const points = await Point.find({ 'area.district': district.disId });
+
+        return {
+            status: 'OK',
+            message: 'SUCCESS',
+            data: points,
+        };
+    } catch (error) {
+        return {
+            status: 'ERR',
+            message: error.message,
+        };
     }
-  });
+};
+
+const getPointByWardAndDis = async (wardName, disName) => {
+    try {
+        const ward = await Ward.findOne({ wardName: wardName });
+        const district = await District.findOne({ disName: disName });
+
+        const points = await Point.find({ 'area.ward': ward.wardId, 'area.district': district.disId });
+
+        return {
+            status: 'OK',
+            message: 'SUCCESS',
+            data: points,
+        };
+    } catch (error) {
+        return {
+            status: 'ERR',
+            message: error.message,
+        };
+    }
 };
 module.exports = {
-  createPoint,
-  getAllPoint,
-  getPointById,
-  deletePoint,
-  updatePoint,
-  updateHavePanel,
+    createPoint,
+    getAllPoint,
+    deletePoint,
+    updatePoint,
+    updateHavePanel,
+    getPointByDis,
+    getPointByWardAndDis
 };

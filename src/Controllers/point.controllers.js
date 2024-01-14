@@ -105,10 +105,37 @@ const updatePoint = async (req, res) => {
 //         });
 //     }
 // }
+
+const getPointByDis = async (req, res) => {
+    try {
+        const disName = req.params.name;
+        const report = await PointService.getPointByDis(disName);
+        if (report) {
+            res.status(200).json(report);
+        }
+    } catch (error) {
+        res.status(400).json({ message: error.message })
+    }
+}
+
+const getPointByWardAndDis = async (req, res) => {
+    try {
+        const { wardName, districtName } = req.params;
+        const report = await PointService.getPointByWardAndDis(wardName, districtName);
+        if (report) {
+            res.status(200).json(report);
+        }
+    } catch (error) {
+        res.status(400).json({ message: error.message })
+    }
+}
+
 module.exports = {
     createPoint,
     getAllPoint,
     getPointById,
     deletePoint,
     updatePoint,
+    getPointByDis,
+    getPointByWardAndDis
 };

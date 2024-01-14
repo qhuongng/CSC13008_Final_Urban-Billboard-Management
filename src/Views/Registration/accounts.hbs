@@ -13,13 +13,14 @@
         </div>
         <!-- Table -->
         <div class="table-responsive">
-            <table class="table">
+            <table class="table" id="user-table">
                 <thead>
                     <tr>
                         <th scope="col">ID</th>
                         <th scope="col">Họ tên</th>
                         <th scope="col">Email</th>
                         <th scope="col">Khu vực quản lí</th>
+                        <th scope="col">&nbsp;</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -29,6 +30,80 @@
     </div>
 </div>
 
+<div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editModalLabel">Chỉnh sửa khu vực quản lí của cán bộ</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="editForm">
+                    <div class="form-group">
+                        <label for="edited-id">ID cán bộ</label>
+                        <input type="text" class="form-control" id="edited-id" readonly />
+                    </div>
+                    <div class="form-group">
+                        <label for="edited-name">Họ tên</label>
+                        <input type="text" class="form-control" id="edited-name" readonly />
+                    </div>
+                    <div class="form-group">
+                        <label for="edited-role">Khu vực quản lí hiện tại</label>
+                        <input type="text" class="form-control" id="edited-role" readonly />
+                    </div>
+                    <p class="mt-5">
+                    <h6>Điều chỉnh khu vực quản lí</h6>
+                    </p>
+                    <div class="form-group">
+                        <label for="checkRole">Phạm vi quản lí</label>
+                        <div class="d-flex justify-content-around">
+                            <div class="custom-control custom-radio" id="role-radios">
+                                <input type="radio" class="custom-control-input" name="optradio" id="departmentRadio"
+                                    value="department">
+                                <label class="custom-control-label" for="departmentRadio">Sở</label>
+                            </div>
+                            <div class="custom-control custom-radio">
+                                <input type="radio" class="custom-control-input" name="optradio" id="districtRadio"
+                                    value="district">
+                                <label class="custom-control-label" for="districtRadio">Quận</label>
+                            </div>
+                            <div class="custom-control custom-radio">
+                                <input type="radio" class="custom-control-input" name="optradio" id="wardRadio"
+                                    value="ward">
+                                <label class="custom-control-label" for="wardRadio">Phường</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group" id="districtDropdown" style="display:none">
+                        <label for="selectDistrict">Chọn quận</label>
+                        <select class="form-control" id="selectDistrict" name="selectDistrict">
+                        </select>
+                    </div>
+
+                    <div class="form-group" id="wardDropdown" style="display:none">
+                        <label for="selectWard">Chọn phường</label>
+                        <select class="form-control" id="selectWard" name="selectWard">
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-success" data-dismiss="modal">
+                    <i class="bi bi-skip-backward-fill"></i>
+                    Quay lại
+                </button>
+                <button type="button" class="btn btn-outline-primary" onclick="editSelectedRow()">
+                    <i class="bi bi-check2"></i>
+                    Lưu</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.1.slim.min.js" crossorigin="anonymous"></script>
 <script>
     toastr.options.closeButton = true;
     toastr.options = {
@@ -49,38 +124,127 @@
         "hideMethod": "fadeOut"
     }
 
+    let wards = [];
+    let dists = [];
+
+    const selectDistrict = document.getElementById('selectDistrict');
+    const selectWard = document.getElementById('selectWard');
+
+    selectDistrict.addEventListener('change', function () {
+        const selectedDistrictId = this.value;
+
+        const listWardOfSelectedDistrict = wards.filter(ward => ward.districtRefId == selectedDistrictId);
+        selectWard.innerHTML = '';
+        listWardOfSelectedDistrict.forEach(ward => {
+            const option = document.createElement('option');
+            option.className = `${ward.wardId}`;
+            option.value = ward.wardId;
+            option.innerText = ward.wardName;
+            selectWard.appendChild(option);
+        });
+    });
+
+    async function loadDropdowns() {
+        await fetch('http://localhost:3500/api/district/getAll-dis')
+            .then(response => response.json())
+            .then(data => {
+                dists = data.data;
+                const selectDistrict = document.getElementById('selectDistrict');
+                selectDistrict.innerHTML = '';
+                dists.forEach(item => {
+                    const option = document.createElement('option');
+                    option.className = `${item.disId}`;
+                    option.value = item.disId;
+                    option.innerText = item.disName;
+                    selectDistrict.appendChild(option);
+                });
+            });
+
+        await fetch('http://localhost:3500/api/ward/getAll-ward')
+            .then(response => response.json())
+            .then(data => {
+                wards = data.data;
+                const selectWard = document.getElementById('selectWard');
+                selectWard.innerHTML = '';
+
+                const listWardOfSelectedDistrict = wards.filter(ward => ward.districtRefId == document.getElementById('selectDistrict').value);
+                selectWard.innerHTML = '';
+
+                listWardOfSelectedDistrict.forEach(ward => {
+                    const option = document.createElement('option');
+                    option.className = `${ward.wardId}`;
+                    option.value = ward.wardId;
+                    option.innerText = ward.wardName;
+                    selectWard.appendChild(option);
+                });
+            });
+    }
+
+    loadDropdowns();
+
+    document.querySelectorAll('input[name="optradio"]').forEach(function (radio) {
+        radio.addEventListener('change', function () {
+            const districtDropdown = document.getElementById('districtDropdown');
+            const wardDropdown = document.getElementById('wardDropdown');
+            if (this.value === 'ward') {
+                districtDropdown.style.display = 'block';
+                wardDropdown.style.display = 'block';
+            } else if (this.value === 'district') {
+                districtDropdown.style.display = 'block';
+                wardDropdown.style.display = 'none';
+            }
+            else {
+                districtDropdown.style.display = 'none';
+                wardDropdown.style.display = 'none';
+            }
+        });
+    });
+
     fetch('http://localhost:3500/api/user/getAll-User')
         .then(res => res.json())
         .then(data => {
             const userList = data.data;
+
+            // sort the array by most recently created
+            userList.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+            // create an array to store promises
+            const promises = [];
+
             userList.forEach(async (item) => {
-                console.log(item.role)
                 let authWard = "-1";
                 let authDist = "-1";
 
-                if (item.role[1] != "-1") {
-                    await fetch("http://localhost:3500/api/district/getAll-dis")
-                        .then((response) => response.json())
-                        .then((data) => {
+                if (item.role[1] !== "-1") {
+                    const distPromise = fetch("http://localhost:3500/api/district/getAll-dis")
+                        .then(response => response.json())
+                        .then(data => {
                             for (let i = 0; i < data.data.length; i++) {
                                 if (item.role[1] == data.data[i].disId) {
                                     authDist = data.data[i].disName;
                                 }
                             }
                         });
+
+                    promises.push(distPromise);
                 }
 
-                if (item.role[0] != "-1") {
-                    await fetch(`http://localhost:3500/api/ward/getDetail-ward/${item.role[1]}`)
-                        .then((response) => response.json())
-                        .then((data) => {
+                if (item.role[0] !== "-1") {
+                    const wardPromise = fetch(`http://localhost:3500/api/ward/getDetail-ward/${item.role[1]}`)
+                        .then(response => response.json())
+                        .then(data => {
                             for (let i = 0; i < data.data.length; i++) {
                                 if (item.role[0] == data.data[i].wardId) {
                                     authWard = data.data[i].wardName;
                                 }
                             }
                         });
+
+                    promises.push(wardPromise);
                 }
+
+                // wait for all promises to resolve
+                await Promise.all(promises);
 
                 let roleString = "";
 
@@ -95,8 +259,12 @@
                 const row = `<tr>
                                 <th scope="row">${item._id}</th>
                                 <td>${item.name}</td>
-                                <td>${item.email}</td>
-                                <td>${roleString}</td>
+                                <td id="user-email">${item.email}</td>
+                                <td id="user-role">${roleString}</td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary float-right" onclick="editRow('${item._id}', '${item.name}', '${roleString}')" data-toggle="modal" data-target="#editModal">
+                                        <i class="bi bi-clipboard-check-fill"></i> Phân công</i>
+                                    </button>
                                 </td>
                             </tr>`;
 
@@ -105,4 +273,103 @@
             )
         })
         .catch(err => console.log(err));
+
+    function getRowById(targetId) {
+        var table = document.getElementById("user-table");
+        var rows = table.getElementsByTagName('tr');
+
+        for (var i = 0; i < rows.length; i++) {
+            var firstCell = rows[i].getElementsByTagName('th');
+
+            if (firstCell.length > 0 && firstCell[0].innerText === targetId) {
+                return rows[i];
+            }
+        }
+
+        return null; // ID not found
+    }
+
+    function editRow(userId, userName, userRole) {
+        const row = getRowById(userId);
+
+        if (row !== null) {
+            console.log(`Editing row ${userId}`);
+
+            document.getElementById('edited-id').value = userId;
+            document.getElementById('edited-name').value = userName;
+            document.getElementById('edited-role').value = userRole;
+        } else {
+            console.log(`Row ${userId} not found.`);
+        }
+    }
+
+    async function editSelectedRow() {
+        const id = document.getElementById('edited-id').value;
+        const userRole = document.getElementById('edited-role').value;
+
+        let selected = document.querySelector('input[name="optradio"]:checked');
+        let selectedDist = "-1";
+        let selectedWard = "-1";
+
+        const distDropdown = document.getElementById('selectDistrict');
+        const wardDropdown = document.getElementById('selectWard');
+
+        if (document.getElementById('districtDropdown').style.display === 'block') {
+            selectedDist = distDropdown.options[distDropdown.selectedIndex].text;
+        }
+
+        if (document.getElementById('wardDropdown').style.display === 'block') {
+            selectedWard = wardDropdown.options[wardDropdown.selectedIndex].text;
+        }
+
+        // check if a radio button is selected
+        if (selected === null) {
+            toastr.error("Vui lòng chọn phạm vi quản lí.");
+        } else {
+            if (userRole === "Sở") {
+                if (selectedDist === "-1" && selectedWard === "-1") {
+                    toastr.error("Cán bộ này hiện đã quản lí Sở.");
+                    return;
+                }
+            } else {
+                let roleString = selectedWard + ", " + selectedDist;
+
+                if (roleString === userRole) {
+                    toastr.error("Cán bộ này hiện đã quản lí khu vực đã chọn.");
+                    return;
+                }
+            }
+
+            wards.forEach(ward => {
+                if (selectedWard === ward.wardName) {
+                    selectedWard = ward.wardId;
+                }
+            });
+
+            dists.forEach(dist => {
+                if (selectedDist === dist.disName) {
+                    selectedDist = dist.disId;
+                }
+            });
+
+            try {
+                const response = await fetch(`http://localhost:3500/api/user/update-user/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ role: [selectedWard, selectedDist] })
+                })
+
+                if (response.status === 200) {
+                    toastr.options.onHidden = () => { window.location.href = "/api/registration" }
+                    toastr.success("Tái phân công cán bộ thành công.")
+                } else {
+                    toastr.error("Tái phân công cán bộ thất bại.");
+                }
+            } catch (e) {
+                toastr.error("Có lỗi xảy ra. Vui lòng thử lại.");
+            }
+        }
+    }
 </script>

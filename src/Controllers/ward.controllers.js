@@ -80,11 +80,23 @@ const getWardsByDistrictName = async (req, res) => {
     }
 };
 
+const getWardById = async (req, res) => {
+    const wardId = req.params.id;
+
+    try {
+        const response = await WardService.getWardById(wardId);
+        return res.status(200).json(response);
+    } catch (e) {
+        return res.status(500).json({ message: e.message });
+    }
+};
+
 module.exports = {
     createWard,
     updateWard,
     deleteWard,
     getAllWard,
     getDetailWard,
-    getWardsByDistrictName
+    getWardsByDistrictName,
+    getWardById
 }
