@@ -6,4 +6,12 @@ router.get("/", (req, res) => {
   res.render("controlPoint/point");
 });
 
+router.get("/submap", (req, res) => {
+  res.render("controlPoint/submap", { layout: false });
+});
+
+router.get("/:id", (req, res) => {
+  res.render("controlPoint/detail");
+});
+
 module.exports = router;
