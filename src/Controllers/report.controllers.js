@@ -12,6 +12,7 @@ const createReport = async (req, res) => {
             }
         })
         const savedFile = (await reportImgService.sendReportImg(files)).data;
+        const panelId = req.params.id
         const locate = [req.query.lng, req.query.lat];
         const district = req.query.district
         const ward = req.query.ward
