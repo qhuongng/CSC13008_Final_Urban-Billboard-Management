@@ -92,6 +92,33 @@ const getAllPoint = () => {
     });
 };
 
+const getPointById = (id) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const point = await Point.findById(id);
+            if (point === null) {
+                resolve({
+                    status: "OK",
+                    message: "The Point is not defined",
+                });
+            }
+            const newPoint = { ...point.toObject() };
+            const wardName = (await wardServices.getWardName(newPoint.area.ward, newPoint.area.district)).data;
+            const districtName = (await districtServices.getDistrictName(newPoint.area.district)).data;
+            newPoint.area = { ward: wardName, district: districtName };
+            newPoint.positionType = (await positionServices.getPositionName(newPoint.positionType)).data;
+            newPoint.formAdvertising = (await adsFormServices.getAdsFormName(newPoint.formAdvertising)).data;
+            resolve({
+                status: "OK",
+                message: "SUCCESS",
+                data: newPoint,
+            });
+        } catch (e) {
+            reject(e);
+        }
+    });
+}
+
 const deletePoint = (id) => {
     return new Promise(async (resolve, reject) => {
         try {
@@ -180,6 +207,7 @@ const updateHavePanel = (id) => {
 module.exports = {
     createPoint,
     getAllPoint,
+    getPointById,
     deletePoint,
     updatePoint,
     updateHavePanel
