@@ -110,24 +110,6 @@ const getAllReport = () => {
     })
 }
 
-const updateAction = (reportId, state, action) => {
-    return new Promise(async (resolve, reject) => {
-        try {
-            const thisReport = await Report.findById(reportId);
-            if (!thisReport) {
-                reject({
-                    status: 'ERR',
-                    message: 'reportId does not exist'
-                })
-            }
-            thisReport.state = state
-            thisReport.actionHandler = action
-            await thisReport.save();
-        } catch (e) {
-            reject(e)
-        }
-    })
-}
 const getReportbyId = (id) => {
     return new Promise(async (resolve, reject) => {
         try {
@@ -183,7 +165,7 @@ const getReportByDis = async (disName) => {
     }
 };
 
-const getReportByWardAndDis = async (wardName,disName) => {
+const getReportByWardAndDis = async (wardName, disName) => {
     try {
         const reports = await Report.find({ ward: wardName, district: disName });
 
@@ -217,7 +199,7 @@ const getReportByEmail = async (email) => {
     }
 };
 
-const getReportByWardAndDisAndEmail = async (wardName,disName,email) => {
+const getReportByWardAndDisAndEmail = async (wardName, disName, email) => {
     try {
         const reports = await Report.find({ ward: wardName, district: disName, email: email });
 
@@ -236,6 +218,7 @@ const getReportByWardAndDisAndEmail = async (wardName,disName,email) => {
 
 const updateReport = (id, data) => {
     return new Promise(async (resolve, reject) => {
+        console.log(data);
         try {
             const checkReport = await Report.findOne({
                 _id: id
@@ -244,6 +227,51 @@ const updateReport = (id, data) => {
                 reject('The Report is not defined');
             }
             const updatedReport = await Report.findByIdAndUpdate(id, data, { new: true })
+            let color, status
+            if (data.state == '1') {
+                color = 'yellow';
+                status = "Đang xử lí";
+            } else if (data.state == '2') {
+                color = 'green';
+                status = "Đã xử lí";
+            }
+            const mailOptions = {
+                from: 'Admin Map Application',
+                to: updatedReport.email,
+                subject: 'Cập nhập tình trạng báo cáo',
+                html: `
+                <h3>Xin chào ${updatedReport.name}</h3>
+                <p>Báo cáo của bạn đã được xem xét. Dưới đây là tình trạng báo cáo của bạn</p>
+                <table>
+                    <tr>
+                        <td><h4>Địa chỉ: </h4></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td><h4>${updatedReport.address}</h4></td>
+                    </tr>   
+                    <tr>
+                        <td><h4>Tình trạng xử lí: </h4></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td style="color: ${color};"><h4>${status}</h4></td>
+                    </tr>
+                    <tr>
+                        <td><h4>Cách thức xử lí: </h4></td>
+                        <td></td>
+                        <td></td>
+                        <td></td><td style="color: ${color};"><h4>${data.actionHandler}</h4></td>
+                    </tr>
+                </table>
+                `
+            };
+            transporter.sendMail(mailOptions, (error, info) => {
+                if (error) {
+                    console.log(error);
+                    reject(error)
+                }
+            })
             resolve({
                 status: 'OK',
                 message: 'Update Report success',
