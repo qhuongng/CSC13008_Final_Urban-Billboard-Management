@@ -203,10 +203,22 @@ const getPointByWardAndDis = async (wardName, disName) => {
 
         const points = await Point.find({ 'area.ward': ward.wardId, 'area.district': district.disId });
 
+        const updatePoints = await Promise.all(
+            points.map(async (point) => {
+                const newPoint = { ...point.toObject() };
+                const wardName = (await wardServices.getWardName(newPoint.area.ward, newPoint.area.district)).data;
+                const districtName = (await districtServices.getDistrictName(newPoint.area.district)).data;
+                newPoint.area = { ward: wardName, district: districtName };
+                newPoint.positionType = (await positionServices.getPositionName(newPoint.positionType)).data;
+                newPoint.formAdvertising = (await adsFormServices.getAdsFormName(newPoint.formAdvertising)).data;
+                return newPoint;
+            })
+        );
+
         return {
             status: 'OK',
             message: 'SUCCESS',
-            data: points,
+            data: updatePoints,
         };
     } catch (error) {
         return {
