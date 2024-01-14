@@ -37,6 +37,25 @@ const getAllPoint = async (req, res) => {
     }
 };
 
+const getPointById = async (req, res) => {
+    try {
+        const pointId = req.params.id;
+        if (!pointId) {
+            return res.status(404).json({
+                status: "ERR",
+                message: "The pointId is required",
+            });
+        }
+
+        const response = await PointService.getPointById(pointId);
+        return res.status(200).json(response);
+    } catch (e) {
+        return res.status(404).json({
+            message: e,
+        });
+    }
+}
+
 const deletePoint = async (req, res) => {
     try {
         const pointId = req.params.id;
@@ -114,6 +133,7 @@ const getPointByWardAndDis = async (req, res) => {
 module.exports = {
     createPoint,
     getAllPoint,
+    getPointById,
     deletePoint,
     updatePoint,
     getPointByDis,

@@ -1,0 +1,583 @@
+<script src="http://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.2/js/toastr.min.js"></script>
+<link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
+<style>
+    .district-dropdown,
+    .ward-dropdown {
+        display: none;
+    }
+</style>
+<div class="container mt-3">
+    <!-- Page Title -->
+    <div class="mt-3 d-flex justify-content-between">
+        <h2 class="mb-4">Các điểm đặt quảng cáo</h2>
+        <div>
+            <button class="btn btn-outline-success mr-2" data-toggle="modal" data-target="#addModal">
+                <i class="bi bi-plus-circle"></i>
+                Thêm hình thức báo cáo
+            </button>
+
+        </div>
+    </div>
+    <!-- Table -->
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">Tên điểm đặt</th>
+                    <th scope="col">Toạ độ</th>
+                    <th scope="col">Địa chỉ</th>
+                    <th scope="col">Hình thức quảng cáo</th>
+                    <th scope="col">Đã quy hoạch</th>
+                    <th scope="col">&nbsp;</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+</div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<div class="modal fade" id="pointDetailModal" tabindex="-1" role="dialog" aria-labelledby="pointDetailModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="pointDetailModalLabel">Chi tiết điểm đặt</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="pointDetailBody">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">
+                    Đóng
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Modal for Add and Edit -->
+<div class="modal fade" id="addModal" tabindex="-1" role="dialog" aria-labelledby="addModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addModalLabel">Thêm điểm quảng cáo</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="addForm">
+                    <div class="form-group">
+                        <label for="add-data">Tên điểm đặt quảng cáo</label>
+                        <input type="text" class="form-control" id="add-data" placeholder="VD: Tên điểm đặt quảng cáo"
+                            required />
+                    </div>
+                    <div class="form-group">
+                        <label for="add-data">Toạ độ</label>
+                        <input type="text" class="form-control" id="lnglat"
+                            onclick='window.open("http://localhost:3500/api/controlPoint/submap", "popup" , "width=600,height=600" )'
+                            placeholder="Click me to open subwindow">
+                    </div>
+                    <div class="form-group">
+                        <label for="add-data">Địa chỉ</label>
+                        <input type="text" class="form-control" id="address"
+                            onclick='window.open("http://localhost:3500/api/controlPoint/submap", "popup" , "width=600,height=600" )'
+                            placeholder="Click me to open subwindow">
+                    </div>
+                    <div class="form-group">
+                        <label for="add-data">Loại vị trí</label>
+                        <select class="form-control" id="selectPositionType" name="selectPositionType">
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="add-data">Hình thức quảng cáo</label>
+                        <select class="form-control" id="selectAdsForm" name="selectAdsForm">
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="checkRole">Khu vực</label>
+                        <div class="d-flex justify-content-around">
+                            <div class="form-check">
+                                <label class="form-check-label">
+                                    <input type="radio" class="form-check-input" name="optradio" id="wardRadio"
+                                        value="ward">Phường
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <label class="form-check-label">
+                                    <input type="radio" class="form-check-input" name="optradio" id="districtRadio"
+                                        value="district">Quận
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group ward-dropdown" id="districtDropdown">
+                        <label for="selectDistrict">Chọn Quận</label>
+                        <select class="form-control" id="selectDistrict" name="selectDistrict">
+                        </select>
+                    </div>
+
+                    <div class="form-group district-dropdown" id="wardDropdown">
+                        <label for="selectWard">Chọn Phường</label>
+                        <select class="form-control" id="selectWard" name="selectWard">
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="add-data">Hình ảnh</label>
+                        <input type="file" class="form-control" id="picturePoint" required />
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-success" data-dismiss="modal">
+                    <i class="bi bi-skip-backward-fill"></i>
+                    Quay lại
+                </button>
+                <button type="button" class="btn btn-outline-primary" onclick="addPoint()">
+                    <i class="bi bi-check2"></i>
+                    Lưu
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editModalLabel">Chỉnh sửa thông tin hình thức báo cáo</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="editForm">
+                    <div class="form-group">
+                        <label for="edited-id">ID hình thức báo cáo </label>
+                        <input type="text" class="form-control" id="edited-id" readonly />
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-data">Tên hình thức báo cáo mới</label>
+                        <input type="text" class="form-control" id="edit-data" placeholder="Nhập tên hình thức báo cáo"
+                            required />
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-success" data-dismiss="modal">
+                    <i class="bi bi-skip-backward-fill"></i>
+                    Quay lại
+                </button>
+                <button type="button" class="btn btn-outline-primary" onclick="editSelectedRow()">
+                    <i class="bi bi-check2"></i>
+                    Lưu
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Xác nhận xóa hình thức báo cáo</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <label for="deleted-id">ID hình thức báo cáo</label>
+                <input type="text" class="form-control" id="deleted-id" readonly />
+                <br>Bạn có chắc chắn muốn xóa hình thức báo cáo này?
+            </div>
+            <div class="modal-footer justify-content-end">
+                <button type="button" class="btn btn-outline-success" data-dismiss="modal">
+                    <i class="bi bi-skip-backward-fill"></i>
+                    Quay lại
+                </button>
+                <button type="button" class="btn btn-outline-danger" onclick="deleteSelectedRow()">
+                    <i class="bi bi-trash-fill"></i>
+                    Xóa
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var listPoint;
+
+    toastr.options.closeButton = true;
+    toastr.options = {
+        "closeButton": true,
+        "debug": false,
+        "newestOnTop": false,
+        "progressBar": false,
+        "positionClass": "toast-top-center",
+        "preventDuplicates": false,
+        "onclick": null,
+        "showDuration": "300",
+        "hideDuration": "300",
+        "timeOut": "2000",
+        "extendedTimeOut": "1000",
+        "showEasing": "swing",
+        "hideEasing": "linear",
+        "showMethod": "fadeIn",
+        "hideMethod": "fadeOut"
+    }
+    try {
+        fetch('http://localhost:3500/api/positionType/getAllTypePos')
+            .then(response => response.json())
+            .then(data => {
+                const listPositionType = data.data;
+                const selectPositionType = document.getElementById('selectPositionType');
+                selectPositionType.innerHTML = '';
+                listPositionType.forEach(item => {
+                    const option = document.createElement('option');
+                    option.className = `${item.posId}`;
+                    option.value = item.posId;
+                    option.innerText = item.posName;
+                    selectPositionType.appendChild(option);
+                });
+            }).catch(err => console.log(err));
+    }
+    catch (e) {
+        console.log(e)
+    }
+
+    try {
+        fetch('http://localhost:3500/api/adsForm/getAllForm')
+            .then(response => response.json())
+            .then(data => {
+                const listAdsForm = data.data;
+                const selectAdsForm = document.getElementById('selectAdsForm');
+                selectAdsForm.innerHTML = '';
+                listAdsForm.forEach(item => {
+                    const option = document.createElement('option');
+                    option.className = `${item.formId}`;
+                    option.value = item.formId;
+                    option.innerText = item.formName;
+                    selectAdsForm.appendChild(option);
+                });
+            }).catch(err => console.log(err));
+    } catch (e) {
+        console.log(e)
+    }
+
+
+
+    var listWardOfEachDistrict = [];
+    const selectDistrict = document.getElementById('selectDistrict');
+    const selectWard = document.getElementById('selectWard');
+
+    selectDistrict.addEventListener('change', function () {
+        const selectedDistrictId = this.value;
+
+        const listWardOfSelectedDistrict = listWardOfEachDistrict.filter(ward => ward.districtRefId == selectedDistrictId);
+        selectWard.innerHTML = '';
+        listWardOfSelectedDistrict.forEach(ward => {
+            const option = document.createElement('option');
+            option.className = `${ward.wardId}`;
+            option.value = ward.wardId;
+            option.innerText = ward.wardName;
+            selectWard.appendChild(option);
+        });
+    });
+
+    try {
+        fetch('http://localhost:3500/api/district/getAll-dis')
+            .then(response => response.json())
+            .then(data => {
+                const listWard = data.data;
+                const selectWard = document.getElementById('selectDistrict');
+                selectWard.innerHTML = '';
+                listWard.forEach(item => {
+                    const option = document.createElement('option');
+                    option.className = `${item.disId}`;
+                    option.value = item.disId;
+                    option.innerText = item.disName;
+                    selectWard.appendChild(option);
+                });
+            }).catch(err => console.log(err));
+    } catch (e) {
+        console.log(e)
+    }
+
+    try {
+        fetch('http://localhost:3500/api/ward/getAll-ward')
+            .then(response => response.json())
+            .then(data => {
+                const listWard = data.data;
+                const selectWard = document.getElementById('selectWard');
+                selectWard.innerHTML = '';
+                const listDistrict = document.querySelectorAll('#selectDistrict option');
+                const districtRadio = document.getElementById('districtRadio');
+                listWard.forEach(ward => {
+                    listWardOfEachDistrict.push(ward);
+                });
+                const listWardOfSelectedDistrict = listWardOfEachDistrict.filter(ward => ward.districtRefId == document.getElementById('selectDistrict').value);
+                selectWard.innerHTML = '';
+                listWardOfSelectedDistrict.forEach(ward => {
+                    const option = document.createElement('option');
+                    option.className = `${ward.wardId}`;
+                    option.value = ward.wardId;
+                    option.innerText = ward.wardName;
+                    selectWard.appendChild(option);
+                });
+
+            }).catch(err => console.log(err));
+
+    } catch (e) {
+        console.log(e)
+    }
+
+    document.querySelectorAll('input[name="optradio"]').forEach(function (radio) {
+        radio.addEventListener('change', function () {
+            const districtDropdown = document.getElementById('districtDropdown');
+            const wardDropdown = document.getElementById('wardDropdown');
+            if (this.value === 'ward') {
+                districtDropdown.style.display = 'block';
+                wardDropdown.style.display = 'block';
+            } else {
+                districtDropdown.style.display = 'block';
+                wardDropdown.style.display = 'none';
+            }
+        });
+    });
+
+    $('#pointDetailModal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget);
+        var pointId = button.data('id');
+
+        try {
+            fetch(`http://localhost:3500/api/point/getPoint/${pointId}`)
+                .then(response => response.json())
+                .then(data => {
+                    const point = data.data;
+                    const modalBody = document.getElementById('pointDetailBody');
+
+                    modalBody.innerHTML = `
+                    <p><strong>ID:</strong> ${point._id}</p>
+                    <p><strong>Tên điểm đặt:</strong> ${point.name}</p>
+                    <p><strong>Toạ độ:</strong> 
+                        <a href="#" onclick="showPosition(${point.locate[0]}, ${point.locate[1]})" >
+                            ${point.locate[0]}, ${point.locate[1]}
+                        </a>
+                    </p>
+                    <p><strong>Địa chỉ:</strong> ${point.address}</p>
+                    <p><strong>Khu vực:</strong> ${point.area.ward}, ${point.area.district}</p>
+                    <p><strong>Loại vị trí:</strong> ${point.positionType}</p>
+                    <p><strong>Hình thức quảng cáo:</strong> ${point.formAdvertising}</p>
+                    <p><strong>Có quảng cáo:</strong> ${point.havePanel ? "Có" : "Không"}</p>
+                    <p><strong>Đã quy hoạch:</strong> ${point.isZoning ? "V" : "X"}</p>
+                    <p><strong>Ảnh:</strong> <img src="${point.picturePoint}" alt="Image" style="width: 100%;"></p>
+                `;
+                }).catch(err => console.log(err));
+        } catch (e) {
+            console.log(e)
+        }
+    });
+
+    fetch('http://localhost:3500/api/point/getAllPoint')
+        .then(response => response.json())
+        .then(data => {
+            listPoint = data.data;
+            listPoint.forEach(item => {
+                const id = item._id;
+                const row = `<tr>
+                                <th scope="row">
+                                    <a href="#" data-toggle="modal" data-target="#pointDetailModal"
+                                        data-id="${id}">${id.substr(-4)}</a>
+                                </th>
+                                <td>${item.name}</td>
+                                <td>${item.locate[0]}\n${item.locate[1]}</td>
+                                <td>${item.address}</td>
+                                <td>${item.formAdvertising}</td>
+                                <td>${item.isZoning ? "V" : "X"}</td>
+                                <td class="text-nowrap overflow-hidden" style="width: 1%;">
+                                    <button class="btn btn-sm btn-outline-primary" onclick="editRow('${id}')" data-toggle="modal"
+                                        data-target="#editModal">
+                                        <i class="bi bi-pencil"></i>
+                                        Edit
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger" onclick="deleteRow('${id}')" data-toggle="modal"
+                                        data-target="#deleteModal">
+                                        <i class="bi bi-trash"></i>
+                                        Delete
+                                    </button>
+                                </td>
+                            </tr>`;
+                $('tbody').append(row);
+            });
+        })
+        .catch(err => console.log(err));
+
+    async function addPoint() {
+        const name = $('#add-data').val();
+        const lnglat = $('#lnglat').val();
+        const address = $('#address').val();
+        const positionType = $('#add-data').val();
+        const formAdvertising = $('#selectAdsForm').val();
+        const district = $('#selectDistrict').val();
+        const ward = $('#selectWard').val();
+        const havePanel = false;
+        const picturePoint = $('#picturePoint').val();
+        const isZoning = false;
+
+        console.log(name, lnglat, address, positionType, formAdvertising, district, ward, havePanel, picturePoint)
+
+        if (!name) {
+            toastr.error("Vui lòng điền tên điểm đặt.");
+            document.getElementById('add-data').focus();
+        } else if (!lnglat) {
+            toastr.error("Vui lòng chọn toạ độ.");
+            document.getElementById('lnglat').focus();
+        } else if (!address) {
+            toastr.error("Vui lòng chọn địa chỉ.");
+            document.getElementById('address').focus();
+        } else if (!positionType) {
+            toastr.error("Vui lòng điền loại vị trí.");
+            document.getElementById('add-data').focus();
+        } else if (!formAdvertising) {
+            toastr.error("Vui lòng chọn hình thức quảng cáo.");
+            document.getElementById('selectAdsForm').focus();
+        } else if (!district) {
+            toastr.error("Vui lòng chọn quận.");
+            document.getElementById('selectDistrict').focus();
+        } else if (!ward) {
+            toastr.error("Vui lòng chọn phường.");
+            document.getElementById('selectWard').focus();
+        } else if (!picturePoint) {
+            toastr.error("Vui lòng chọn ảnh.");
+            document.getElementById('picturePoint').focus();
+        } else {
+            try {
+                const response = await fetch('http://localhost:3500/api/point/addPoint', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        name: name,
+                        locate: lnglat.split(',').map(item => parseFloat(item)),
+                        address: address,
+                        area: {
+                            ward: ward,
+                            district: district
+                        },
+                        positionType: positionType,
+                        formAdvertising: formAdvertising,
+                        havePanel: havePanel
+                    }
+                    )
+                })
+
+                if (response.status === 200) {
+                    toastr.options.onHidden = () => { window.location.href = "/api/controlPoint" }
+                    toastr.success("Thêm điểm đặt quảng cáo thành công.")
+                } else {
+                    toastr.error("Tên điểm đặt quảng cáo đã tồn tại.");
+                }
+            }
+            catch (e) {
+                toastr.error("Có lỗi xảy ra. Vui lòng thử lại.");
+            }
+        }
+    }
+
+
+    function editRow(rowIdentifier) {
+        const numericPart = parseInt(rowIdentifier.slice(1), 10);
+
+        const row = document.querySelector(`tbody tr:nth-child(${numericPart})`);
+
+        if (row) {
+
+            document.getElementById('edited-id').value = rowIdentifier;
+        } else {
+            console.log(`Row ${rowIdentifier} not found.`);
+        }
+    }
+
+    function deleteRow(rowIdentifier) {
+        console.log(rowIdentifier)
+        const numericPart = parseInt(rowIdentifier.slice(1), 10);
+        const row = document.querySelector(`tbody tr:nth-child(${numericPart})`);
+
+        if (row) {
+            console.log(`Deleting row ${rowIdentifier}`);
+            document.getElementById('deleted-id').value = rowIdentifier;
+        } else {
+            console.log(`Row ${rowIdentifier} not found.`);
+        }
+    }
+
+    async function editSelectedRow() {
+        const id = document.getElementById('edited-id').value;
+        const editedData = $('#edit-data');
+
+        if (!editedData.val()) {
+            toastr.error("Vui lòng điền tên hình thức báo cáo.");
+            editedData.addClass('border-danger');
+            editedData.focus();
+        }
+        else {
+            editedData.removeClass('border-danger');
+            try {
+                //đang sửa tới đây
+                const response = await fetch('http://localhost:3500/api/reportType/updateReportType', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ id: id, reportName: editedData.val() })
+                })
+                if (response.status === 200) {
+                    toastr.options.onHidden = () => { window.location.href = "/api/controlReportType" }
+                    toastr.success("Chỉnh sửa thông tin hình thức báo cáo thành công.")
+                } else {
+                    toastr.error("Tên hình thức báo cáo đã tồn tại.");
+                }
+            } catch (e) {
+                toastr.error("Có lỗi xảy ra. Vui lòng thử lại.");
+            }
+        }
+    }
+
+    function updateInputLnglat(lng, lat) {
+        document.getElementById("lnglat").value = `${lng}, ${lat}`;
+    }
+
+    function updateInputAddress(inputName, inputAddress) {
+        document.getElementById("address").value = `${inputName}, ${inputAddress}`;
+    }
+
+    function showPosition(lng, lat) {
+        try {
+            const popup = window.open('http://localhost:3500/api/controlPoint/submap', 'popup', 'width=600,height=600');
+            popup.onload = () => {
+                if (popup.opener) {
+                    popup.opener.showAlert();
+                }
+            }
+        } catch (e) {
+            console.log(e)
+        }
+    }
+</script>
