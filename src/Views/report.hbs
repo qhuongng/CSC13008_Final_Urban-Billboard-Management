@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Báo cáo</title>
 
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" crossorigin="anonymous"></script>
+
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 
     <script src="https://cdn.tiny.cloud/1/ezd73nxbzc7bu6e86g2l82jbbffke0mwevwrnyvc5q8h89j6/tinymce/6/tinymce.min.js"
@@ -129,7 +131,7 @@
                         }
                     });
                 }
-                else if (/[0-9]{10}/.test(phoneInput)) {
+                else if (!/^[0-9]{10}$/.test(phoneInput.val())) {
                     toastr.error("Số điện thoại không hợp lệ (số điện thoại gồm 10 chữ số).");
 
                     let inputs = [nameInput, emailInput, contentContainer];
