@@ -21,6 +21,7 @@ const RegistrationRouter = require('./registration.routes');
 const controlPointRouter = require('./controlPoint.routes');
 const controlReportRouter = require('./controlReport.routes');
 const licenseRouter = require('./license.routes');
+const ProfileRouter = require('./profile.routes')
 const licenseImgRouter = require('./licenseImg.routes');
 
 const routes = (app) => {
@@ -47,6 +48,7 @@ const routes = (app) => {
   app.use('/api/controlPoint', controlPointRouter);
   app.use('/api/controlReport', controlReportRouter);
   app.use('/api/license', licenseRouter);
+  app.use('/api/profile', ProfileRouter)
   app.use('/api/licenseImg', licenseImgRouter);
   //
   app.get("/", (req, res) => {
