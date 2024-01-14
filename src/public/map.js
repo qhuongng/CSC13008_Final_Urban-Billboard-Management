@@ -117,6 +117,7 @@ function setupMap(center) {
         accessToken: mapboxgl.accessToken,
         mapboxgl: mapboxgl,
         reverseGeocode: true,
+        marker: false,
         language: "en-US, vi-VN",
     });
 
@@ -130,6 +131,10 @@ function setupMap(center) {
         if (marker) {
             marker.remove();
         }
+
+        marker = new mapboxgl.Marker({ color: "#0000ff" })
+            .setLngLat(e.result.center)
+            .addTo(map);
 
         reverseGeocode({ lng: e.result.center[0], lat: e.result.center[1] }, false);
     });
