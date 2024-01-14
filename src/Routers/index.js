@@ -13,6 +13,7 @@ const OtpRouter = require('./otp.routes');
 const controlWardDistrictRouter = require('./controlward_district.routes');
 const { authLogin } = require('../Middleware/authMiddleware');
 const reportStatisticsRouter = require('./reportStatistics.routes');
+const wardStatisticsRouter = require('./wardStatistics.routes')
 const controlPanelTypeRouter = require('./controlPanelType.routes');
 const controlReportTypeRouter = require('./controlReportType.routes');
 const RegistrationRouter = require('./registration.routes');
@@ -35,6 +36,7 @@ const routes = (app) => {
   app.use('/api/otp', OtpRouter);
   app.use('/api/controlWardDistrict', controlWardDistrictRouter);
   app.use('/api/reportStatistics', reportStatisticsRouter);
+  app.use('/api/wardStatistics', wardStatisticsRouter);
   app.use('/api/controlPanelType', controlPanelTypeRouter);
   app.use('/api/controlReportType', controlReportTypeRouter);
   app.use('/api/registration', RegistrationRouter);

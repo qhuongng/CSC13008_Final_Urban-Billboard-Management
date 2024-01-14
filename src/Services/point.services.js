@@ -177,10 +177,50 @@ const updateHavePanel = (id) => {
         }
     })
 }
+
+const getPointByDis = async (disName) => {
+    try {
+        const district = await District.findOne({ disName: disName });
+        const points = await Point.find({ 'area.district': district.disId });
+
+        return {
+            status: 'OK',
+            message: 'SUCCESS',
+            data: points,
+        };
+    } catch (error) {
+        return {
+            status: 'ERR',
+            message: error.message,
+        };
+    }
+};
+
+const getPointByWardAndDis = async (wardName, disName) => {
+    try {
+        const ward = await Ward.findOne({ wardName: wardName });
+        const district = await District.findOne({ disName: disName });
+
+        const points = await Point.find({ 'area.ward': ward.wardId, 'area.district': district.disId });
+
+        return {
+            status: 'OK',
+            message: 'SUCCESS',
+            data: points,
+        };
+    } catch (error) {
+        return {
+            status: 'ERR',
+            message: error.message,
+        };
+    }
+};
 module.exports = {
     createPoint,
     getAllPoint,
     deletePoint,
     updatePoint,
-    updateHavePanel
+    updateHavePanel,
+    getPointByDis,
+    getPointByWardAndDis
 };
