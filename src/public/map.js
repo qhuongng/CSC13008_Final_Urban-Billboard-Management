@@ -434,7 +434,7 @@ function setupMap(center) {
                 id: "reported-point-zoned",
                 type: "circle",
                 source: "billboardPos",
-                filter: ["all", ["!", ["has", "point_count"]], ["any", ["!=", ["get", "pointReport"], 0], ["==", ["get", "isReportedAtPanelLevel"], true]]],
+                filter: ["all", ["!", ["has", "point_count"]], ["any", ["==", ["get", "pointReport"], true], ["==", ["get", "isReportedAtPanelLevel"], true]]],
                 layout: {
                     "visibility": "visible"
                 },
