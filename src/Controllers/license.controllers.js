@@ -2,16 +2,17 @@ const licenseServices = require('../Services/license.services')
 const licenseImgServices = require('../Services/licenseImg.services')
 
 const createLicense = async (req, res) => {
+    console.log(req.query);
     try {
-
         const file = {
             data: req.file.buffer,
             contentType: req.file.mimetype
         }
-        const savedFile = (await licenseImgServices.sendLicenseImg(file)).data;
-        const imageId = savedFile._id;
-        const { idPoint, idPanel, content, companyName, companyEmail, companyPhone, companyAddress, startDay, endDay } = req.body;
-        console.log(req.body);
+        const imageId = (await licenseImgServices.sendLicenseImg(file)).data._id;
+        const idPoint = req.query.point;
+        const idPanel = req.query.panel;
+        const { content, companyName, companyEmail, companyPhone, companyAddress, startDay, endDay } = req.body;
+        console.log([idPoint, idPanel, content, imageId, companyName, companyEmail, companyPhone, companyAddress, startDay, endDay]);
         const response = await licenseServices.createLicense(idPoint, idPanel, content, imageId, companyName, companyEmail, companyPhone, companyAddress, startDay, endDay);
         if (response.status === "OK") {
             res.status(200).json(response)

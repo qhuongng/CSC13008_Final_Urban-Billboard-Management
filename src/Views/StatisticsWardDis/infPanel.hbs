@@ -24,7 +24,7 @@
                     </div>
                     <div class="form-group col-9">
                         <label for="district">Phường</label>
-                        <div id="wardCheckboxes" class="d-flex flex-wrap mt-2">
+                        <div id="wardCheckboxes" class="d-flex flex-wrap">
                             <!-- Checkboxes for wards will be dynamically added here -->
                         </div>
                     </div>
@@ -85,16 +85,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-outline-success" data-dismiss="modal">
-                                    <i class="bi bi-skip-backward-fill"></i>
-                                    Quay lại
-                                </button>
-                                <a class="btn btn-outline-primary float-right text-nowrap" href="/api/license"
-                                    id="licenseButton">
-                                    <i class="bi bi-envelope-paper-fill"></i>
-                                    Yêu cầu cấp phép
-                                </a>
+                            <div class="modal-footer" id="modal-footer">
                             </div>
                         </div>
                     </div>
@@ -331,8 +322,10 @@
         }
 
         async function loadDetails(panel) {
+            // clear the previous info from the modal
             document.getElementById('billboard-info').innerHTML = "";
             document.getElementById('modal-accordion').innerHTML = "";
+            document.getElementById('modal-footer').innerHTML = "";
 
             let licenseImgId;
 
@@ -363,6 +356,7 @@
 
             document.getElementById('billboard-info').innerHTML = details;
 
+            // load licenses for panel
             let licenses = [];
 
             await fetch(`http://localhost:3500/api/license/getAllLicense`)
@@ -426,6 +420,19 @@
 
                 document.getElementById("modal-accordion").innerHTML = panelLicenseHtml;
             }
+
+            // insert the license request button with props into the modal footer
+            let modalFooterHtml = `<button type="button" class="btn btn-outline-success" data-dismiss="modal">
+                                        <i class="bi bi-skip-backward-fill"></i>
+                                        Quay lại
+                                    </button>
+                                    <a class="btn btn-outline-primary float-right text-nowrap" href="/api/license/?point=${panel.idPoint}&panel=${panel._id}"
+                                        id="licenseButton">
+                                        <i class="bi bi-envelope-paper-fill"></i>
+                                        Yêu cầu cấp phép
+                                    </a>`;
+
+            document.getElementById("modal-footer").innerHTML = modalFooterHtml;
         }
 
         function highlightRow(row) {
@@ -510,16 +517,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-outline-success" data-dismiss="modal">
-                                    <i class="bi bi-skip-backward-fill"></i>
-                                    Quay lại
-                                </button>
-                                <a class="btn btn-outline-primary float-right text-nowrap" href="/api/license"
-                                    id="licenseButton">
-                                    <i class="bi bi-envelope-paper-fill"></i>
-                                    Yêu cầu cấp phép
-                                </a>
+                            <div class="modal-footer" id="modal-footer">
                             </div>
                         </div>
                     </div>
@@ -693,6 +691,7 @@
         }
 
         async function loadDetails(panel) {
+            document.getElementById('modal-footer').innerHTML = "";
             document.getElementById('billboard-info').innerHTML = "";
             document.getElementById('modal-accordion').innerHTML = "";
 
@@ -789,6 +788,19 @@
 
                 document.getElementById("modal-accordion").innerHTML = panelLicenseHtml;
             }
+
+            // insert the license request button with props into the modal footer
+            let modalFooterHtml = `<button type="button" class="btn btn-outline-success" data-dismiss="modal">
+                                        <i class="bi bi-skip-backward-fill"></i>
+                                        Quay lại
+                                    </button>
+                                    <a class="btn btn-outline-primary float-right text-nowrap" href="/api/license/?point=${panel.idPoint}&panel=${panel._id}"
+                                        id="licenseButton">
+                                        <i class="bi bi-envelope-paper-fill"></i>
+                                        Yêu cầu cấp phép
+                                    </a>`;
+
+            document.getElementById("modal-footer").innerHTML = modalFooterHtml;
         }
 
 
