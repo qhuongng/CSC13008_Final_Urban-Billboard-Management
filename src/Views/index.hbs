@@ -70,7 +70,10 @@
                   </div>
                 </div>
                 <div class="modal-footer" id="place-modal-footer">
-                  <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Quay lại</button>
+                  <button type="button" class="btn btn-outline-success" data-dismiss="modal">
+                    <i class="bi bi-skip-backward-fill"></i>
+                    Quay lại
+                  </button>
                 </div>
               </div>
             </div>
@@ -88,15 +91,14 @@
                 </div>
                 <div class="modal-body" id="billboard-modal-body">
                   <ul class="nav nav-tabs mb-3" id="tab-content">
-                    <li class="nav-item"><a class="nav-link active" href="#billboard-permits" data-toggle="tab">Cấp
-                        phép</a>
+                    <li class="nav-item"><a class="nav-link active" href="#billboard-permits" data-toggle="tab">
+                        Cấp phép mới nhất</a>
                     </li>
                     <li class="nav-item"><a class="nav-link" href="#billboard-reports" data-toggle="tab">Báo cáo</a>
                     </li>
                   </ul>
                   <div class="tab-content">
-                    <div class="tab-pane" id="billboard-permits">
-                      TODO: cấp phép
+                    <div class="tab-pane active" id="billboard-permits">
                     </div>
                     <div class="tab-pane" id="billboard-reports">
                       <div id="panel-report-accordion">
@@ -105,7 +107,10 @@
                   </div>
                 </div>
                 <div class="modal-footer" id="billboard-modal-footer">
-                  <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Quay lại</button>
+                  <button type="button" class="btn btn-outline-success" data-dismiss="modal">
+                    <i class="bi bi-skip-backward-fill"></i>
+                    Quay lại
+                  </button>
                 </div>
               </div>
             </div>
@@ -126,7 +131,9 @@
                   </div>
                 </div>
                 <div class="modal-footer">
-                  <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Quay lại</button>
+                  <button type="button" class="btn btn-outline-success" data-dismiss="modal">
+                    <i class="bi bi-skip-backward-fill"></i>
+                    Quay lại</button>
                 </div>
               </div>
             </div>
@@ -135,8 +142,8 @@
       </div>
 
       <script>
-        function loadPanelDetail(item) {
-          // document.getElementById("billboard-permits").innerHTML = "";
+        async function loadPanelDetail(item) {
+          document.getElementById("billboard-permits").innerHTML = "";
           document.getElementById("panel-report-accordion").innerHTML = "";
 
           const info = JSON.parse(item);
@@ -168,7 +175,7 @@
                                                             Nội dung: ${report.content}
                                                             Hình ảnh đối tượng báo cáo:<br><br>
                                                             ${imgDivs}
-                                                            Tình trạng xử lí: <b>${report.state == 0 ? "Chưa xử lí" : "Đã xử lí"}</b><br>
+                                                            Tình trạng xử lí: <b style="color:${report.state == 0 ? 'red">Chưa xử lí' : report.state == 1 ? 'gold">Đang xử lí' : 'green">Đã xử lí'}</b><br>
                                                             Hình thức xử lí: <b>${report.actionHandler}</b></p>`
 
               panelReportHtml += `<div class="card">
@@ -189,6 +196,45 @@
 
             document.getElementById("panel-report-accordion").innerHTML = panelReportHtml;
           }
+
+          let latestLicense;
+
+          await fetch(`http://localhost:3500/api/license/getLicenseByIdPanel/${info.panelId}`)
+            .then(response => response.json())
+            .then(data => {
+              if (data.data.length > 0) {
+                let fetchedLicenses = data.data;
+                fetchedLicenses.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+                latestLicense = fetchedLicenses[0];
+              }
+            })
+            .catch(error => {
+              // Handle any errors that occurred during the fetch
+              console.error('Error fetching panel license:', error);
+            });
+
+          let panelLicenseHtml = '';
+
+          if (!latestLicense) {
+            document.getElementById("billboard-permits").innerHTML = '<p class="card-text">Bảng quảng cáo này chưa có yêu cầu cấp phép được duyệt.';
+          }
+          else {
+            panelLicenseHtml = `<h6 class="card-subtitle mb-2">Thông tin quảng cáo</h6>
+                                                    Nội dung quảng cáo: <b>${latestLicense.content}</b><br>
+                                                    Hình ảnh đính kèm:<br><br>
+                                                    <img class="img-fluid" src="http://localhost:3500/api/licenseImg/getImgLicense/${latestLicense.imageId}" alt=""><br>
+                                </p>
+                                <h6 class="card-subtitle mb-2">Thông tin công ty xin cấp phép</h6>
+                                <p class="card-text">Tên công ty: <b>${latestLicense.companyName}</b><br>
+                                                    Email: <b>${latestLicense.companyEmail}</b><br>
+                                                    Số điện thoại: <b>${latestLicense.companyPhone}</b><br>
+                                                    Ngày bắt đầu hợp đồng: <b>${latestLicense.startDay}</b><br>
+                                                    Ngày kết thúc hợp đồng: <b>${latestLicense.endDay}</b><br><br>
+                                </p>`;
+          }
+
+          document.getElementById("billboard-permits").innerHTML = panelLicenseHtml;
         }
 
         function loadFreePointReports(reports) {
@@ -217,7 +263,7 @@
                                                             Nội dung: ${report.content}
                                                             Hình ảnh đối tượng báo cáo:<br><br>
                                                             ${imgDivs}
-                                                            Tình trạng xử lí: <b>${report.state == 0 ? "Chưa xử lí" : "Đã xử lí"}</b><br>
+                                                            Tình trạng xử lí: <b style="color:${report.state == 0 ? 'red">Chưa xử lí' : report.state == 1 ? 'gold">Đang xử lí' : 'green">Đã xử lí'}</b><br>
                                                             Hình thức xử lí: <b>${report.actionHandler}</b></p>`
 
             freeReportHtml += `<div class="card">
