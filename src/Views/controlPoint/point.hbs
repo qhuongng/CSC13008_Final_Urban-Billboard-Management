@@ -357,7 +357,7 @@
         const lnglat = $('#lnglat').val();
         const address = $('#address').val();
         const positionType = $('#selectPositionType').val();
-        const formAdvertising = $('#selectAdsForm').val();
+        const formAdvertising = $('#selectAdsForm-add').val();
         const district = $('#district').val();
         const ward = $('#ward').val();
         const havePanel = false;
@@ -503,7 +503,7 @@
                 })
                     .then(response => response.json())
                     .then(data => {
-                        if (data.status === 200) {
+                        if (data.status === "OK") {
                             toastr.options.onHidden = () => { window.location.href = "/api/controlPoint" }
                             toastr.success("Xóa điểm đặt quảng cáo thành công.")
                         } else {
