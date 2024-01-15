@@ -16,7 +16,8 @@ router.get('/getAllLicense', licenseController.getAllLicense);
 router.get('/getLicenseByIdPanel/:id', licenseController.getAcceptedLicenseByIdPanel);
 router.get('/getLicenseByWardDis/:wardName/:districtName', licenseController.getLicenseByWardDis)
 router.get('/getLicenseByDis/:districtName', licenseController.getLicenseByDis)
-router.put('/udpateAccept', licenseController.updateAccept);
+router.put('/updateAccept', licenseController.updateAccept);
 router.delete('/deleteLicense/:id', licenseController.deleteLicense);
+router.put('/updateLicense/:id', licenseController.updateLicense);
 
 module.exports = router;

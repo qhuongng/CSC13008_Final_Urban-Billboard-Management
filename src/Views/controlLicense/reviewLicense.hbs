@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.2/js/toastr.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
+</head>
+
+<body>
+    <div class="control-responsive p-4 d-flex flex-column align-items-center">
+        <div class="container mt-3">
+            <h2 class="mb-4">Xử lý yêu cầu cấp phép</h2>
+
+            <div class="d-flex flex-column mb-4" id="filters-container">
+                <div class="row d-flex align-items-end" id="location-filters">
+                    <div class="form-group col-2">
+                        <label for="district">Quận</label>
+                        <select class="custom-select" id="districtSelect">
+                            <option value="">Tất cả quận</option>
+                        </select>
+                    </div>
+                    <div class="form-group col-9 ml-auto">
+                        <label for="ward">Phường</label>
+                        <select class="custom-select" id="wardSelect">
+                            <option value="">Tất cả phường</option>
+                        </select>
+                    </div>
+                    <div class="form-group col-1 ml-auto">
+                        <button type="button" class="btn btn-outline-primary text-nowrap float-right"
+                            onclick="filterLicenses()">
+                            <i class="bi bi-funnel"></i>
+                            Lọc
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <small class="text-muted">Click đúp vào một dòng để xem thông tin chi tiết.</small>
+            <div class="d-flex mt-2" id="info-container">
+                <div class="table-responsive">
+                    <table class="table table-hover" id="licensesTable">
+                        <thead>
+                            <tr>
+                                <th>ID điểm đặt</th>
+                                <th>ID bảng quảng cáo</th>
+                                <th>Tên công ty</th>
+                                <th>Email công ty</th>
+                                <th>Điện thoại liên lạc</th>
+                                <th>Tình trạng</th>
+                            </tr>
+                        </thead>
+                        <tbody id="licensesBody">
+
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Modal for detailed information -->
+                <div class="modal fade" id="detailsModal" tabindex="-1" role="dialog" aria-labelledby="info-modal-title"
+                    aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="info-modal-title">Thông tin chi tiết</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <div id="modalContent">
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-outline-success" data-dismiss="modal">
+                                    <i class="bi bi-skip-backward-fill"></i>
+                                    Quay lại
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+    </div>
+
+
+    <script>
+        toastr.options.closeButton = true;
+        toastr.options = {
+            "closeButton": true,
+            "debug": false,
+            "newestOnTop": false,
+            "progressBar": false,
+            "positionClass": "toast-top-center",
+            "preventDuplicates": false,
+            "onclick": null,
+            "showDuration": "300",
+            "hideDuration": "300",
+            "timeOut": "2000",
+            "extendedTimeOut": "1000",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+        }
+
+        async function filterLicenses() {
+            const wardSelect = document.getElementById('wardSelect');
+            const districtSelect = document.getElementById('districtSelect');
+            const txtDisInput = $('#districtSelect');
+
+            const wardInput = wardSelect.value;
+            const districtInput = districtSelect.value;
+
+            let url;
+
+            if (!districtInput && wardInput) {
+                toastr.error("Vui lòng chọn quận trước.");
+                txtDisInput.addClass('border-danger');
+                txtDisInput.removeClass('border-danger');
+                txtDisInput.focus();
+                return;
+            }
+
+            if (wardInput && districtInput) {
+                url = `http://localhost:3500/api/license/getLicenseByWardDis/${wardInput}/${districtInput}`;
+            } else if (districtInput) {
+                url = `http://localhost:3500/api/license/getLicenseByDis/${districtInput}`;
+            } else {
+                url = `http://localhost:3500/api/license/getAllLicense`;
+            }
+
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (data.status === 'OK') {
+                    displayLicenses(data.data);
+                } else {
+                    toastr.error(`Error: ${data.message}`);
+                }
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        }
+
+        async function displayLicenses(licenses) {
+            const licensesBody = document.getElementById('licensesBody');
+            licensesBody.innerHTML = '';
+
+            if (licenses.length === 0) {
+                // If no data, create a single row with a "No data" message
+                const noDataRow = document.createElement('tr');
+                const noDataCell = document.createElement('td');
+                noDataCell.setAttribute('colspan', '6');
+                noDataCell.textContent = 'Không có dữ liệu';
+                noDataCell.classList.add('text-center');
+                noDataRow.appendChild(noDataCell);
+                licensesBody.appendChild(noDataRow);
+            } else {
+                // If there is data, create rows for each point with isAccept equal to 0
+                licenses.filter(license => license.isAccept === 0).forEach(license => {
+                    const row = document.createElement('tr');
+
+                    row.innerHTML = `
+                <td>${license.idPoint}</td>
+                <td>${license.idPanel}</td>
+                <td>${license.companyName}</td>
+                <td>${license.companyEmail}</td>
+                <td>${license.companyPhone}</td>
+                <td style="color: ${getColorByAccept(license.isAccept)}">${formatAccept(license.isAccept)}</td>
+                <td>
+                    <button class="btn btn-success text-nowrap float-right" onclick="grantLicense('${license._id}')">Cấp phép</button>
+                </td>
+                <td>
+                    <button class="btn btn-danger text-nowrap float-right" onclick="denyLicense('${license._id}')">Từ chối</button>
+                </td>
+            `;
+
+                    row.addEventListener('dblclick', () => {
+                        loadDetails(license);
+                        $('#detailsModal').modal('show');
+                    });
+
+                    row.addEventListener('click', () => highlightRow(row));
+
+                    licensesBody.appendChild(row);
+                });
+            }
+        }
+
+        async function grantLicense(licenseId) {
+            try {
+                const response = await fetch(`http://localhost:3500/api/license/updateLicense/${licenseId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        isAccept: 1
+                    }),
+                });
+
+                const data = await response.json();
+
+                console.log(data)
+
+                if (data.status === 'OK') {
+                    toastr.success('Cấp phép thành công');
+                    filterLicenses();
+                } else {
+                    toastr.error('Cấp phép thất bại');
+                }
+            } catch (error) {
+                console.error('Error granting license:', error);
+            }
+        }
+
+        async function denyLicense(licenseId) {
+            try {
+                const response = await fetch(`http://localhost:3500/api/license/updateLicense/${licenseId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        isAccept: -1
+                    }),
+                });
+
+                const data = await response.json();
+
+                console.log(data)
+
+                if (data.status === 'OK') {
+                    toastr.success('Từ chối thành công');
+                    filterLicenses();
+                } else {
+                    toastr.error('Từ chối thất bại');
+                }
+            } catch (error) {
+                console.error('Error deny license:', error);
+            }
+        }
+
+        function getColorByAccept(accept) {
+            switch (accept) {
+                case -1:
+                    return 'red'
+                case 0:
+                    return 'gold';
+                case 1:
+                    return 'green';
+                default:
+                    return 'black';
+            }
+        }
+
+        function formatAccept(accept) {
+            switch (accept) {
+                case -1:
+                    return 'Bị từ chối'
+                case 0:
+                    return 'Chờ cấp phép';
+                case 1:
+                    return 'Đã cấp phép';
+                default:
+                    return 'Unknown';
+            }
+        }
+
+        async function loadDetails(license) {
+            document.getElementById('modalContent').innerHTML = "";
+
+            let address;
+            let panel;
+
+            await fetch(`http://localhost:3500/api/point/getPoint/${license.idPoint}`)
+                .then(response => response.json())
+                .then(data => {
+                    let point = data.data;
+                    address = point.address.trim() + ", " + point.area.ward + ", " + point.area.district;
+                });
+
+            await fetch(`http://localhost:3500/api/panel/getPanelById/${license.idPanel}`)
+                .then(response => response.json())
+                .then(data => {
+                    let fetched = data.data;
+                    panel = fetched.Paneltype + " (" + license.idPanel + ")";
+                });
+
+            let details = `<div id="licenseId">ID yêu cầu: <b>${license._id}</b></div><br><br>
+                            <h6 class="card-subtitle mb-2">Thông tin quảng cáo</h6>
+                            <p class="card-text">Địa chỉ điểm đặt: <b>${address}</b><br>
+                                                Bảng quảng cáo: <b>${panel}</b><br>
+                                                Nội dung quảng cáo:<br>${license.content}<br>
+                                                Hình ảnh đính kèm:<br><br>
+                                                <img class="img-fluid" src="http://localhost:3500/api/licenseImg/getImgLicense/${license.imageId}" alt=""><br><br>
+                            </p>
+                            <h6 class="card-subtitle mb-2">Thông tin công ty xin cấp phép</h6>
+                            <p class="card-text">Tên công ty: <b>${license.companyName}</b><br>
+                                                Email: <b>${license.companyEmail}</b><br>
+                                                Số điện thoại: <b>${license.companyPhone}</b><br>
+                                                Địa chỉ công ty: <b>${license.companyAddress}</b><br>
+                                                Ngày bắt đầu hợp đồng: <b>${license.startDay}</b><br>
+                                                Ngày kết thúc hợp đồng: <b>${license.endDay}</b><br><br>
+                                                Tình trạng xét duyệt: <b style="color:${license.isAccept == 1 ? 'green"> Đã duyệt' : license.isAccept == 0 ? 'gold"> Chưa duyệt' : 'red"> Bị từ chối'}</b>
+                            </p>`;
+
+            document.getElementById('modalContent').innerHTML = details;
+        }
+
+        function highlightRow(row) {
+            // Remove highlight from all rows
+            const rows = document.querySelectorAll('#licensesBody tr');
+            rows.forEach(r => r.classList.remove('highlighted'));
+
+            // Add highlight to the clicked row
+            row.classList.add('highlighted');
+        }
+
+        async function populateDropdowns() {
+            const wardSelect = document.getElementById('wardSelect');
+            const districtSelect = document.getElementById('districtSelect');
+
+            try {
+                const wardResponse = await fetch('http://localhost:3500/api/ward/getAll-ward');
+                const wardData = await wardResponse.json();
+
+                wardData.data.forEach(ward => {
+                    const option = document.createElement('option');
+                    option.value = ward.wardName;
+                    option.textContent = ward.wardName;
+                    wardSelect.appendChild(option);
+                });
+
+                const districtResponse = await fetch('http://localhost:3500/api/district/getAll-dis');
+                const districtData = await districtResponse.json();
+
+                districtData.data.forEach(dis => {
+                    const option = document.createElement('option');
+                    option.value = dis.disName;
+                    option.textContent = dis.disName;
+                    districtSelect.appendChild(option);
+                });
+
+                filterLicenses();
+            } catch (error) {
+                console.error('Error fetching ward and district data:', error);
+            }
+        }
+
+        async function populateWardsByDistrict() {
+            const districtSelect = document.getElementById('districtSelect');
+            const wardSelect = document.getElementById('wardSelect');
+
+            // Clear previous options
+            wardSelect.innerHTML = '<option value="">Tất Cả Phường</option>';
+
+            const selectedDistrict = districtSelect.value;
+
+            if (selectedDistrict) {
+                try {
+                    const wardResponse = await fetch(`http://localhost:3500/api/ward/getWard/${selectedDistrict}`);
+                    const wardData = await wardResponse.json();
+
+                    wardData.data.forEach(ward => {
+                        const option = document.createElement('option');
+                        option.value = ward.wardName;
+                        option.textContent = ward.wardName;
+                        wardSelect.appendChild(option);
+                    });
+
+                    filterLicenses();
+                } catch (error) {
+                    console.error('Error fetching ward data:', error);
+                }
+            }
+        }
+
+        // Attach the function to the change event of the district dropdown
+        document.getElementById('districtSelect').addEventListener('change', populateWardsByDistrict);
+
+        populateDropdowns();
+
+    </script>
+
+</body>
+
+</html>

@@ -219,6 +219,28 @@ const getLicenseByDis = (districtName) => {
 };
 
 
+const updateLicense = (id, data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const checkLicense = await License.findOne({
+                _id: id
+            })
+            if (checkLicense === null) {
+                reject('The License is not defined');
+            }
+            const updatedLicense = await License.findByIdAndUpdate(id, data, { new: true })
+            resolve({
+                status: 'OK',
+                message: 'Update License success',
+                data: updatedLicense
+            })
+        } catch (e) {
+            reject(e)
+        }
+    })
+}
+
+
 module.exports = {
     createLicense,
     getAllLicense,
@@ -226,5 +248,6 @@ module.exports = {
     updateAccept,
     getLicenseByWardDis,
     deleteLicense,
-    getLicenseByDis
+    getLicenseByDis,
+    updateLicense
 }

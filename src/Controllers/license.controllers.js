@@ -95,6 +95,26 @@ const getLicenseByDis = async (req, res) => {
     }
 }
 
+const updateLicense = async (req, res) => {
+    try {
+        const licenseId = req.params.id
+        const data = req.body
+        if (!licenseId) {
+            return res.status(404).json({
+                status: 'ERR',
+                message: 'The licenseId is required'
+            })
+        }
+
+        const response = await licenseServices.updateLicense(licenseId, data)
+        return res.status(200).json(response)
+    } catch (e) {
+        return res.status(404).json({
+            message: e
+        })
+    }
+}
+
 module.exports = {
     createLicense,
     getAllLicense,
@@ -102,5 +122,6 @@ module.exports = {
     updateAccept,
     getLicenseByWardDis,
     deleteLicense,
-    getLicenseByDis
+    getLicenseByDis,
+    updateLicense
 }

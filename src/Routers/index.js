@@ -23,7 +23,8 @@ const controlReportRouter = require('./controlReport.routes');
 const licenseRouter = require('./license.routes');
 const ProfileRouter = require('./profile.routes')
 const licenseImgRouter = require('./licenseImg.routes');
-const controlLicense = require('./controlLicense.routes')
+const controlLicenseRouter = require('./controlLicense.routes');
+const reviewLicenseRouter = require('./reviewLicense.routes');
 
 const routes = (app) => {
   // đường dẫn dùng cho citizen
@@ -51,7 +52,8 @@ const routes = (app) => {
   app.use('/api/license', licenseRouter);
   app.use('/api/profile', ProfileRouter)
   app.use('/api/licenseImg', licenseImgRouter);
-  app.use('/api/controlLicense', controlLicense)
+  app.use('/api/controlLicense', controlLicenseRouter),
+  app.use('/api/reviewLicense', reviewLicenseRouter)
   //
   app.get("/", (req, res) => {
     if (res.locals.auth == false) {
