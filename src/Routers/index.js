@@ -53,7 +53,7 @@ const routes = (app) => {
   app.use('/api/profile', ProfileRouter)
   app.use('/api/licenseImg', licenseImgRouter);
   app.use('/api/controlLicense', controlLicense);
-  app.use('api/controlPanel', controlPanelRouter);
+  app.use('/api/controlPanel', controlPanelRouter);
   //
   app.get("/", (req, res) => {
     if (res.locals.auth == false) {
