@@ -103,7 +103,7 @@
 
                     <div class="form-group">
                         <label for="add-data">Hình thức quảng cáo</label>
-                        <select class="form-control" id="selectAdsForm" name="selectAdsForm">
+                        <select class="form-control" id="selectAdsForm-add" name="selectAdsForm-add">
                         </select>
                     </div>
                     <div class="form-group">
@@ -131,7 +131,7 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="editModalLabel">Chỉnh sửa thông tin hình thức báo cáo</h5>
+                <h5 class="modal-title" id="editModalLabel">Chỉnh sửa điểm đặt quảng cáo</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -184,15 +184,15 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="deleteModalLabel">Xác nhận xóa hình thức báo cáo</h5>
+                <h5 class="modal-title" id="deleteModalLabel">Xác nhận xóa điểm đặt quảng cáo</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
-                <label for="deleted-id">ID hình thức báo cáo</label>
+                <label for="deleted-id">ID điểm đặt quảng cáo</label>
                 <input type="text" class="form-control" id="deleted-id" readonly />
-                <br>Bạn có chắc chắn muốn xóa hình thức báo cáo này?
+                <br>Bạn có chắc chắn muốn xóa điểm đặt này?
             </div>
             <div class="modal-footer justify-content-end">
                 <button type="button" class="btn btn-outline-success" data-dismiss="modal">
@@ -239,12 +239,17 @@
                 addPositionType.innerHTML = '';
                 editPositionType.innerHTML = '';
                 listPositionType.forEach(item => {
-                    const option = document.createElement('option');
-                    option.className = `${item.posId}`;
-                    option.value = item.posId;
-                    option.innerText = item.posName;
-                    addPositionType.appendChild(option);
-                    editPositionType.appendChild(option);
+                    const optionAdd = document.createElement('option');
+                    optionAdd.className = `${item.posId}`;
+                    optionAdd.value = item.posId;
+                    optionAdd.innerText = item.posName;
+                    addPositionType.appendChild(optionAdd);
+
+                    const optionEdit = document.createElement('option');
+                    optionEdit.className = `${item.posId}`;
+                    optionEdit.value = item.posId;
+                    optionEdit.innerText = item.posName;
+                    editPositionType.appendChild(optionEdit);
                 });
             }).catch(err => console.log(err));
     }
@@ -257,17 +262,22 @@
             .then(response => response.json())
             .then(data => {
                 listAdsForm = data.data;
-                const addAdsForm = document.getElementById('selectAdsForm');
-                addAdsForm.innerHTML = '';
+                const addAdsForm = document.getElementById('selectAdsForm-add');
                 const editAdsForm = document.getElementById('selectAdsForm-edit');
+                addAdsForm.innerHTML = '';
                 editAdsForm.innerHTML = '';
                 listAdsForm.forEach(item => {
-                    const option = document.createElement('option');
-                    option.className = `${item.formId}`;
-                    option.value = item.formId;
-                    option.innerText = item.formName;
-                    addAdsForm.appendChild(option);
-                    editAdsForm.appendChild(option);
+                    const optionAdd = document.createElement('option');
+                    optionAdd.className = `${item.formId}`;
+                    optionAdd.value = item.formId;
+                    optionAdd.innerText = item.formName;
+                    addAdsForm.appendChild(optionAdd);
+
+                    const optionEdit = document.createElement('option');
+                    optionEdit.className = `${item.formId}`;
+                    optionEdit.value = item.formId;
+                    optionEdit.innerText = item.formName;
+                    editAdsForm.appendChild(optionEdit);
                 });
             }).catch(err => console.log(err));
     } catch (e) {
@@ -425,7 +435,6 @@
     }
 
     function deleteRow(rowIdentifier) {
-        console.log(rowIdentifier)
         const numericPart = parseInt(rowIdentifier.slice(1), 10);
         const row = document.querySelector(`tbody tr:nth-child(${numericPart})`);
 
