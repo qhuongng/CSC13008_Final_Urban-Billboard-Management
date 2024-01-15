@@ -1,0 +1,328 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.2/js/toastr.min.js"></script>
+    <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <style>
+        .tox-statusbar__path-item {
+            display: none !important;
+        }
+    </style>
+</head>
+
+<body>
+    {{#if point}}
+    <input type="hidden" id="point-id" value="{{point}}">
+    {{/if}}
+    {{#if panel}}
+    <input type="hidden" id="panel-id" value="{{panel}}">
+    {{/if}}
+    <div class="control-responsive p-4 d-flex flex-column align-items-center">
+        <div class="container mt-3">
+            <h2 class="mb-4">Gửi yêu cầu chỉnh sửa</h2>
+            <form action="" method="post" enctype="multipart/form-data">
+                <h5 class="my-4">Đối tượng cần chỉnh sửa</h5>
+                <div class="form-group">
+                    <label for="point">Điểm đặt</label>
+                    <input class="form-control" type="text" name="point" id="point" readonly>
+                </div>
+                {{#ifCond panel '!=' "-1"}}
+                <div class="form-group">
+                    <label for="point">Bảng quảng cáo</label>
+                    <input class="form-control" type="text" name="panel" id="panel" readonly>
+                </div>
+                {{/ifCond}}
+                <h5 class="mt-4 mb-2">Nội dung cần chỉnh sửa</h5>
+                <small class="text-muted">Chọn một hoặc nhiều nội dung cần chỉnh sửa.</small>
+                {{#ifCond panel '==' "-1"}}
+                <div class="row mt-4">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="group0Checkbox">
+                                <label class="form-check-label mb-2" for="group0Checkbox">Loại vị trí</label>
+                            </div>
+                            <input type="text" class="form-control" name="positionType" id="group0" disabled>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="group1Checkbox">
+                                <label class="form-check-label mb-2" for="group1Checkbox">Hình thức quảng cáo</label>
+                            </div>
+                            <input type="text" class="form-control" name="billboardType" id="group1" disabled>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="group2Checkbox">
+                                <label class="form-check-label mb-2" for="group2Checkbox">Trạng thái quy hoạch</label>
+                            </div>
+                            <select class="custom-select" name="isZoning" id="group2" disabled>
+                                <option selected value="1">Đã quy hoạch</option>
+                                <option value="0">Chưa quy hoạch</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                {{else}}
+                <div class="row mt-4">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="group0Checkbox">
+                                <label class="form-check-label mb-2" for="group0Checkbox">Loại bảng quảng cáo</label>
+                            </div>
+                            <input type="text" class="form-control" name="Paneltype" id="group0" disabled>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="group1Checkbox">
+                                <label class="form-check-label mb-2" for="group1Checkbox">Số lượng</label>
+                            </div>
+                            <input type="text" class="form-control" name="amount" id="group1" disabled>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="group2Checkbox">
+                                <label class="form-check-label mb-2" for="group2Checkbox">Kích thuớc (m)</label>
+                            </div>
+                            <div class="d-flex" id="size-inputs">
+                                <input type="text" class="form-control mr-3" name="width" id="group2-1" disabled>
+                                <span class="mt-2 mr-3">x</span>
+                                <input type="text" class="form-control mr-3" name="height" id="group2-2" disabled>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {{/ifCond}}
+                <div class="form-group">
+                    <label for="reason">Lí do yêu cầu chỉnh sửa</label>
+                    <input class="form-control" type="text" name="reason" id="reason">
+                </div>
+                <br>
+                <button type="button" class="btn btn-outline-success" onclick="window.history.back()">
+                    <i class="bi bi-skip-backward-fill"></i>
+                    &nbsp;Quay lại
+                </button>
+                <button type="submit" id="send-button" class="btn btn-outline-primary">
+                    <i class="bi bi-check2"></i>
+                    &nbsp;Gửi yêu cầu</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script>
+        let pointId = document.getElementById("point-id").value;
+        let panelId = document.getElementById("panel-id").value;
+
+        // TODO: delete this after this page is finished
+        document.getElementById("point").value = pointId;
+
+        // TODO: delete this after this page is finished
+        if (panelId != "-1") {
+            document.getElementById("panel").value = panelId;
+        }
+
+
+        toastr.options.closeButton = true;
+        toastr.options = {
+            "closeButton": true,
+            "debug": false,
+            "newestOnTop": false,
+            "progressBar": false,
+            "positionClass": "toast-bottom-right",
+            "preventDuplicates": false,
+            "onclick": null,
+            "showDuration": "300",
+            "hideDuration": "300",
+            "timeOut": "2000",
+            "extendedTimeOut": "1000",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+        }
+
+        // enable inputs corresponding to checkboxes
+        $('#group0Checkbox').change(function () {
+            $('#group0').prop('disabled', !this.checked);
+            $('#group0').focus();
+        });
+
+        $('#group1Checkbox').change(function () {
+            $('#group1').prop('disabled', !this.checked);
+            $('#group1').focus();
+        });
+
+        if (panelId != "-1") {
+            $('#group2Checkbox').change(function () {
+                $('#group2-1').prop('disabled', !this.checked);
+                $('#group2-2').prop('disabled', !this.checked);
+                $('#group2-1').focus();
+            });
+        } else {
+            $('#group2Checkbox').change(function () {
+                $('#group2').prop('disabled', !this.checked);
+                $('#group2').focus();
+            });
+        }
+
+        // handle user errors
+        document.addEventListener('DOMContentLoaded', async function () {
+            // let point;
+            // let panel;
+
+            // await fetch(`http://localhost:3500/api/point/getPoint/${pointId}`)
+            //     .then(response => response.json())
+            //     .then(data => {
+            //         point = data.data;
+            //     });
+
+            // document.getElementById("point").value = point.address.trim() + ", " + point.area.ward + ", " + point.area.district;
+
+            // if (panelId != "-1") {
+            //     await fetch(`http://localhost:3500/api/panel/getPanelById/${panelId}`)
+            //         .then(response => response.json())
+            //         .then(data => {
+            //             panel = data.data;
+            //         });
+
+            //     document.getElementById("panel").value = panel.Paneltype + " (" + panel._id + ")";
+            // }
+
+            const postContent = async (event) => {
+                event.preventDefault();
+
+                if (panelId == "-1") {
+                    // point modification
+                    const posType = $('#group0');
+                    const bbType = $('#group1');
+                    const reasonInput = $('#reason');
+
+                    if ($('.form-check-input:checked').length === 0) {
+                        toastr.error("Vui lòng chọn ít nhất một nội dung cần chỉnh sửa.");
+                    }
+                    else if (($('#group0Checkbox').prop('checked') && !posType.val()) || ($('#group1Checkbox').prop('checked') && !bbType.val()) || !reasonInput.val()) {
+                        toastr.error("Vui lòng điền đầy đủ thông tin.");
+
+                        let inputs = [posType, bbType];
+
+                        inputs.forEach((input, index) => {
+                            if ($(`#group${index}Checkbox`).prop('checked') && !input.val()) {
+                                input.addClass('border-danger');
+                                input.focus();
+                            }
+                            else if (!$(`#group${index}Checkbox`).prop('checked') || ($(`#group${index}Checkbox`).prop('checked') && input.val())) {
+                                input.removeClass('border-danger');
+                            }
+                        });
+
+                        if (!reasonInput.val()) {
+                            reasonInput.addClass('border-danger');
+                        }
+                        else {
+                            reasonInput.removeClass('border-danger');
+                        }
+                    }
+                    else {
+                        let inputs = [posType, bbType, reasonInput];
+
+                        inputs.forEach((input) => {
+                            input.removeClass('border-danger');
+                        });
+
+                        // TODO: handle POST request
+
+                        // temporary toastr to signify form sending success
+                        toastr.success("Pass handle error rùi deeeeeeeeee");
+                    }
+                }
+                else {
+                    // panel modification
+                    const panTypeInput = $('#group0');
+                    const amountInput = $('#group1');
+                    const widthInput = $('#group2-1');
+                    const heightInput = $('#group2-2');
+                    const reasonInput = $('#reason');
+
+                    if ($('.form-check-input:checked').length === 0) {
+                        toastr.error("Vui lòng chọn ít nhất một nội dung cần chỉnh sửa.");
+                    }
+                    else if (($('#group0Checkbox').prop('checked') && !panTypeInput.val()) || ($('#group1Checkbox').prop('checked') && !amountInput.val()) || ($('#group2Checkbox').prop('checked') && (!widthInput.val() || !heightInput.val())) || !reasonInput.val()) {
+                        toastr.error("Vui lòng điền đầy đủ thông tin.");
+
+                        let inputs = [panTypeInput, amountInput];
+
+                        inputs.forEach((input, index) => {
+                            if ($(`#group${index}Checkbox`).prop('checked') && !input.val()) {
+                                input.addClass('border-danger');
+                                input.focus();
+                            }
+                            else if (!$(`#group${index}Checkbox`).prop('checked') || ($(`#group${index}Checkbox`).prop('checked') && input.val())) {
+                                input.removeClass('border-danger');
+                            }
+                        });
+
+                        let sizeInputs = [widthInput, heightInput];
+
+                        sizeInputs.forEach((input) => {
+                            if ($(`#group2Checkbox`).prop('checked')) {
+                                if (!input.val()) {
+                                    input.addClass('border-danger');
+                                    input.focus();
+                                }
+                                else {
+                                    input.removeClass('border-danger');
+                                }
+                            }
+                            else if (!$(`#group2Checkbox`).prop('checked')) {
+                                input.removeClass('border-danger');
+                            }
+                        });
+
+                        if (!reasonInput.val()) {
+                            reasonInput.addClass('border-danger');
+                        }
+                        else {
+                            reasonInput.removeClass('border-danger');
+                        }
+                    }
+                    else {
+                        let inputs = [panTypeInput, amountInput, widthInput, heightInput, reasonInput];
+
+                        inputs.forEach((input) => {
+                            input.removeClass('border-danger');
+                        });
+
+                        // TODO: handle POST request
+
+                        // temporary toastr to signify form sending success
+                        toastr.success("Pass handle error rùi deeeeeeeeee");
+                    }
+                }
+            };
+
+            // Add click event listeners to buttons
+            const sendButton = document.getElementById('send-button');
+
+            if (sendButton) {
+                sendButton.addEventListener('click', postContent);
+            }
+        });
+
+    </script>
+</body>
+
+</html>
