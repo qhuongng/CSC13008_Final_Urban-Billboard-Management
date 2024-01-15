@@ -98,6 +98,30 @@ const getDetailsPanel = (id) => {
     })
 }
 
+const getSinglePanel = (idPanel) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const panel = await Panel.findOne({
+                _id: idPanel
+            })
+            if (panel === null) {
+                resolve({
+                    status: 'ERR',
+                    message: 'The point contains no panels'
+                })
+            }
+            panel.Paneltype = (await panelTypeService.getPanelTypeName(panel.Paneltype)).data
+            resolve({
+                status: 'OK',
+                message: 'SUCCESS',
+                data: panel
+            })
+        } catch (e) {
+            reject(e)
+        }
+    })
+}
+
 const updatePanel = (id, data) => {
     return new Promise(async (resolve, reject) => {
         try {
@@ -152,5 +176,6 @@ module.exports = {
     getAllPanel,
     getDetailsPanel,
     updatePanel,
-    deletePanel
+    deletePanel,
+    getSinglePanel
 }
