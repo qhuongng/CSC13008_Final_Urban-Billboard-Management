@@ -6,36 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="http://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.2/js/toastr.min.js"></script>
     <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
-    <title>User Profile</title>
     <style>
-        #profile-container {
-            background-color: #f5f5f5;
-            color: #333;
-            font-family: Roboto, sans-serif;
-            font-size: 16px;
-            line-height: 1.6;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            padding: 30px;
-            margin: 80px auto;
-            max-width: 500px;
-        }
-
-        h1 {
-            font-size: 24px;
-            font-weight: 600;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        .property {
-            margin-bottom: 15px;
-        }
-
-        strong {
-            color: #222;
-        }
-
         .edit-link {
             margin-left: 10px;
             color: #007bff;
@@ -51,82 +22,75 @@
         .edit-link:hover {
             text-decoration: underline;
         }
-
-        .back-button {
-            background-color: #4caf50;
-            color: #fff;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-            margin-top: 20px;
-            float: right;
-        }
-
-        .back-button:hover {
-            background-color: #45a049;
-        }
     </style>
 </head>
 
 <body>
-    <div id="profile-container">
-        <h1>Thông tin cá nhân</h1>
-        <div class="property">
-            <strong>Họ và tên:</strong>
-            <span id="name"> </span>
-            <a onclick="loadDetails('Họ và tên', document.getElementById('name').innerText)" class="edit-link"
-                href="#"><i class="bi bi-pencil-square"></i> Sửa</a>
-        </div>
+    <div class="control-responsive p-4 d-flex flex-column align-items-center">
+        <div class="container mt-3" id="profile-container" style="max-width:50%">
+            <h2>Thông tin cá nhân</h2>
+            <div class="table-responsive mt-5">
+                <table class="table">
+                    <tbody>
+                        <tr class="property">
+                            <th style="width:33%" scope="row">Họ và tên</th>
+                            <td id="name"></td>
+                            <td class="d-flex justify-content-end"><a
+                                    onclick="loadDetails('Họ và tên', document.getElementById('name').innerText)"
+                                    class="edit-link" href="#"><i class="bi bi-pencil-square"></i> Sửa</a></td>
+                        </tr>
+                        <tr class="property">
+                            <th style="width:33%" scope="row">Ngày sinh</th>
+                            <td id="dateOfBirth"></td>
+                            <td class="d-flex justify-content-end"><a
+                                    onclick="loadDetails('Ngày sinh', document.getElementById('dateOfBirth').innerText)"
+                                    class="edit-link" href="#"><i class="bi bi-pencil-square"></i> Sửa</a></td>
+                        </tr>
+                        <tr class="property">
+                            <th style="width:33%" scope="row">Email</th>
+                            <td id="email"></td>
+                            <td class="d-flex justify-content-end"><a
+                                    onclick="loadDetails('Email', document.getElementById('email').innerText)"
+                                    class="edit-link" href="#"><i class="bi bi-pencil-square"></i> Sửa</a></td>
+                        </tr>
+                        <tr class="property">
+                            <th style="width:33%" scope="row">Điện thoại liên lạc</th>
+                            <td id="phone"></td>
+                            <td class="d-flex justify-content-end"><a
+                                    onclick="loadDetails('Phone', document.getElementById('phone').innerText)"
+                                    class="edit-link" href="#"><i class="bi bi-pencil-square"></i> Sửa</a></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <a type="button" class="btn btn-outline-success float-right" href="/">
+                <i class="bi bi-skip-backward-fill"></i> Quay lại</a>
 
-        <div class="property">
-            <strong>Ngày sinh:</strong>
-            <span id="dateOfBirth"> </span>
-            <a onclick="loadDetails('Ngày sinh', document.getElementById('dateOfBirth').innerText)" class="edit-link"
-                href="#"><i class="bi bi-pencil-square"></i> Sửa</a>
-        </div>
-
-        <div class="property">
-            <strong>Email:</strong>
-            <span id="email"> </span>
-            <a onclick="loadDetails('Email', document.getElementById('email').innerText)" class="edit-link" href="#"><i
-                    class="bi bi-pencil-square"></i> Sửa</a>
-        </div>
-
-        <div class="property">
-            <strong>Điện thoại liên lạc:</strong>
-            <span id="phone"> </span>
-            <a onclick="loadDetails('Phone', document.getElementById('phone').innerText)" class="edit-link" href="#"><i
-                    class="bi bi-pencil-square"></i> Sửa</a>
-        </div>
-
-        <a type="button" class="back-button" href="/"> <i class="bi bi-skip-backward-fill"></i> Quay lại</a>
-
-        <!-- Modal for detailed information -->
-        <div class="modal fade" id="detailsModal" tabindex="-1" role="dialog" aria-labelledby="info-modal-title"
-            aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="info-modal-title">Thông tin cập nhật</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <div id="modalContent">
+            <!-- Modal for detailed information -->
+            <div class="modal fade" id="detailsModal" tabindex="-1" role="dialog" aria-labelledby="info-modal-title"
+                aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="info-modal-title">Thông tin cập nhật</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
                         </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-outline-success" data-dismiss="modal">
-                            <i class="bi bi-skip-backward-fill"></i>
-                            Quay lại
-                        </button>
-                        <button class="btn btn-primary" id="saveButton">
-                            <i class="bi bi-pencil-square"></i>
-                            Save
-                        </button>
+                        <div class="modal-body">
+                            <div id="modalContent">
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-outline-success" data-dismiss="modal">
+                                <i class="bi bi-skip-backward-fill"></i>
+                                Quay lại
+                            </button>
+                            <button class="btn btn-outline-primary" id="saveButton">
+                                <i class="bi bi-pencil-square"></i>
+                                Lưu
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
