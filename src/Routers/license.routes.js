@@ -12,7 +12,8 @@ router.get('/', (req, res) => {
 router.post('/createLicense', upload.single('image'), licenseController.createLicense);
 router.get('/getAllLicense', licenseController.getAllLicense);
 router.get('/getLicenseByIdPanel/:id', licenseController.getAcceptedLicenseByIdPanel);
-router.get('/getLicenseByIdPointWardDis/:wardName/:districtName', licenseController.getLicenseByIdPointWardDis)
+router.get('/getLicenseByWardDis/:wardName/:districtName', licenseController.getLicenseByWardDis)
+router.get('/getLicenseByDis/:districtName', licenseController.getLicenseByDis)
 router.put('/udpateAccept', licenseController.updateAccept);
 router.delete('/deleteLicense/:id', licenseController.deleteLicense);
 

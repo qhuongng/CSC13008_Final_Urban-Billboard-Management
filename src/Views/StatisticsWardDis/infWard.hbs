@@ -7,6 +7,7 @@
     <script src="http://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.2/js/toastr.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
+
 </head>
 
 <body>
@@ -28,17 +29,9 @@
                             <!-- Checkboxes for wards will be dynamically added here -->
                         </div>
                     </div>
-                </div>
-                <div class="row d-flex align-items-end" id="email-filter">
-                    <div class="form-group col-10">
-                        <label for="email">Người gửi</label>
-                        <input type="text" class="form-control" id="emailInput"
-                            placeholder="Nhập email người gửi báo cáo">
-                    </div>
-                    <div class="form-group col-2 ml-auto">
-                        <label>&nbsp;</label>
+                    <div class="form-group col-1 ml-auto">
                         <button type="button" class="btn btn-outline-primary btn-block float-right"
-                            onclick="filterReports()">
+                            onclick="filterPoints()">
                             <i class="bi bi-funnel"></i>
                             Lọc
                         </button>
@@ -207,6 +200,9 @@
                         } else {
                             throw new Error(`Error: ${data.message}`);
                         }
+                    })
+                    .catch(error => {
+                        return []; // Return an empty array to ensure displayLicenses is called
                     });
 
                 apiPromises.push(promise);
@@ -216,7 +212,7 @@
                     let url;
 
                     if (wardInput && districtInput) {
-                        url = `http://localhost:3500/api/point/getPointByWardAndDis/${wardInput}/${districtInput}`;
+                        url = `http://localhost:3500/api/point/getPointByWardAndDis/${ward}/${districtInput}`;
                     } else if (districtInput) {
                         url = `http://localhost:3500/api/point/getPointByDis/${districtInput}`;
                     }
@@ -229,6 +225,9 @@
                             } else {
                                 throw new Error(`Error for ward ${ward}: ${data.message}`);
                             }
+                        })
+                        .catch(error => {
+                            return []; // Return an empty array to ensure displayLicenses is called
                         });
 
                     apiPromises.push(promise);
@@ -259,6 +258,7 @@
                 const noDataCell = document.createElement('td');
                 noDataCell.setAttribute('colspan', '10');
                 noDataCell.textContent = 'Không có dữ liệu';
+                noDataCell.classList.add('text-center');
                 noDataRow.appendChild(noDataCell);
                 pointsBody.appendChild(noDataRow);
             } else {
@@ -497,6 +497,7 @@
                 const noDataCell = document.createElement('td');
                 noDataCell.setAttribute('colspan', '10');
                 noDataCell.textContent = 'Không có dữ liệu';
+                noDataCell.classList.add('text-center');
                 noDataRow.appendChild(noDataCell);
                 pointsBody.appendChild(noDataRow);
             } else {
