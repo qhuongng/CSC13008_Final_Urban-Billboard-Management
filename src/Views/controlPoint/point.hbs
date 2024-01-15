@@ -139,14 +139,30 @@
             <div class="modal-body">
                 <form id="editForm">
                     <div class="form-group">
-                        <label for="edited-id">ID hình thức báo cáo </label>
-                        <input type="text" class="form-control" id="edited-id" readonly />
+                        <label for="edit-data">ID điểm đặt quảng cáo </label>
+                        <input type="text" class="form-control" id="edit-data" readonly />
                     </div>
+
                     <div class="form-group">
-                        <label for="edit-data">Tên hình thức báo cáo mới</label>
-                        <input type="text" class="form-control" id="edit-data" placeholder="Nhập tên hình thức báo cáo"
-                            required />
+                        <label for="edit-data">Loại vị trí</label>
+                        <select class="form-control" id="selectPositionType-edit" name="selectPositionType-edit">
+                        </select>
                     </div>
+
+                    <div class="form-group">
+                        <label for="edit-data">Hình thức quảng cáo</label>
+                        <select class="form-control" id="selectAdsForm-edit" name="selectAdsForm-edit">
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="edit-data">Quy hoạch</label>
+                        <select class="form-control" id="isZoning-edit" name="isZoning-edit">
+                            <option value="false">Chưa quy hoạch</option>
+                            <option value="true">Đã quy hoạch</option>
+                        </select>
+                    </div>
+
                 </form>
             </div>
             <div class="modal-footer">
@@ -154,7 +170,7 @@
                     <i class="bi bi-skip-backward-fill"></i>
                     Quay lại
                 </button>
-                <button type="button" class="btn btn-outline-primary" onclick="editSelectedRow()">
+                <button type="button" class="btn btn-outline-primary" onclick="editPoint()">
                     <i class="bi bi-check2"></i>
                     Lưu
                 </button>
@@ -193,6 +209,7 @@
 </div>
 <script>
     var listPoint;
+    var listAdsForm;
 
     toastr.options.closeButton = true;
     toastr.options = {
@@ -217,14 +234,17 @@
             .then(response => response.json())
             .then(data => {
                 const listPositionType = data.data;
-                const selectPositionType = document.getElementById('selectPositionType');
-                selectPositionType.innerHTML = '';
+                const addPositionType = document.getElementById('selectPositionType');
+                const editPositionType = document.getElementById('selectPositionType-edit');
+                addPositionType.innerHTML = '';
+                editPositionType.innerHTML = '';
                 listPositionType.forEach(item => {
                     const option = document.createElement('option');
                     option.className = `${item.posId}`;
                     option.value = item.posId;
                     option.innerText = item.posName;
-                    selectPositionType.appendChild(option);
+                    addPositionType.appendChild(option);
+                    editPositionType.appendChild(option);
                 });
             }).catch(err => console.log(err));
     }
@@ -236,15 +256,18 @@
         fetch('http://localhost:3500/api/adsForm/getAllForm')
             .then(response => response.json())
             .then(data => {
-                const listAdsForm = data.data;
-                const selectAdsForm = document.getElementById('selectAdsForm');
-                selectAdsForm.innerHTML = '';
+                listAdsForm = data.data;
+                const addAdsForm = document.getElementById('selectAdsForm');
+                addAdsForm.innerHTML = '';
+                const editAdsForm = document.getElementById('selectAdsForm-edit');
+                editAdsForm.innerHTML = '';
                 listAdsForm.forEach(item => {
                     const option = document.createElement('option');
                     option.className = `${item.formId}`;
                     option.value = item.formId;
                     option.innerText = item.formName;
-                    selectAdsForm.appendChild(option);
+                    addAdsForm.appendChild(option);
+                    editAdsForm.appendChild(option);
                 });
             }).catch(err => console.log(err));
     } catch (e) {
@@ -275,7 +298,7 @@
                     <p><strong>Loại vị trí:</strong> ${point.positionType}</p>
                     <p><strong>Hình thức quảng cáo:</strong> ${point.formAdvertising}</p>
                     <p><strong>Có quảng cáo:</strong> ${point.havePanel ? "Có" : "Không"}</p>
-                    <p><strong>Đã quy hoạch:</strong> ${point.isZoning ? "V" : "X"}</p>
+                    <p><strong>Quy hoạch:</strong> ${point.isZoning ? "Đã quy hoạch" : "Chưa quy hoạch"}</p>
                     <p><strong>Ảnh:</strong> <br><img class="img-fluid" src="http://localhost:3500/api/pointImg/getImgPoint/${point.picturePoint}" referrerpolicy="no-referrer" ></p>
                    
                 `;
@@ -330,8 +353,6 @@
         const havePanel = false;
         const picturePoint = $('#image');
         const isZoning = false;
-
-        console.log(name, lnglat, address, positionType, formAdvertising, district, ward, havePanel, picturePoint.val())
 
         if (!name) {
             toastr.error("Vui lòng điền tên điểm đặt.");
@@ -395,12 +416,9 @@
 
     function editRow(rowIdentifier) {
         const numericPart = parseInt(rowIdentifier.slice(1), 10);
-
         const row = document.querySelector(`tbody tr:nth-child(${numericPart})`);
-
         if (row) {
-
-            document.getElementById('edited-id').value = rowIdentifier;
+            document.getElementById('edit-data').value = rowIdentifier;
         } else {
             console.log(`Row ${rowIdentifier} not found.`);
         }
@@ -419,28 +437,41 @@
         }
     }
 
-    async function editSelectedRow() {
-        const id = document.getElementById('edited-id').value;
-        const editedData = $('#edit-data');
+    async function editPoint() {
+        const id = document.getElementById('edit-data').value;
+        const formAdvertising = document.getElementById('selectAdsForm-edit').value;
+        const positionType = document.getElementById('selectPositionType-edit').value;
+        const isZoning = document.getElementById('isZoning-edit').value;
 
-        if (!editedData.val()) {
-            toastr.error("Vui lòng điền tên hình thức báo cáo.");
-            editedData.addClass('border-danger');
-            editedData.focus();
+        if (!id) {
+            toastr.error("Vui lòng chọn điểm đặt quảng cáo.");
+            document.getElementById('edit-data').focus();
+        } else if (!formAdvertising) {
+            toastr.error("Vui lòng chọn hình thức quảng cáo.");
+            document.getElementById('selectAdsForm-edit').focus();
+        } else if (!positionType) {
+            toastr.error("Vui lòng chọn loại vị trí.");
+            document.getElementById('selectPositionType-edit').focus();
+        } else if (!isZoning) {
+            toastr.error("Vui lòng chọn quy hoạch.");
+            document.getElementById('isZoning-edit').focus();
         }
         else {
-            editedData.removeClass('border-danger');
             try {
-                //đang sửa tới đây
-                const response = await fetch('http://localhost:3500/api/reportType/updateReportType', {
+                const response = await fetch(`http://localhost:3500/api/point/updatePoint/${id}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ id: id, reportName: editedData.val() })
+                    body: JSON.stringify({
+                        id: id,
+                        formAdvertising: formAdvertising,
+                        positionType: positionType,
+                        isZoning: isZoning
+                    })
                 })
                 if (response.status === 200) {
-                    toastr.options.onHidden = () => { window.location.href = "/api/controlReportType" }
+                    toastr.options.onHidden = () => { window.location.href = "/api/controlPoint" }
                     toastr.success("Chỉnh sửa thông tin hình thức báo cáo thành công.")
                 } else {
                     toastr.error("Tên hình thức báo cáo đã tồn tại.");
