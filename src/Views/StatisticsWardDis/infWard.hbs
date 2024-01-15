@@ -46,19 +46,18 @@
                 </div>
             </div>
 
-            <div class="d-flex" id="info-container">
-
+            <small class="text-muted">Click đúp vào một dòng để xem thông tin chi tiết.</small>
+            <div class="d-flex mt-2" id="info-container">
                 <div class="table-responsive">
                     <table class="table table-hover" id="pointsTable">
                         <thead>
                             <tr>
-                                <th>Tên địa chỉ</th>
-                                <th>Địa chỉ cụ thể</th>
-                                <th>Phường</th>
-                                <th>Quận</th>
+                                <th>Điểm đặt</th>
+                                <th>Địa chỉ</th>
                                 <th>Loại vị trí</th>
                                 <th>Loại hình quảng cáo</th>
                                 <th>Quy hoạch</th>
+                                <th>&nbsp;</th>
                             </tr>
                         </thead>
                         <tbody id="pointsBody">
@@ -86,10 +85,6 @@
                                 <button type="button" class="btn btn-outline-success" data-dismiss="modal">
                                     <i class="bi bi-skip-backward-fill"></i>
                                     Quay lại
-                                </button>
-                                <button class="btn btn-primary" id="saveButton1">
-                                    <i class="bi bi-pencil-square"></i>
-                                    Yêu cầu chỉnh sửa
                                 </button>
                             </div>
                         </div>
@@ -142,7 +137,6 @@
 
             // Call filterPoints after fetching ward and district values
             filterPoints();
-
         });
 
         async function loadWards(disName) {
@@ -268,12 +262,14 @@
 
                     row.innerHTML = `
                 <td>${point.name}</td>
-                <td>${point.address}</td>
-                <td>${point.area.ward}</td>
-                <td>${point.area.district}</td>
+                <td>${point.address.trim()}, ${point.area.ward}, ${point.area.district}</td>
                 <td>${point.positionType}</td>
                 <td>${point.formAdvertising}</td>
                 <td>${point.isZoning ? '<h6 style="color:green">Đã quy hoạch' : '<h6 style="color:red">Chưa quy hoạch'}</h6></td>
+                <td><a class="btn btn-outline-primary text-nowrap float-right" href="#" id="saveButton1">
+                      <i class="bi bi-pencil-square"></i>
+                      Yêu cầu chỉnh sửa
+                    </a></td>
             `;
 
                     row.addEventListener('dblclick', () => {
@@ -291,7 +287,7 @@
         function loadDetails(point) {
             document.getElementById('modalContent').innerHTML = "";
 
-            const imgUrl = `https://lh3.google.com/u/0/d/${point.picturePoint}`;
+            const imgUrl = `http://localhost:3500/api/pointImg/getImgPoint/${point.picturePoint}`;
 
 
             const details = `<h6 class="card-subtitle mb-2 text-muted">${point.name}</h6>
@@ -346,19 +342,18 @@
                 </div>
             </div>
 
-            <div class="d-flex" id="info-container">
-
+            <small class="text-muted">Click đúp vào một dòng để xem thông tin chi tiết.</small>
+            <div class="d-flex mt-2" id="info-container">
                 <div class="table-responsive">
                     <table class="table table-hover" id="pointsTable">
                         <thead>
                             <tr>
-                                <th>Tên địa chỉ</th>
-                                <th>Địa chỉ cụ thể</th>
-                                <th>Phường</th>
-                                <th>Quận</th>
+                                <th>Điểm đặt</th>
+                                <th>Địa chỉ</th>
                                 <th>Loại vị trí</th>
                                 <th>Loại hình quảng cáo</th>
                                 <th>Quy hoạch</th>
+                                <th>&nbsp;</th>
                             </tr>
                         </thead>
                         <tbody id="pointsBody">
@@ -386,10 +381,6 @@
                                 <button type="button" class="btn btn-outline-success" data-dismiss="modal">
                                     <i class="bi bi-skip-backward-fill"></i>
                                     Quay lại
-                                </button>
-                                <button class="btn btn-outline-primary" id="saveButton1">
-                                    <i class="bi bi-pencil-square"></i>
-                                    Yêu cầu chỉnh sửa
                                 </button>
                             </div>
                         </div>
@@ -506,12 +497,14 @@
 
                     row.innerHTML = `
                 <td>${point.name}</td>
-                <td>${point.address}</td>
-                <td>${point.area.ward}</td>
-                <td>${point.area.district}</td>
+                <td>${point.address.trim()}, ${point.area.ward}, ${point.area.district}</td>
                 <td>${point.positionType}</td>
                 <td>${point.formAdvertising}</td>
                 <td>${point.isZoning ? '<h6 style="color:green">Đã quy hoạch' : '<h6 style="color:red">Chưa quy hoạch'}</h6></td>
+                <td><a class="btn btn-outline-primary text-nowrap float-right" href="#" id="saveButton1">
+                      <i class="bi bi-pencil-square"></i>
+                      Yêu cầu chỉnh sửa
+                    </a></td>
             `;
 
                     row.addEventListener('dblclick', () => {
@@ -529,7 +522,7 @@
         function loadDetails(point) {
             document.getElementById('modalContent').innerHTML = "";
 
-            const imgUrl = `https://lh3.google.com/u/0/d/${point.picturePoint}`;
+            const imgUrl = `http://localhost:3500/api/pointImg/getImgPoint/${point.picturePoint}`;
 
 
             const details = `<h6 class="card-subtitle mb-2 text-muted">${point.name}</h6>
