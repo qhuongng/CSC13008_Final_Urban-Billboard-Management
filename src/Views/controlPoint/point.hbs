@@ -199,7 +199,7 @@
                     <i class="bi bi-skip-backward-fill"></i>
                     Quay lại
                 </button>
-                <button type="button" class="btn btn-outline-danger" onclick="deleteSelectedRow()">
+                <button type="button" class="btn btn-outline-danger" onclick="deletePoint()">
                     <i class="bi bi-trash-fill"></i>
                     Xóa
                 </button>
@@ -485,6 +485,32 @@
                 } else {
                     toastr.error("Tên hình thức báo cáo đã tồn tại.");
                 }
+            } catch (e) {
+                toastr.error("Có lỗi xảy ra. Vui lòng thử lại.");
+            }
+        }
+    }
+
+    function deletePoint() {
+        const id = document.getElementById('deleted-id').value;
+        if (!id) {
+            toastr.error("Vui lòng chọn điểm đặt quảng cáo.");
+            document.getElementById('deleted-id').focus();
+        } else {
+            try {
+                fetch(`http://localhost:3500/api/point/deletePoint/${id}`, {
+                    method: 'DELETE'
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 200) {
+                            toastr.options.onHidden = () => { window.location.href = "/api/controlPoint" }
+                            toastr.success("Xóa điểm đặt quảng cáo thành công.")
+                        } else {
+                            toastr.error("Có lỗi xảy ra. Vui lòng thử lại.");
+                        }
+                    })
+                    .catch(err => console.log(err));
             } catch (e) {
                 toastr.error("Có lỗi xảy ra. Vui lòng thử lại.");
             }
