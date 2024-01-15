@@ -3,7 +3,7 @@ const Point = require('../Models/Point')
 const Ward = require("../Models/Ward");
 const District = require("../Models/District");
 
-const createLicense = (idPoint, idPanel, content, imageId, companyName, companyEmail, companyPhone, startDay, endDay) => {
+const createLicense = (idPoint, idPanel, content, imageId, companyName, companyEmail, companyPhone, companyAddress, startDay, endDay) => {
     return new Promise(async (resolve, reject) => {
         try {
             const createLicense = await License.create({
@@ -14,6 +14,7 @@ const createLicense = (idPoint, idPanel, content, imageId, companyName, companyE
                 companyName: companyName,
                 companyEmail: companyEmail,
                 companyPhone: companyPhone,
+                companyAddress: companyAddress,
                 startDay: startDay,
                 endDay: endDay,
                 isAccept: 0

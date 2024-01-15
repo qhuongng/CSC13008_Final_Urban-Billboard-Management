@@ -7,6 +7,7 @@ const licenseSchema = new mongoose.Schema({
     companyName: String,
     companyEmail: String,
     companyPhone: String,
+    companyAddress: String,
     startDay: String,
     endDay: String,
     isAccept: Number// 0: chờ cấp phép, 1: đã cấp phép, -1: bị từ chối

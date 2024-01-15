@@ -10,9 +10,9 @@ const createLicense = async (req, res) => {
         }
         const savedFile = (await licenseImgServices.sendLicenseImg(file)).data;
         const imageId = savedFile._id;
-        const { idPoint, idPanel, content, companyName, companyEmail, companyPhone, startDay, endDay } = req.body;
+        const { idPoint, idPanel, content, companyName, companyEmail, companyPhone, companyAddress, startDay, endDay } = req.body;
         console.log(req.body);
-        const response = await licenseServices.createLicense(idPoint, idPanel, content, imageId, companyName, companyEmail, companyPhone, startDay, endDay);
+        const response = await licenseServices.createLicense(idPoint, idPanel, content, imageId, companyName, companyEmail, companyPhone, companyAddress, startDay, endDay);
         if (response.status === "OK") {
             res.status(200).json(response)
         }
@@ -60,7 +60,7 @@ const updateAccept = async (req, res) => {
 
 const getLicenseByWardDis = async (req, res) => {
     try {
-        const {wardName, districtName } = req.params;
+        const { wardName, districtName } = req.params;
         const listLicense = await licenseServices.getLicenseByWardDis(wardName, districtName);
         if (listLicense) {
             res.status(200).json(listLicense);
