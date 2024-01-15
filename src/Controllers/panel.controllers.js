@@ -90,7 +90,27 @@ const updatePanel = async (req, res) => {
         })
     }
 }
+
+const getSinglePanel = async (req, res) => {
+    try {
+        const idPanel = req.params.id
+        if (!idPanel) {
+            return res.status(404).json({
+                status: 'ERR',
+                message: 'The idPanel is required'
+            })
+        }
+        const response = await PanelService.getSinglePanel(idPanel)
+        if (response.status === "OK") return res.status(200).json(response)
+        else return res.status(205).json(response)
+    } catch (e) {
+        return res.status(404).json({
+            message: e
+        })
+    }
+}
 module.exports = {
+    getSinglePanel,
     createPanel,
     getAllPanel,
     getListPanel,

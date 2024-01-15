@@ -11,6 +11,413 @@
 
 <body>
     {{#ifCond authUser.role.[0] '===' "-1"}}
+    <div class="control-responsive p-4 d-flex flex-column align-items-center">
+        <div class="container mt-3">
+            <h2 class="mb-4">Quản lý yêu cầu cấp phép</h2>
+
+            <div class="d-flex flex-column mb-4" id="filters-container">
+                <div class="row d-flex align-items-end" id="location-filters">
+                    <div class="form-group col-2">
+                        <label for="district">Quận</label>
+                        <input type="text" class="form-control" id="district" name="district"
+                            value="{{authUser.role.[1]}}" readonly>
+                    </div>
+                    <div class="form-group col-9 ml-auto">
+                        <label for="ward">Phường</label>
+                        <div id="wardCheckboxes" class="d-flex flex-wrap">
+                            <!-- Checkboxes for wards will be dynamically added here -->
+                        </div>
+                    </div>
+                    <div class="form-group col-1 ml-auto">
+                        <button type="button" class="btn btn-outline-primary text-nowrap float-right"
+                            onclick="filterLicenses()">
+                            <i class="bi bi-funnel"></i>
+                            Lọc
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <small class="text-muted">Click đúp vào một dòng để xem thông tin chi tiết.</small>
+            <div class="d-flex mt-2" id="info-container">
+                <div class="table-responsive">
+                    <table class="table table-hover" id="licensesTable">
+                        <thead>
+                            <tr>
+                                <th>ID điểm đặt</th>
+                                <th>ID bảng quảng cáo</th>
+                                <th>Tên công ty</th>
+                                <th>Email công ty</th>
+                                <th>Điện thoại liên lạc</th>
+                                <th>Tình trạng</th>
+                            </tr>
+                        </thead>
+                        <tbody id="licensesBody">
+
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Modal for detailed information -->
+                <div class="modal fade" id="detailsModal" tabindex="-1" role="dialog" aria-labelledby="info-modal-title"
+                    aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="info-modal-title">Thông tin chi tiết</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <div id="modalContent">
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-outline-success" data-dismiss="modal">
+                                    <i class="bi bi-skip-backward-fill"></i>
+                                    Quay lại
+                                </button>
+                                <button class="btn btn-outline-danger" id="deleteButton">
+                                    <i class="bi bi-trash"></i>
+                                    Huỷ
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+    </div>
+
+
+    <script>
+        toastr.options.closeButton = true;
+        toastr.options = {
+            "closeButton": true,
+            "debug": false,
+            "newestOnTop": false,
+            "progressBar": false,
+            "positionClass": "toast-top-center",
+            "preventDuplicates": false,
+            "onclick": null,
+            "showDuration": "300",
+            "hideDuration": "300",
+            "timeOut": "2000",
+            "extendedTimeOut": "1000",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+        }
+
+        document.addEventListener('DOMContentLoaded', async function () {
+            var disId = document.getElementById('district').value;
+
+            // Fetch disName
+            try {
+                const disResponse = await fetch(`http://localhost:3500/api/district/getDisById/${disId}`);
+                const disData = await disResponse.json();
+
+                // Assuming the response data structure includes disName property
+                var disName = disData.data.disName;
+
+                // Set the value of the district input field
+                document.getElementById('district').value = disName;
+            } catch (error) {
+                console.error('Error fetching district data:', error);
+            }
+
+            loadWards(disName);
+
+            // Call filterLicenses after fetching ward and district values
+            filterLicenses();
+
+        });
+
+        async function loadWards(disName) {
+            const wardCheckboxesContainer = document.getElementById('wardCheckboxes');
+            wardCheckboxesContainer.innerHTML = '';
+
+            try {
+                const wardsResponse = await fetch(`http://localhost:3500/api/ward/getWard/${disName}`);
+                const wardsData = await wardsResponse.json();
+
+                if (wardsData.status === 'OK') {
+                    const wards = wardsData.data;
+
+                    // Add checkboxes for each ward
+                    wards.forEach(ward => {
+                        const checkboxDiv = document.createElement('div');
+                        checkboxDiv.classList.add('form-check', 'mr-3');
+
+                        const checkbox = document.createElement('input');
+                        checkbox.type = 'checkbox';
+                        checkbox.classList.add('form-check-input');
+                        checkbox.id = `wardCheckbox_${ward.wardName}`;
+                        checkbox.value = ward.wardName;
+                        checkbox.name = 'wardCheckbox';
+
+                        const label = document.createElement('label');
+                        label.classList.add('form-check-label');
+                        label.setAttribute('for', `wardCheckbox_${ward.wardName}`);
+                        label.textContent = ward.wardName;
+
+                        checkboxDiv.appendChild(checkbox);
+                        checkboxDiv.appendChild(label);
+
+                        wardCheckboxesContainer.appendChild(checkboxDiv);
+                    });
+                } else {
+                    toastr.error(`Error loading wards: ${wardsData.message}`);
+                }
+            } catch (error) {
+                console.error('Error fetching ward data:', error);
+            }
+        }
+
+        async function filterLicenses() {
+            const wardSelect = document.getElementById('ward');
+            const districtSelect = document.getElementById('district');
+
+            const wardInput = Array.from(document.querySelectorAll('input[name="wardCheckbox"]:checked'))
+                .map(checkbox => checkbox.value);
+            const districtInput = districtSelect.value;
+
+            const apiPromises = [];
+
+            if (wardInput.length === 0 || wardInput.includes('')) {
+                const url = `http://localhost:3500/api/license/getLicenseByDis/${districtInput}`;
+                const promise = fetch(url)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'OK') {
+                            return data.data;
+                        } else {
+                            throw new Error(`Error: ${data.message}`);
+                        }
+                    })
+                    .catch(error => {
+                        return []; // Return an empty array to ensure displayLicenses is called
+                    });
+
+                apiPromises.push(promise);
+            } else {
+                wardInput.forEach(ward => {
+                    let url;
+
+                    if (wardInput && districtInput) {
+                        url = `http://localhost:3500/api/license/getLicenseByWardDis/${ward}/${districtInput}`;
+                    } else if (districtInput) {
+                        url = `http://localhost:3500/api/license/getLicenseByDis/${districtInput}`;
+                    }
+
+                    const promise = fetch(url)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.status === 'OK') {
+                                return data.data;
+                            } else {
+                                throw new Error(`Error for ward ${ward}: ${data.message}`);
+                            }
+                        })
+                        .catch(error => {
+                            return []; // Return an empty array to ensure displayLicenses is called
+                        });
+
+                    apiPromises.push(promise);
+                });
+            }
+
+            try {
+                const results = await Promise.all(apiPromises);
+
+                // Combine the results into a single array
+                const combinedData = [].concat(...results);
+
+                // Display the combined data
+                displayLicenses(combinedData);
+            } catch (error) {
+                // This block will only be executed if there's an unhandled error in the Promise.all
+                toastr.error(`Error fetching data: ${error.message}`);
+            }
+        }
+
+        async function displayLicenses(licenses) {
+            const licensesBody = document.getElementById('licensesBody');
+            licensesBody.innerHTML = '';
+
+            if (licenses.length === 0) {
+                // If no data, create a single row with a "No data" message
+                const noDataRow = document.createElement('tr');
+                const noDataCell = document.createElement('td');
+                noDataCell.setAttribute('colspan', '6');
+                noDataCell.textContent = 'Không có dữ liệu';
+                noDataCell.classList.add('text-center');
+                noDataRow.appendChild(noDataCell);
+                licensesBody.appendChild(noDataRow);
+            } else {
+                // If there is data, create rows for each point
+                licenses.forEach(license => {
+                    const row = document.createElement('tr');
+
+                    row.innerHTML = `
+                <td>${license.idPoint}</td>
+                <td>${license.idPanel}</td>
+                <td>${license.companyName}</td>
+                <td>${license.companyEmail}</td>
+                <td>${license.companyPhone}</td>
+                <td style="color: ${getColorByAccept(license.isAccept)}">${formatAccept(license.isAccept)}</td>
+            `;
+
+                    row.addEventListener('dblclick', () => {
+                        loadDetails(license);
+                        $('#detailsModal').modal('show');
+                    });
+
+                    row.addEventListener('click', () => highlightRow(row));
+
+                    licensesBody.appendChild(row);
+                });
+            }
+        }
+
+        function getColorByAccept(accept) {
+            switch (accept) {
+                case -1:
+                    return 'red'
+                case 0:
+                    return 'gold';
+                case 1:
+                    return 'green';
+                default:
+                    return 'black';
+            }
+        }
+
+        function formatAccept(accept) {
+            switch (accept) {
+                case -1:
+                    return 'Bị từ chối'
+                case 0:
+                    return 'Chờ cấp phép';
+                case 1:
+                    return 'Đã cấp phép';
+                default:
+                    return 'Unknown';
+            }
+        }
+
+        async function loadDetails(license) {
+            document.getElementById('modalContent').innerHTML = "";
+
+            const cancelButton = document.getElementById('deleteButton');
+
+            // Check if the licenses.isAccept is 0, then show the cancel button
+            if (license.isAccept === 0) {
+                cancelButton.style.display = 'inline-block';
+            } else {
+                cancelButton.style.display = 'none';
+            }
+
+            let address;
+            let panel;
+
+            await fetch(`http://localhost:3500/api/point/getPoint/${license.idPoint}`)
+                .then(response => response.json())
+                .then(data => {
+                    let point = data.data;
+                    address = point.address.trim() + ", " + point.area.ward + ", " + point.area.district;
+                });
+
+            await fetch(`http://localhost:3500/api/panel/getPanelById/${license.idPanel}`)
+                .then(response => response.json())
+                .then(data => {
+                    let fetched = data.data;
+                    panel = fetched.Paneltype + " (" + license.idPanel + ")";
+                });
+
+            let details = `<div id="licenseId">ID yêu cầu: <b>${license._id}</b></div><br><br>
+                            <h6 class="card-subtitle mb-2">Thông tin quảng cáo</h6>
+                            <p class="card-text">Địa chỉ điểm đặt: <b>${address}</b><br>
+                                                Bảng quảng cáo: <b>${panel}</b><br>
+                                                Nội dung quảng cáo:<br>${license.content}<br>
+                                                Hình ảnh đính kèm:<br><br>
+                                                <img class="img-fluid" src="http://localhost:3500/api/licenseImg/getImgLicense/${license.imageId}" alt=""><br><br>
+                            </p>
+                            <h6 class="card-subtitle mb-2">Thông tin công ty xin cấp phép</h6>
+                            <p class="card-text">Tên công ty: <b>${license.companyName}</b><br>
+                                                Email: <b>${license.companyEmail}</b><br>
+                                                Số điện thoại: <b>${license.companyPhone}</b><br>
+                                                Địa chỉ công ty: <b>${license.companyAddress}</b><br>
+                                                Ngày bắt đầu hợp đồng: <b>${license.startDay}</b><br>
+                                                Ngày kết thúc hợp đồng: <b>${license.endDay}</b><br><br>
+                                                Tình trạng xét duyệt: <b style="color:${license.isAccept == 1 ? 'green"> Đã duyệt' : license.isAccept == 0 ? 'gold"> Chưa duyệt' : 'red"> Bị từ chối'}</b>
+                            </p>`;
+
+            document.getElementById('modalContent').innerHTML = details;
+        }
+
+        function highlightRow(row) {
+            // Remove highlight from all rows
+            const rows = document.querySelectorAll('#licensesBody tr');
+            rows.forEach(r => r.classList.remove('highlighted'));
+
+            // Add highlight to the clicked row
+            row.classList.add('highlighted');
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const deleteButton = document.getElementById('deleteButton');
+
+
+            if (deleteButton) {
+                deleteButton.addEventListener('click', sendDeleteRequest);
+            }
+
+        });
+
+        async function sendDeleteRequest(event) {
+            const licenseIdElement = document.getElementById('licenseId');
+            console.log(licenseIdElement)
+            const licenseIdText = licenseIdElement.innerText.trim();
+
+            if (licenseIdText.startsWith('ID yêu cầu:')) {
+                // Extract only the ID part
+                const licenseId = licenseIdText.replace('ID yêu cầu:', '').trim();
+
+                try {
+                    const response = await fetch(`http://localhost:3500/api/license/deleteLicense/${licenseId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+
+                        }),
+                    });
+
+                    const data = await response.json();
+
+                    if (data.status === 'OK') {
+                        toastr.options.onHidden = () => { window.location.href = "/api/controlLicense" }
+                        toastr.success("Xoá yêu cầu thành công.")
+                    } else {
+                        toastr.error("Xoá thất bại.");
+                    }
+                } catch (error) {
+                    console.error('Error deleting request:', error);
+                }
+
+                // Close the modal after updating
+                $('#detailsModal').modal('hide');
+            } else {
+                console.log(licenseId);
+            }
+        }
+    </script>
     {{else}}
     <div class="control-responsive p-4 d-flex flex-column align-items-center">
         <div class="container">
@@ -36,22 +443,21 @@
                 </div>
             </div>
 
-            <div class="d-flex" id="info-container">
-
+            <small class="text-muted">Click đúp vào một dòng để xem thông tin chi tiết.</small>
+            <div class="d-flex mt-2" id="info-container">
                 <div class="table-responsive">
                     <table class="table table-hover" id="licensesTable">
                         <thead>
                             <tr>
-                                <th>ID Điểm đặt</th>
-                                <th>ID Bảng quảng cáo</th>
+                                <th>ID điểm đặt</th>
+                                <th>ID bảng quảng cáo</th>
                                 <th>Tên công ty</th>
-                                <th>Emai công ty</th>
+                                <th>Email công ty</th>
                                 <th>Điện thoại liên lạc</th>
                                 <th>Tình trạng</th>
                             </tr>
                         </thead>
                         <tbody id="licensesBody">
-                            <!-- points will be dynamically added here -->
                         </tbody>
                     </table>
                 </div>
@@ -76,8 +482,8 @@
                                     <i class="bi bi-skip-backward-fill"></i>
                                     Quay lại
                                 </button>
-                                <button class="btn btn-outline-primary" id="deleteButton">
-                                    <i class="bi bi-pencil-square"></i>
+                                <button class="btn btn-outline-danger" id="deleteButton">
+                                    <i class="bi bi-trash"></i>
                                     Huỷ
                                 </button>
                             </div>
@@ -144,11 +550,10 @@
                 console.error('Error fetching district data:', error);
             }
 
-            // Call filterReports after fetching ward and district values
-            filterReports();
+            filterLicenses();
         });
 
-        async function filterReports() {
+        async function filterLicenses() {
             const wardSelect = document.getElementById('ward');
             const districtSelect = document.getElementById('district');
 
@@ -158,7 +563,7 @@
             let url;
 
             if (wardInput && districtInput) {
-                url = `http://localhost:3500/api/license/getLicenseByIdPointWardDis/${wardInput}/${districtInput}`;
+                url = `http://localhost:3500/api/license/getLicenseByWardDis/${wardInput}/${districtInput}`;
             }
 
             try {
@@ -183,7 +588,7 @@
                 // If no data, create a single row with a "No data" message
                 const noDataRow = document.createElement('tr');
                 const noDataCell = document.createElement('td');
-                noDataCell.setAttribute('colspan', '10');
+                noDataCell.setAttribute('colspan', '6');
                 noDataCell.textContent = 'Không có dữ liệu';
                 noDataRow.appendChild(noDataCell);
                 licensesBody.appendChild(noDataRow);
@@ -239,33 +644,52 @@
             }
         }
 
-        function loadDetails(licenses) {
+        async function loadDetails(license) {
             document.getElementById('modalContent').innerHTML = "";
 
             const cancelButton = document.getElementById('deleteButton');
 
             // Check if the licenses.isAccept is 0, then show the cancel button
-            if (licenses.isAccept === 0) {
+            if (license.isAccept === 0) {
                 cancelButton.style.display = 'inline-block';
             } else {
                 cancelButton.style.display = 'none';
             }
 
-            const details = `
-        <p class="card-text">
-            <div id="licenseId">ID yêu cầu: <b>${licenses._id}</b><br></div>
-            ID điểm đặt: <b>${licenses.idPoint}</b><br>
-            ID bảng quảng cáo: <b>${licenses.idPanel}</b><br>
-            Nội dung: <b>${licenses.content}</b><br>
-            Tên công ty: <b>${licenses.companyName}</b><br>
-            Email công ty: <b>${licenses.companyEmail}</b><br>
-            Điện thoại liên lạc: <b>${licenses.companyPhone}</b><br>
-            Ngày bắt đầu: <b>${licenses.startDay}</b><br>
-            Ngày kết thúc: <b>${licenses.endDay}</b><br>
-            Tình trạng: <b style="color:${getColorByAccept(licenses.isAccept)}">${formatAccept(licenses.isAccept)}</b><br>
-            Hình ảnh điểm đặt:<br><br>
-            <strong>Ảnh:</strong> <img class="img-fluid" src="http://localhost:3500/api/licenseImg/getImgLicense/${licenses.imageId}" referrerpolicy="no-referrer" >
-        </p>`;
+            let address;
+            let panel;
+
+            await fetch(`http://localhost:3500/api/point/getPoint/${license.idPoint}`)
+                .then(response => response.json())
+                .then(data => {
+                    let point = data.data;
+                    address = point.address.trim() + ", " + point.area.ward + ", " + point.area.district;
+                });
+
+            await fetch(`http://localhost:3500/api/panel/getPanelById/${license.idPanel}`)
+                .then(response => response.json())
+                .then(data => {
+                    let fetched = data.data;
+                    panel = fetched.Paneltype + " (" + license.idPanel + ")";
+                });
+
+            let details = `<div id="licenseId">ID yêu cầu: <b>${license._id}</b></div><br><br>
+                            <h6 class="card-subtitle mb-2">Thông tin quảng cáo</h6>
+                            <p class="card-text">Địa chỉ điểm đặt: <b>${address}</b><br>
+                                                Bảng quảng cáo: <b>${panel}</b><br>
+                                                Nội dung quảng cáo:<br>${license.content}<br>
+                                                Hình ảnh đính kèm:<br><br>
+                                                <img class="img-fluid" src="http://localhost:3500/api/licenseImg/getImgLicense/${license.imageId}" alt=""><br><br>
+                            </p>
+                            <h6 class="card-subtitle mb-2">Thông tin công ty xin cấp phép</h6>
+                            <p class="card-text">Tên công ty: <b>${license.companyName}</b><br>
+                                                Email: <b>${license.companyEmail}</b><br>
+                                                Số điện thoại: <b>${license.companyPhone}</b><br>
+                                                Địa chỉ công ty: <b>${license.companyAddress}</b><br>
+                                                Ngày bắt đầu hợp đồng: <b>${license.startDay}</b><br>
+                                                Ngày kết thúc hợp đồng: <b>${license.endDay}</b><br><br>
+                                                Tình trạng xét duyệt: <b style="color:${license.isAccept == 1 ? 'green"> Đã duyệt' : license.isAccept == 0 ? 'gold"> Chưa duyệt' : 'red"> Bị từ chối'}</b>
+                            </p>`;
 
             document.getElementById('modalContent').innerHTML = details;
         }
@@ -318,7 +742,7 @@
                         toastr.error("Xoá thất bại.");
                     }
                 } catch (error) {
-                    console.error('Error deleting report:', error);
+                    console.error('Error deleting request:', error);
                 }
 
                 // Close the modal after updating

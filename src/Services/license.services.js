@@ -3,7 +3,7 @@ const Point = require('../Models/Point')
 const Ward = require("../Models/Ward");
 const District = require("../Models/District");
 
-const createLicense = (idPoint, idPanel, content, imageId, companyName, companyEmail, companyPhone, startDay, endDay) => {
+const createLicense = (idPoint, idPanel, content, imageId, companyName, companyEmail, companyPhone, companyAddress, startDay, endDay) => {
     return new Promise(async (resolve, reject) => {
         try {
             const createLicense = await License.create({
@@ -14,6 +14,7 @@ const createLicense = (idPoint, idPanel, content, imageId, companyName, companyE
                 companyName: companyName,
                 companyEmail: companyEmail,
                 companyPhone: companyPhone,
+                companyAddress: companyAddress,
                 startDay: startDay,
                 endDay: endDay,
                 isAccept: 0
@@ -90,58 +91,64 @@ const updateAccept = (idLicense, check) => {
     })
 }
 
-const getLicenseByIdPointWardDis = async (wardName, districtName) => {
-    try {
-        const ward = await Ward.findOne({ wardName: wardName });
-        if (!ward) {
-            throw {
+const getLicenseByWardDis = (wardName, districtName) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const ward = await Ward.findOne({ wardName: wardName });
+            if (!ward) {
+                reject({
+                    status: 'ERR',
+                    message: 'Ward is undefined'
+                });
+                return;
+            }
+
+            const district = await District.findOne({ disName: districtName });
+            if (!district) {
+                reject({
+                    status: 'ERR',
+                    message: 'District is undefined'
+                });
+                return;
+            }
+
+            const points = await Point.find({
+                'area.ward': ward.wardId,
+                'area.district': district.disId
+            });
+
+            if (points.length === 0) {
+                reject({
+                    status: 'ERR',
+                    message: 'No points found for the specified ward and district'
+                });
+                return;
+            }
+
+            const licenses = await License.find({ idPoint: { $in: points.map(point => point._id) } });
+
+            if (licenses.length === 0) {
+                reject({
+                    status: 'ERR',
+                    message: 'No licenses found for the specified points'
+                });
+                return;
+            }
+
+            resolve({
+                status: 'OK',
+                message: 'SUCCESS',
+                data: licenses
+            });
+
+        } catch (error) {
+            reject({
                 status: 'ERR',
-                message: 'Ward is undefined'
-            };
+                message: 'Error in processing',
+                error: error
+            });
         }
-
-        const district = await District.findOne({ disName: districtName });
-        if (!district) {
-            throw {
-                status: 'ERR',
-                message: 'District is undefined'
-            };
-        }
-
-        const points = await Point.find({
-            'area.ward': ward.wardId,
-            'area.district': district.disId
-        });
-
-        if (points.length === 0) {
-            throw {
-                status: 'ERR',
-                message: 'No points found for the specified ward and district'
-            };
-        }
-
-        const licenses = await License.find({ idPoint: { $in: points.map(point => point._id) } });
-
-        if (licenses.length === 0) {
-            throw {
-                status: 'ERR',
-                message: 'No licenses found for the specified points'
-            };
-        }
-
-        return {
-            status: 'OK',
-            message: 'SUCCESS',
-            data: licenses
-        };
-
-    } catch (error) {
-        return {
-            status: 'ERR',
-            message: 'Error in processing',
-            error: error
-        };
-    }
+    });
 };
 
 
@@ -161,12 +168,63 @@ const deleteLicense = (licenseId) => {
     });
 };
 
+const getLicenseByDis = (districtName) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const district = await District.findOne({ disName: districtName });
+            if (!district) {
+                reject({
+                    status: 'ERR',
+                    message: 'District is undefined'
+                });
+                return;
+            }
+
+            const points = await Point.find({
+                'area.district': district.disId
+            });
+
+            if (points.length === 0) {
+                reject({
+                    status: 'ERR',
+                    message: 'No points found for the specified ward and district'
+                });
+                return;
+            }
+
+            const licenses = await License.find({ idPoint: { $in: points.map(point => point._id) } });
+
+            if (licenses.length === 0) {
+                reject({
+                    status: 'ERR',
+                    message: 'No licenses found for the specified points'
+                });
+                return;
+            }
+
+            resolve({
+                status: 'OK',
+                message: 'SUCCESS',
+                data: licenses
+            });
+
+        } catch (error) {
+            reject({
+                status: 'ERR',
+                message: 'Error in processing',
+                error: error
+            });
+        }
+    });
+};
+
 
 module.exports = {
     createLicense,
     getAllLicense,
     getAcceptedLicenseByIdPanel,
     updateAccept,
-    getLicenseByIdPointWardDis,
-    deleteLicense
+    getLicenseByWardDis,
+    deleteLicense,
+    getLicenseByDis
 }
