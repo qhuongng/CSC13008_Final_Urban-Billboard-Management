@@ -25,6 +25,7 @@ const ProfileRouter = require('./profile.routes')
 const licenseImgRouter = require('./licenseImg.routes');
 const controlLicenseRouter = require('./controlLicense.routes');
 const reviewLicenseRouter = require('./reviewLicense.routes');
+const modificationRouter = require('./modification.routes');
 
 const routes = (app) => {
   // đường dẫn dùng cho citizen
@@ -52,8 +53,9 @@ const routes = (app) => {
   app.use('/api/license', licenseRouter);
   app.use('/api/profile', ProfileRouter)
   app.use('/api/licenseImg', licenseImgRouter);
-  app.use('/api/controlLicense', controlLicenseRouter),
-  app.use('/api/reviewLicense', reviewLicenseRouter)
+  app.use('/api/controlLicense', controlLicenseRouter);
+  app.use('/api/reviewLicense', reviewLicenseRouter);
+  app.use('/api/modification', modificationRouter);
   //
   app.get("/", (req, res) => {
     if (res.locals.auth == false) {
@@ -64,16 +66,6 @@ const routes = (app) => {
       res.render("index", {
         authUserRole: JSON.stringify(res.locals.authUser).replace(/\s/g, '%20')
       });
-    }
-  });
-
-  app.get("/api/modification", (req, res) => {
-    if (res.locals.auth == false) {
-      res.render("viewUser/login", {
-        layout: false
-      });
-    } else {
-      res.render("viewModification/modificationForm", { point: req.query.point, panel: req.query.panel });
     }
   });
 };
