@@ -64,6 +64,17 @@ const routes = (app) => {
       });
     }
   });
+
+  app.get("/api/modification", (req, res) => {
+    if (res.locals.auth == false) {
+      res.render("viewUser/login", {
+        layout: false
+      });
+    } else {
+      res.render("viewModification/modificationForm", { point: req.query.point, panel: req.query.panel });
+    }
+  });
 };
+
 
 module.exports = routes;
