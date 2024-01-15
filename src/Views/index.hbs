@@ -119,20 +119,42 @@
     </div>
 </body>
 <script>
-  function loadPanelDetail(item) {
+  async function loadPanelDetail(item) {
     document.getElementById("billboard-modal-body").innerHTML = "";
     document.getElementById("billboard-modal-footer").innerHTML = "";
 
     const info = JSON.parse(item);
+
+    console.log(info);
+
+    let licenseImgId;
+    let licenseEndDate;
+
+    await fetch(`http://localhost:3500/api/license/getLicenseByIdPanel/${info.panelId}`)
+      .then(response => response.json())
+      .then(data => {
+        if (data.data.length > 0) {
+          let fetchedLicenses = data.data;
+          fetchedLicenses.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+          console.log(fetchedLicenses[0]);
+          licenseImgId = fetchedLicenses[0].imageId;
+          licenseEndDate = fetchedLicenses[0].endDay;
+        }
+      })
+      .catch(error => {
+        // Handle any errors that occurred during the fetch
+        console.error('Error fetching panel image:', error);
+      });
 
     let bodyHtml = `<h5 class="card-title">${info.Paneltype}</h5>
                 <h6 class="card-subtitle mb-2 text-muted">${info.address}</h6>
                 <p class="card-text">Kích thước: ${info.size}<br>
                                       Số lượng: ${info.amount}<br>
                                       Hình thức: <b>${info.billboardType}</b><br>
-                                      Phân loại: <b>${info.positionType}</b><br>
-                                      Ngày hết hạn: <b>${info.expDate.slice(0, 10)}</b></p>
-                                      <img class="img-fluid" src="https://lh3.google.com/u/0/d/${info.picturePanel}" referrerpolicy="no-referrer" alt=""><br>`
+                                      Phân loại: <b>${info.positionType}</b>
+                                      ${licenseEndDate ? `<br>Ngày hết hạn: <b>${licenseEndDate}</b></p>` : "</p>"}
+                                      ${licenseImgId ? `<img class="img-fluid" src="http://localhost:3500/api/licenseImg/getImgLicense/${licenseImgId}" referrerpolicy="no-referrer" alt=""><br>` : '<em style="color:red">Bảng quảng cáo này chưa có nội dung được cấp phép.</em>'}`;
 
     let footerHtml = `<button type="button" class="btn btn-outline-success" data-dismiss="modal">
                         <i class="bi bi-skip-backward-fill"></i>
@@ -169,6 +191,7 @@
                     <p class="card-text">Họ tên người gửi: <b>${info.name}</b><br>
                                       Email: <b>${info.email}</b><br>
                                       Số điện thoại: <b>${info.phone}</b><br>
+                                      Hình thức báo cáo: <b>${info.reportType}</b><br>
                                       Nội dung: ${info.content}
                                       Hình ảnh đối tượng báo cáo:<br><br>
                                       ${imgDivs}
