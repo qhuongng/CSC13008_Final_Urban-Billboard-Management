@@ -9,17 +9,20 @@ const createPoint = async (req, res) => {
         }
         const savedFile = (await pointImgServices.sendPointImg(file)).data;
 
-
-        const { _id, name, address, area, locate, positionType, formAdvertising } = req.body;
-        if (!_id || !name || !address || !area || !locate || !positionType || !formAdvertising) {
-            return res.status(404).json({
+        const { name, address, area, locate, positionType, formAdvertising } = req.body;
+        if (!name || !address || !area || !locate || !positionType || !formAdvertising) {
+            return res.status(205).json({
                 status: "ERR",
                 message: "The input is required",
             });
         }
+        req.body.area = area.split(',');
+        req.body.locate = locate.split(',');
         req.body.picturePoint = savedFile._id;
+        console.log(req.body);
         const response = await PointService.createPoint(req.body);
-        return res.status(200).json(response);
+        if (response.status === "ERR") return res.status(205).json(response);
+        else return res.status(200).json(response);
     } catch (e) {
         return res.status(404).json({
             message: e,

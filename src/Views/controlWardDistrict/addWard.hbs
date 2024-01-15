@@ -23,10 +23,6 @@
               readonly>
           </div>
           <div class="form-group">
-            <label for="wardId">ID phường</label>
-            <input type="text" class="form-control" id="wardId" name="wardId" placeholder="P01" autofocus>
-          </div>
-          <div class="form-group">
             <label for="wardName">Tên phường</label>
             <input type="text" class="form-control" id="wardName" name="wardName" placeholder="Phường 1" autofocus>
           </div>
@@ -68,31 +64,17 @@
     document.addEventListener('DOMContentLoaded', function () {
 
       const txtWardNameInput = $('#wardName');
-      const txtWardIdInput = $('#wardId');
 
       // Function to send PUT request
       const sendPostRequest = async () => {
         const districtRefId = document.getElementById('districtRefId').value;
-        if (!txtWardIdInput.val() && !txtWardNameInput.val()) {
-          toastr.error("Vui lòng điền đầy đủ ID phường và tên phường.");
-          txtWardIdInput.addClass('border-danger');
-          txtWardIdInput.focus();
-          txtWardNameInput.addClass('border-danger');
-          txtWardNameInput.focus();
-        }
-        else if (!txtWardIdInput.val() && txtWardNameInput.val()) {
-          toastr.error("Vui lòng điền ID phường.");
-          txtWardIdInput.addClass('border-danger');
-          txtWardNameInput.removeClass('border-danger');
-          txtWardIdInput.focus();
-        }
-        else if (txtWardIdInput.val() && !txtWardNameInput.val()) {
+        if (!txtWardNameInput.val()) {
           toastr.error("Vui lòng điền tên phường.");
           txtWardNameInput.addClass('border-danger');
-          txtWardIdInput.removeClass('border-danger');
           txtWardNameInput.focus();
         }
         else {
+          txtWardNameInput.removeClass('border-danger');
           try {
             const response = await fetch('http://localhost:3500/api/ward/createWard', {
               method: 'POST',
@@ -100,7 +82,6 @@
                 'Content-Type': 'application/json',
               },
               body: JSON.stringify({
-                wardId: txtWardIdInput.val(),
                 wardName: txtWardNameInput.val(),
                 districtRefId: districtRefId
               }),

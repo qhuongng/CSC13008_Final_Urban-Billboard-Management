@@ -81,10 +81,10 @@
         </div>
 
         <div class="property">
-            <strong>Ngày tháng năm sinh:</strong>
+            <strong>Ngày sinh:</strong>
             <span id="dateOfBirth"> </span>
-            <a onclick="loadDetails('Ngày tháng năm sinh', document.getElementById('dateOfBirth').innerText)"
-                class="edit-link" href="#"><i class="bi bi-pencil-square"></i> Sửa</a>
+            <a onclick="loadDetails('Ngày sinh', document.getElementById('dateOfBirth').innerText)" class="edit-link"
+                href="#"><i class="bi bi-pencil-square"></i> Sửa</a>
         </div>
 
         <div class="property">
@@ -235,7 +235,7 @@
                         } else {
                             toastr.error("Cập nhật thất bại.");
                         }
-                        $('#detailsModal').modal('hide');
+                        //$('#detailsModal').modal('hide');
                     })
                     .catch(error => {
                         // Handle error or show a notification

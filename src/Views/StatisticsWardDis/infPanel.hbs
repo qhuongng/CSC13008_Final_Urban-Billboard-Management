@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.2/js/toastr.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
+</head>
+
+<body>
+    {{#ifCond authUser.role.[0] '===' "-1"}}
+    <div class="control-responsive p-4 d-flex flex-column align-items-center">
+        <div class="container mt-3">
+            <h2 class="mb-4">Thống kê bảng quảng cáo</h2>
+
+            <div class="d-flex flex-column mb-4" id="filters-container">
+                <div class="row d-flex" id="location-filters">
+                    <div class="form-group col-2">
+                        <label for="ward">Quận</label>
+                        <input type="text" class="form-control" id="district" name="district"
+                            value="{{authUser.role.[1]}}" readonly>
+                    </div>
+                    <div class="form-group col-9">
+                        <label for="district">Phường</label>
+                        <div id="wardCheckboxes" class="d-flex flex-wrap mt-2">
+                            <!-- Checkboxes for wards will be dynamically added here -->
+                        </div>
+                    </div>
+                    <div class="form-group col-1 ml-auto">
+                        <label>&nbsp;</label>
+                        <button type="button" class="d-flex btn btn-outline-primary" onclick="filterReports()">
+                            <i class="bi bi-funnel"></i>
+                            &nbsp;Lọc
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <small class="text-muted">Click đúp vào một dòng để xem thông tin chi tiết và xin cấp phép.</small>
+            <div class="d-flex mt-2" id="info-container">
+                <div class="table-responsive">
+                    <table class="table table-hover" id="panelsTable">
+                        <thead>
+                            <tr>
+                                <th>ID bảng quảng cáo</th>
+                                <th>Loại bảng</th>
+                                <th>Địa chỉ</th>
+                                <th>Số lượng</th>
+                                <th>Kích thước</th>
+                                <th>&nbsp;</th>
+                            </tr>
+                        </thead>
+                        <tbody id="panelsBody">
+                            <!-- Points will be dynamically added here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Modal for detailed information -->
+                <div class="modal fade" id="detailsModal" tabindex="-1" role="dialog" aria-labelledby="info-modal-title"
+                    aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="info-modal-title">Chi tiết bảng quảng cáo</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body" id="modal-content">
+                                <ul class="nav nav-tabs mb-3" id="tab-content">
+                                    <li class="nav-item "><a class="nav-link" href="#billboard-info"
+                                            data-toggle="tab">Chi tiết</a>
+                                    </li>
+                                    <li class="nav-item"><a class="nav-link" href="#billboard-permits"
+                                            data-toggle="tab">Cấp phép</a>
+                                    </li>
+                                </ul>
+                                <div class="tab-content">
+                                    <div class="tab-pane" id="billboard-info">
+                                    </div>
+                                    <div class="tab-pane" id="billboard-permits">
+                                        <div id="modal-accordion">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-outline-success" data-dismiss="modal">
+                                    <i class="bi bi-skip-backward-fill"></i>
+                                    Quay lại
+                                </button>
+                                <a class="btn btn-outline-primary float-right text-nowrap" href="/api/license"
+                                    id="licenseButton">
+                                    <i class="bi bi-envelope-paper-fill"></i>
+                                    Yêu cầu cấp phép
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+    </div>
+
+    <script>
+        toastr.options.closeButton = true;
+        toastr.options = {
+            "closeButton": true,
+            "debug": false,
+            "newestOnTop": false,
+            "progressBar": false,
+            "positionClass": "toast-top-center",
+            "preventDuplicates": false,
+            "onclick": null,
+            "showDuration": "300",
+            "hideDuration": "300",
+            "timeOut": "2000",
+            "extendedTimeOut": "1000",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+        }
+
+        document.addEventListener('DOMContentLoaded', async function () {
+            var disId = document.getElementById('district').value;
+
+            // Fetch disName
+            try {
+                const disResponse = await fetch(`http://localhost:3500/api/district/getDisById/${disId}`);
+                const disData = await disResponse.json();
+
+                // Assuming the response data structure includes disName property
+                var disName = disData.data.disName;
+
+                // Set the value of the district input field
+                document.getElementById('district').value = disName;
+            } catch (error) {
+                console.error('Error fetching district data:', error);
+            }
+
+            loadWards(disName);
+
+            // Call filterPoints after fetching ward and district values
+            filterPoints();
+
+        });
+
+        async function loadWards(disName) {
+            const wardCheckboxesContainer = document.getElementById('wardCheckboxes');
+            wardCheckboxesContainer.innerHTML = '';
+
+            try {
+                const wardsResponse = await fetch(`http://localhost:3500/api/ward/getWard/${disName}`);
+                const wardsData = await wardsResponse.json();
+
+                if (wardsData.status === 'OK') {
+                    const wards = wardsData.data;
+
+                    // Add checkboxes for each ward
+                    wards.forEach(ward => {
+                        const checkboxDiv = document.createElement('div');
+                        checkboxDiv.classList.add('form-check', 'mr-3');
+
+                        const checkbox = document.createElement('input');
+                        checkbox.type = 'checkbox';
+                        checkbox.classList.add('form-check-input');
+                        checkbox.id = `wardCheckbox_${ward.wardName}`;
+                        checkbox.value = ward.wardName;
+                        checkbox.name = 'wardCheckbox';
+
+                        const label = document.createElement('label');
+                        label.classList.add('form-check-label');
+                        label.setAttribute('for', `wardCheckbox_${ward.wardName}`);
+                        label.textContent = ward.wardName;
+
+                        checkboxDiv.appendChild(checkbox);
+                        checkboxDiv.appendChild(label);
+
+                        wardCheckboxesContainer.appendChild(checkboxDiv);
+                    });
+                } else {
+                    toastr.error(`Error loading wards: ${wardsData.message}`);
+                }
+            } catch (error) {
+                console.error('Error fetching ward data:', error);
+            }
+        }
+
+        async function filterPoints() {
+            const wardSelect = document.getElementById('ward');
+            const districtSelect = document.getElementById('district');
+
+            const wardInput = Array.from(document.querySelectorAll('input[name="wardCheckbox"]:checked'))
+                .map(checkbox => checkbox.value);
+            const districtInput = districtSelect.value;
+
+            // Array to store promises for each ward API call
+            const apiPromises = [];
+
+            if (wardInput.length === 0 || wardInput.includes('')) {
+                const url = `http://localhost:3500/api/point/getPointByDis/${districtInput}`;
+                const promise = fetch(url)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'OK') {
+                            return data.data;
+                        } else {
+                            throw new Error(`Error: ${data.message}`);
+                        }
+                    });
+
+                apiPromises.push(promise);
+            } else {
+                // Handle the case when one or more wards are selected
+                wardInput.forEach(ward => {
+                    let url;
+
+                    if (wardInput && districtInput) {
+                        url = `http://localhost:3500/api/point/getPointByWardAndDis/${wardInput}/${districtInput}`;
+                    } else if (districtInput) {
+                        url = `http://localhost:3500/api/point/getPointByDis/${districtInput}`;
+                    }
+
+                    const promise = fetch(url)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.status === 'OK') {
+                                return data.data;
+                            } else {
+                                throw new Error(`Error for ward ${ward}: ${data.message}`);
+                            }
+                        });
+
+                    apiPromises.push(promise);
+                });
+            }
+
+            try {
+                // Wait for all API calls to complete
+                const results = await Promise.all(apiPromises);
+
+                // Combine the results into a single array
+                const combinedData = [].concat(...results);
+
+                // Display the combined data
+                getPanelsFromPoints(combinedData);
+            } catch (error) {
+                toastr.error(`Error fetching data: ${error.message}`);
+            }
+        }
+
+        async function getPanelsFromPoints(points) {
+            let panelPromises = [];
+
+            points.forEach(point => {
+                const promise = fetch(`http://localhost:3500/api/panel/getListPanel/${point._id}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'OK') {
+                            if (data.data.length > 0) {
+                                let fetchedPanels = data.data;
+                                let addr = point.address.trim() + ", " + point.area.ward + ", " + point.area.district;
+
+                                fetchedPanels.forEach(panel => panel.address = addr);
+
+                                return fetchedPanels;
+                            }
+                        } else {
+                            throw new Error(`Error fetching panels: ${data.message}`);
+                        }
+                    });
+
+                panelPromises.push(promise);
+            });
+
+            try {
+                // Wait for all API calls to complete
+                const results = await Promise.all(panelPromises);
+
+                // Combine the results into a single array
+                const combinedData = [].concat(...results.filter(Array.isArray));
+
+                // Display the combined data
+                displayPanels(combinedData);
+            } catch (error) {
+                toastr.error(`Error fetching data: ${error.message}`);
+            }
+        }
+
+        async function displayPanels(panels) {
+            const panelsBody = document.getElementById('panelsBody');
+            panelsBody.innerHTML = '';
+
+            if (panels.length === 0) {
+                // If no data, create a single row with a "No data" message
+                const noDataRow = document.createElement('tr');
+                const noDataCell = document.createElement('td');
+                noDataCell.setAttribute('colspan', '10');
+                noDataCell.textContent = 'Không có dữ liệu';
+                noDataRow.appendChild(noDataCell);
+                panelsBody.appendChild(noDataRow);
+            } else {
+                // If there is data, create rows for each point
+                panels.forEach(panel => {
+                    const row = document.createElement('tr');
+
+                    row.innerHTML = `<th scope="row">${panel._id}</th>
+                                    <td>${panel.Paneltype}</td>
+                                    <td>${panel.address}</td>
+                                    <td>${panel.amount}</td>
+                                    <td>${panel.size}</td>
+                                    <td>
+                                        <button class="btn btn-outline-primary float-right text-nowrap" id="editButton">
+                                            <i class="bi bi-pencil-square"></i>
+                                            Yêu cầu chỉnh sửa
+                                        </button>
+                                    </td>`;
+
+                    row.addEventListener('dblclick', () => {
+                        loadDetails(panel);
+                        $('#detailsModal').modal('show');
+                    });
+
+                    row.addEventListener('click', () => highlightRow(row));
+
+                    panelsBody.appendChild(row);
+                });
+            }
+        }
+
+        async function loadDetails(panel) {
+            document.getElementById('billboard-info').innerHTML = "";
+            document.getElementById('modal-accordion').innerHTML = "";
+
+            let licenseImgId;
+
+            await fetch(`http://localhost:3500/api/license/getLicenseByIdPanel/${panel._id}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.data.length > 0) {
+                        let fetchedLicenses = data.data;
+                        fetchedLicenses.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+                        licenseImgId = fetchedLicenses[0].imageId;
+                    }
+                })
+                .catch(error => {
+                    // Handle any errors that occurred during the fetch
+                    console.error('Error fetching panel image:', error);
+                });
+
+            const details = `<h6 class="card-subtitle mb-2 text-muted">${panel.Paneltype}</h6>
+                      <p class="card-text">
+                          <div id="pointId">ID bảng quảng cáo: <b>${panel._id}</b></div>
+                          Địa chỉ: <b>${panel.address}</b><br>
+                          Số lượng: <b>${panel.amount}</b><br>
+                          Kích thước: <b>${panel.size}</b><br>
+                          Hình ảnh bảng quảng cáo:<br><br>
+                          <img class="img-fluid" src="http://localhost:3500/api/licenseImg/getImgLicense/${licenseImgId}" alt=""><br>
+                          </p>`;
+
+            document.getElementById('billboard-info').innerHTML = details;
+
+            let licenses = [];
+
+            await fetch(`http://localhost:3500/api/license/getAllLicense`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.data.length > 0) {
+                        let fetchedLicenses = data.data;
+
+                        fetchedLicenses.forEach(license => {
+                            if (license.idPanel == panel._id) {
+                                licenses.push(license);
+                            }
+                        })
+                    }
+                })
+                .catch(error => {
+                    // Handle any errors that occurred during the fetch
+                    console.error('Error fetching panel license:', error);
+                });
+
+            let panelLicenseHtml = '';
+
+            if (licenses.length === 0) {
+                document.getElementById("panel-report-accordion").innerHTML += "Biển quảng cáo này có yêu cầu cấp phép.";
+            }
+            else {
+                for (let i = 0; i < licenses.length; i++) {
+                    let license = licenses[i];
+
+                    let bodyHtml = `<h6 class="card-subtitle mb-2">Thông tin quảng cáo</h6>
+                                    <p class="card-text">Địa chỉ điểm đặt: <b>${panel.address}</b><br>
+                                                        Bảng quảng cáo cần cấp phép: <b>${panel.Paneltype} (${panel._id})</b><br>
+                                                        Nội dung quảng cáo: <b>${license.content}</b><br>
+                                                        Hình ảnh đính kèm:<br><br>
+                                                        <img class="img-fluid" src="http://localhost:3500/api/licenseImg/getImgLicense/${license.imageId}" alt=""><br>
+                                    </p>
+                                    <h6 class="card-subtitle mb-2">Thông tin công ty xin cấp phép</h6>
+                                    <p class="card-text">Tên công ty: <b>${license.companyName}</b><br>
+                                                        Email: <b>${license.companyEmail}</b><br>
+                                                        Số điện thoại: <b>${license.companyPhone}</b><br>
+                                                        Ngày bắt đầu hợp đồng: <b>${license.startDay}</b><br>
+                                                        Ngày kết thúc hợp đồng: <b>${license.endDay}</b><br><br>
+                                                        Tình trạng xét duyệt: <b style="color:${license.isAccept == 1 ? 'green"> Đã duyệt' : license.isAccept == 0 ? 'gold"> Chưa duyệt' : 'red"> Bị từ chối'}</b>
+                                    </p>`;
+
+                    panelLicenseHtml += `<div class="card">
+                                                <div class="card-header" id="heading${i}">
+                                                    <h5 class="mb-0">
+                                                        <a class="btn" data-toggle="collapse" href="#collapse${i}" aria-expanded="true" aria-controls="collapse${i}">
+                                                        ${license.companyName} (${panel.Paneltype})
+                                                        </a>
+                                                    </h5>
+                                                </div>
+                                                <div id="collapse${i}" class="collapse" aria-labelledby="heading${i}" data-parent="#modal-accordion">
+                                                    <div class="card-body">
+                                                        ${bodyHtml}
+                                                    </div>
+                                                </div>
+                                            </div>`;
+                }
+            }
+
+            document.getElementById("modal-accordion").innerHTML = panelLicenseHtml;
+        }
+
+        function highlightRow(row) {
+            // Remove highlight from all rows
+            const rows = document.querySelectorAll('#panelsBody tr');
+            rows.forEach(r => r.classList.remove('highlighted'));
+
+            // Add highlight to the clicked row
+            row.classList.add('highlighted');
+        }
+
+    </script>
+    {{else}}
+    <div class="control-responsive p-4 d-flex flex-column align-items-center">
+        <div class="container mt-3">
+            <h2 class="mb-4">Thống kê bảng quảng cáo</h2>
+
+            <div class="row d-flex justify-content-center mb-4">
+                <!-- Center the filters section -->
+                <div class="col-6">
+                    <div class="d-flex justify-content-between align-items-center" id="filters-container">
+                        <div class="row flex-fill" id="filters">
+                            <div class="form-group col-6">
+                                <label for="district">Phường</label>
+                                <input type="text" class="form-control" id="ward" name="ward"
+                                    value="{{authUser.role.[0]}}" readonly>
+                            </div>
+                            <div class="form-group col-6">
+                                <label for="ward">Quận</label>
+                                <input type="text" class="form-control" id="district" name="district"
+                                    value="{{authUser.role.[1]}}" readonly>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <small class="text-muted">Click đúp vào một dòng để xem thông tin chi tiết và xin cấp phép.</small>
+            <div class="d-flex mt-2" id="info-container">
+                <div class="table-responsive">
+                    <table class="table table-hover" id="panelsTable">
+                        <thead>
+                            <tr>
+                                <th>ID bảng quảng cáo</th>
+                                <th>Loại bảng</th>
+                                <th>Địa chỉ</th>
+                                <th>Số lượng</th>
+                                <th>Kích thước</th>
+                                <th>&nbsp;</th>
+                            </tr>
+                        </thead>
+                        <tbody id="panelsBody">
+                            <!-- Points will be dynamically added here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Modal for detailed information -->
+                <div class="modal fade" id="detailsModal" tabindex="-1" role="dialog" aria-labelledby="info-modal-title"
+                    aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="info-modal-title">Chi tiết bảng quảng cáo</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body" id="modal-content">
+                                <ul class="nav nav-tabs mb-3" id="tab-content">
+                                    <li class="nav-item "><a class="nav-link" href="#billboard-info"
+                                            data-toggle="tab">Chi tiết</a>
+                                    </li>
+                                    <li class="nav-item"><a class="nav-link" href="#billboard-permits"
+                                            data-toggle="tab">Cấp phép</a>
+                                    </li>
+                                </ul>
+                                <div class="tab-content">
+                                    <div class="tab-pane" id="billboard-info">
+                                    </div>
+                                    <div class="tab-pane" id="billboard-permits">
+                                        <div id="modal-accordion">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-outline-success" data-dismiss="modal">
+                                    <i class="bi bi-skip-backward-fill"></i>
+                                    Quay lại
+                                </button>
+                                <a class="btn btn-outline-primary float-right text-nowrap" href="/api/license"
+                                    id="licenseButton">
+                                    <i class="bi bi-envelope-paper-fill"></i>
+                                    Yêu cầu cấp phép
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+    </div>
+
+    <script>
+        toastr.options.closeButton = true;
+        toastr.options = {
+            "closeButton": true,
+            "debug": false,
+            "newestOnTop": false,
+            "progressBar": false,
+            "positionClass": "toast-top-center",
+            "preventDuplicates": false,
+            "onclick": null,
+            "showDuration": "300",
+            "hideDuration": "300",
+            "timeOut": "2000",
+            "extendedTimeOut": "1000",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+        }
+
+        document.addEventListener('DOMContentLoaded', async function () {
+            var wardId = document.getElementById('ward').value;
+            var disId = document.getElementById('district').value;
+
+            // Fetch wardName
+            try {
+                const wardResponse = await fetch(`http://localhost:3500/api/ward/getWardById/${wardId}`);
+                const wardData = await wardResponse.json();
+
+                // Assuming the response data structure includes wardName property
+                var wardName = wardData.data.wardName;
+
+                // Set the value of the ward input field
+                document.getElementById('ward').value = wardName;
+            } catch (error) {
+                console.error('Error fetching ward data:', error);
+            }
+
+            // Fetch disName
+            try {
+                const disResponse = await fetch(`http://localhost:3500/api/district/getDisById/${disId}`);
+                const disData = await disResponse.json();
+
+                // Assuming the response data structure includes disName property
+                var disName = disData.data.disName;
+
+                // Set the value of the district input field
+                document.getElementById('district').value = disName;
+            } catch (error) {
+                console.error('Error fetching district data:', error);
+            }
+
+            // Call filterPoints after fetching ward and district values
+            filterPoints();
+        });
+
+        async function filterPoints() {
+            const wardSelect = document.getElementById('ward');
+            const districtSelect = document.getElementById('district');
+
+            const wardInput = wardSelect.value;
+            const districtInput = districtSelect.value;
+
+            let url;
+
+            if (wardInput && districtInput) {
+                url = `http://localhost:3500/api/point/getPointByWardAndDis/${wardInput}/${districtInput}`;
+            } else if (districtInput) {
+                url = `http://localhost:3500/api/point/getPointByDis/${districtInput}`;
+            }
+
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (data.status === 'OK') {
+                    getPanelsFromPoints(data.data);
+                } else {
+                    toastr.error(`Error: ${data.message}`);
+                }
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        }
+
+        async function getPanelsFromPoints(points) {
+            let panelPromises = [];
+
+            points.forEach(point => {
+                const promise = fetch(`http://localhost:3500/api/panel/getListPanel/${point._id}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'OK') {
+                            if (data.data.length > 0) {
+                                let fetchedPanels = data.data;
+                                let addr = point.address.trim() + ", " + point.area.ward + ", " + point.area.district;
+
+                                fetchedPanels.forEach(panel => panel.address = addr);
+
+                                return fetchedPanels;
+                            }
+                        } else {
+                            throw new Error(`Error fetching panels: ${data.message}`);
+                        }
+                    });
+
+                panelPromises.push(promise);
+            });
+
+            try {
+                // Wait for all API calls to complete
+                const results = await Promise.all(panelPromises);
+
+                // Combine the results into a single array
+                const combinedData = [].concat(...results.filter(Array.isArray));
+
+                // Display the combined data
+                displayPanels(combinedData);
+            } catch (error) {
+                toastr.error(`Error fetching data: ${error.message}`);
+            }
+        }
+
+        async function displayPanels(panels) {
+            const panelsBody = document.getElementById('panelsBody');
+            panelsBody.innerHTML = '';
+
+            if (panels.length === 0) {
+                // If no data, create a single row with a "No data" message
+                const noDataRow = document.createElement('tr');
+                const noDataCell = document.createElement('td');
+                noDataCell.setAttribute('colspan', '10');
+                noDataCell.textContent = 'Không có dữ liệu';
+                noDataRow.appendChild(noDataCell);
+                panelsBody.appendChild(noDataRow);
+            } else {
+                // If there is data, create rows for each point
+                panels.forEach(panel => {
+                    const row = document.createElement('tr');
+
+                    row.innerHTML = `<th scope="row">${panel._id}</th>
+                                    <td>${panel.Paneltype}</td>
+                                    <td>${panel.address}</td>
+                                    <td>${panel.amount}</td>
+                                    <td>${panel.size}</td>
+                                    <td>
+                                        <button class="btn btn-outline-primary float-right text-nowrap" id="editButton">
+                                            <i class="bi bi-pencil-square"></i>
+                                            Yêu cầu chỉnh sửa
+                                        </button>
+                                    </td>`;
+
+                    row.addEventListener('dblclick', () => {
+                        loadDetails(panel);
+                        $('#detailsModal').modal('show');
+                    });
+
+                    row.addEventListener('click', () => highlightRow(row));
+
+                    panelsBody.appendChild(row);
+                });
+            }
+        }
+
+        async function loadDetails(panel) {
+            document.getElementById('billboard-info').innerHTML = "";
+            document.getElementById('modal-accordion').innerHTML = "";
+
+            let licenseImgId;
+
+            await fetch(`http://localhost:3500/api/license/getLicenseByIdPanel/${panel._id}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.data.length > 0) {
+                        let fetchedLicenses = data.data;
+                        fetchedLicenses.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+                        licenseImgId = fetchedLicenses[0].imageId;
+                    }
+                })
+                .catch(error => {
+                    // Handle any errors that occurred during the fetch
+                    console.error('Error fetching panel image:', error);
+                });
+
+            const details = `<h6 class="card-subtitle mb-2 text-muted">${panel.Paneltype}</h6>
+                      <p class="card-text">
+                          <div id="pointId">ID bảng quảng cáo: <b>${panel._id}</b></div>
+                          Địa chỉ: <b>${panel.address}</b><br>
+                          Số lượng: <b>${panel.amount}</b><br>
+                          Kích thước: <b>${panel.size}</b><br>
+                          Hình ảnh bảng quảng cáo:<br><br>
+                          <img class="img-fluid" src="http://localhost:3500/api/licenseImg/getImgLicense/${licenseImgId}" alt=""><br>
+                          </p>`;
+
+            document.getElementById('billboard-info').innerHTML = details;
+
+            let licenses = [];
+
+            await fetch(`http://localhost:3500/api/license/getAllLicense`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.data.length > 0) {
+                        let fetchedLicenses = data.data;
+
+                        fetchedLicenses.forEach(license => {
+                            if (license.idPanel == panel._id) {
+                                licenses.push(license);
+                            }
+                        })
+                    }
+                })
+                .catch(error => {
+                    // Handle any errors that occurred during the fetch
+                    console.error('Error fetching panel license:', error);
+                });
+
+            let panelLicenseHtml = '';
+
+            if (licenses.length === 0) {
+                document.getElementById("panel-report-accordion").innerHTML += "Biển quảng cáo này có yêu cầu cấp phép.";
+            }
+            else {
+                for (let i = 0; i < licenses.length; i++) {
+                    let license = licenses[i];
+
+                    let bodyHtml = `<h6 class="card-subtitle mb-2">Thông tin quảng cáo</h6>
+                                    <p class="card-text">Địa chỉ điểm đặt: <b>${panel.address}</b><br>
+                                                        Bảng quảng cáo cần cấp phép: <b>${panel.Paneltype} (${panel._id})</b><br>
+                                                        Nội dung quảng cáo: <b>${license.content}</b><br>
+                                                        Hình ảnh đính kèm:<br><br>
+                                                        <img class="img-fluid" src="http://localhost:3500/api/licenseImg/getImgLicense/${license.imageId}" alt=""><br>
+                                    </p>
+                                    <h6 class="card-subtitle mb-2">Thông tin công ty xin cấp phép</h6>
+                                    <p class="card-text">Tên công ty: <b>${license.companyName}</b><br>
+                                                        Email: <b>${license.companyEmail}</b><br>
+                                                        Số điện thoại: <b>${license.companyPhone}</b><br>
+                                                        Ngày bắt đầu hợp đồng: <b>${license.startDay}</b><br>
+                                                        Ngày kết thúc hợp đồng: <b>${license.endDay}</b><br><br>
+                                                        Tình trạng xét duyệt: <b style="color:${license.isAccept == 1 ? 'green"> Đã duyệt' : license.isAccept == 0 ? 'gold"> Chưa duyệt' : 'red"> Bị từ chối'}</b>
+                                    </p>`;
+
+                    panelLicenseHtml += `<div class="card">
+                                                <div class="card-header" id="heading${i}">
+                                                    <h5 class="mb-0">
+                                                        <a class="btn" data-toggle="collapse" href="#collapse${i}" aria-expanded="true" aria-controls="collapse${i}">
+                                                        ${license.companyName} (${panel.Paneltype})
+                                                        </a>
+                                                    </h5>
+                                                </div>
+                                                <div id="collapse${i}" class="collapse" aria-labelledby="heading${i}" data-parent="#modal-accordion">
+                                                    <div class="card-body">
+                                                        ${bodyHtml}
+                                                    </div>
+                                                </div>
+                                            </div>`;
+                }
+            }
+
+            document.getElementById("modal-accordion").innerHTML = panelLicenseHtml;
+        }
+
+
+        function highlightRow(row) {
+            // Remove highlight from all rows
+            const rows = document.querySelectorAll('#panelsBody tr');
+            rows.forEach(r => r.classList.remove('highlighted'));
+
+            // Add highlight to the clicked row
+            row.classList.add('highlighted');
+        }
+
+    </script>
+    {{/ifCond}}
+
+</body>
+
+</html>

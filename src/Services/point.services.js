@@ -16,9 +16,11 @@ const createPoint = (newPoint) => {
       locate,
       positionType,
       formAdvertising,
-      picturePoint,
       isZoning,
+      havePanel,
+      picturePoint,
     } = newPoint;
+
     try {
       const checkPoint = await Point.findOne({
         name: name,
@@ -27,42 +29,59 @@ const createPoint = (newPoint) => {
 
       if (checkPoint !== null) {
         resolve({
-          status: "OK",
+          status: "ERR",
           message: "The Point is already",
         });
       }
-
       if (checkPoint === null) {
-        const { wardId, disId } = area;
-        const ward = await Ward.findOne({
-          wardId: wardId,
-          districtRefId: disId,
-        });
-        if (ward === null) {
-          reject({
-            status: "ERR",
-            message: "Ward not found",
-          });
-        }
-        const district = await District.findOne({ disId: disId });
+        const ward = area[0];
+        const district = area[1];
 
-        if (district === null) {
-          reject({
-            status: "ERR",
-            message: "District not found",
-          });
+        // khởi tạo Id
+        let disId, wardId;
+        const cleanedNamedis = district.trim();
+        const withoutPrefixdis = cleanedNamedis.replace("Quận ", "")
+        if (withoutPrefixdis.length > 2) {
+          disId = 'Q' + withoutPrefixdis.split(' ').map(word => word[0]).join('');
         }
+        else {
+          disId = 'Q' + (withoutPrefixdis.length === 2 ? withoutPrefixdis : '0' + withoutPrefixdis)
+        }
+        //phường
+        const cleanedNamewar = ward.trim();
+        const withoutPrefixwar = cleanedNamewar.replace("Phường ", "");
+        if (withoutPrefixwar.length > 2) {
+          wardId = 'P' + withoutPrefixwar.split(' ').map(word => word[0]).join('');
+        }
+        else {
+          wardId = 'P' + (withoutPrefixwar.length === 2 ? withoutPrefixwar : '0' + withoutPrefixwar)
+        }
+
+        //check
+        const districtcheck = await District.findOne({ disId: disId });
+        if (districtcheck === null) {
+          const newDis = await District.create({ disId: disId, disName: district })
+          const newWar = await Ward.create({ wardId: wardId, wardName: ward, districtRefId: disId })
+        } else {
+          const wardcheck = await Ward.findOne({
+            wardId: wardId,
+            districtRefId: disId,
+          });
+          if (wardcheck === null) {
+            const newWar = await Ward.create({ wardId: wardId, wardName: ward, districtRefId: disId })
+          }
+        }
+
         const newPoint = await Point.create({
           name,
           address,
-          //area: {ward: ward.wardName, district: district.disName},
-          area,
+          area: { ward: wardId, district: disId },
           locate,
           positionType,
           formAdvertising,
           picturePoint,
           isZoning,
-          havePanel: false,
+          havePanel,
         });
         if (newPoint) {
           resolve({
