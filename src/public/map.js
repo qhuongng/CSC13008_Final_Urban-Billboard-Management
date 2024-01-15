@@ -71,11 +71,13 @@ function toggleLayerVisibility(clickedLayer, visibility) {
     if (clickedLayer === "unclustered-point") {
         map.setLayoutProperty("unclustered-point-label", "visibility", visibility);
         map.setLayoutProperty("unclustered-point", "visibility", visibility);
+        map.setLayoutProperty("reported-point", "visibility", visibility);
         map.setLayoutProperty("clusters", "visibility", visibility);
         map.setLayoutProperty("cluster-count", "visibility", visibility);
     } else if (clickedLayer === "unclustered-point-zoned") {
         map.setLayoutProperty("unclustered-point-zoned-label", "visibility", visibility);
         map.setLayoutProperty("unclustered-point-zoned", "visibility", visibility);
+        map.setLayoutProperty("reported-point-zoned", "visibility", visibility);
         map.setLayoutProperty("clusters-zoned", "visibility", visibility);
         map.setLayoutProperty("cluster-zoned-count", "visibility", visibility);
     }
@@ -178,7 +180,7 @@ function setupMap(center) {
             var isFreeReportedPoint = false;
 
             if (features[0] !== undefined && features[0].properties.name !== undefined) {
-                if (features[0].layer.id == "unclustered-point" || features[0].layer.id == "unclustered-point-label" || features[0].layer.id == "reported-point" || features[0].layer.id == "unclustered-point-zoned" || features[0].layer.id == "unclustered-point-zoned-label" || features[0].layer.id == "reported-point") {
+                if (features[0].layer.id == "unclustered-point" || features[0].layer.id == "unclustered-point-label" || features[0].layer.id == "reported-point" || features[0].layer.id == "unclustered-point-zoned" || features[0].layer.id == "unclustered-point-zoned-label" || features[0].layer.id == "reported-point-zoned") {
                     return;
                 }
 
@@ -269,7 +271,7 @@ function setupMap(center) {
                                 break;
                             }
                             else {
-                                // report là của biển quảng cáo
+                                // report là của bảng quảng cáo
                                 isReportedAtPanelLevel = true;
                                 break;
                             }
@@ -414,8 +416,25 @@ function setupMap(center) {
             map.addLayer({
                 id: "reported-point",
                 type: "circle",
-                source: "billboardPos",
+                source: "unzonedPos",
                 filter: ["all", ["!", ["has", "point_count"]], ["any", ["==", ["get", "pointReport"], true], ["==", ["get", "isReportedAtPanelLevel"], true]]],
+                layout: {
+                    "visibility": "visible"
+                },
+                paint: {
+                    "circle-color": "#ff0000",
+                    "circle-radius": 10,
+                    "circle-stroke-width": 1,
+                    "circle-stroke-color": "#ffffff",
+                },
+            },
+            );
+
+            map.addLayer({
+                id: "reported-point-zoned",
+                type: "circle",
+                source: "billboardPos",
+                filter: ["all", ["!", ["has", "point_count"]], ["any", ["!=", ["get", "pointReport"], 0], ["==", ["get", "isReportedAtPanelLevel"], true]]],
                 layout: {
                     "visibility": "visible"
                 },
@@ -665,10 +684,11 @@ function setupMap(center) {
                                           <p class="card-text">Họ tên người gửi: <b>${info.name}</b><br>
                                                             Email: <b>${info.email}</b><br>
                                                             Số điện thoại: <b>${info.phone}</b><br>
+                                                            Hình thức báo cáo: <b>${info.reportType}</b><br>
                                                             Nội dung: ${info.content}
                                                             Hình ảnh đối tượng báo cáo:<br><br>
                                                             ${imgDivs}
-                                                            Tình trạng xử lí: <b>${info.state == 0 ? "Chưa xử lí" : "Đã xử lí"}</b><br>
+                                                            Tình trạng xử lí: <b style="color:${info.state == 0 ? 'red">Chưa xử lí' : info.state == 1 ? 'gold">Đang xử lí' : 'green">Đã xử lí'}</b><br>
                                                             Hình thức xử lí: <b>${info.actionHandler}</b></p>`
 
                         placeReportHtml += `<div class="card">
