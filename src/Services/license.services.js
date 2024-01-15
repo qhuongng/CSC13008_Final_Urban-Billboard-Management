@@ -1,4 +1,7 @@
 const License = require('../Models/LicensePanel')
+const Point = require('../Models/Point')
+const Ward = require("../Models/Ward");
+const District = require("../Models/District");
 
 const createLicense = (idPoint, idPanel, content, imageId, companyName, companyEmail, companyPhone, startDay, endDay) => {
     return new Promise(async (resolve, reject) => {
@@ -87,9 +90,83 @@ const updateAccept = (idLicense, check) => {
     })
 }
 
+const getLicenseByIdPointWardDis = async (wardName, districtName) => {
+    try {
+        const ward = await Ward.findOne({ wardName: wardName });
+        if (!ward) {
+            throw {
+                status: 'ERR',
+                message: 'Ward is undefined'
+            };
+        }
+
+        const district = await District.findOne({ disName: districtName });
+        if (!district) {
+            throw {
+                status: 'ERR',
+                message: 'District is undefined'
+            };
+        }
+
+        const points = await Point.find({
+            'area.ward': ward.wardId,
+            'area.district': district.disId
+        });
+
+        if (points.length === 0) {
+            throw {
+                status: 'ERR',
+                message: 'No points found for the specified ward and district'
+            };
+        }
+
+        const licenses = await License.find({ idPoint: { $in: points.map(point => point._id) } });
+
+        if (licenses.length === 0) {
+            throw {
+                status: 'ERR',
+                message: 'No licenses found for the specified points'
+            };
+        }
+
+        return {
+            status: 'OK',
+            message: 'SUCCESS',
+            data: licenses
+        };
+
+    } catch (error) {
+        return {
+            status: 'ERR',
+            message: 'Error in processing',
+            error: error
+        };
+    }
+};
+
+
+const deleteLicense = (licenseId) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            await License.findOneAndDelete({
+                _id: licenseId
+            });
+            resolve({
+                status: 'OK',
+                message: 'Delete Ward success',
+            });
+        } catch (e) {
+            reject(e);
+        }
+    });
+};
+
+
 module.exports = {
     createLicense,
     getAllLicense,
     getAcceptedLicenseByIdPanel,
-    updateAccept
+    updateAccept,
+    getLicenseByIdPointWardDis,
+    deleteLicense
 }

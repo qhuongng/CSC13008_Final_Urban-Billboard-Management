@@ -58,9 +58,35 @@ const updateAccept = async (req, res) => {
     }
 }
 
+const getLicenseByIdPointWardDis = async (req, res) => {
+    try {
+        const {wardName, districtName } = req.params;
+        const listLicense = await licenseServices.getLicenseByIdPointWardDis(wardName, districtName);
+        if (listLicense) {
+            res.status(200).json(listLicense);
+        }
+    } catch (error) {
+        res.status(400).json({ message: error.message })
+    }
+}
+
+const deleteLicense = async (req, res) => {
+    try {
+        const licenseId = req.params.id
+        const response = await licenseServices.deleteLicense(licenseId)
+        return res.status(200).json(response)
+    } catch (e) {
+        return res.status(404).json({
+            message: e
+        })
+    }
+}
+
 module.exports = {
     createLicense,
     getAllLicense,
     getAcceptedLicenseByIdPanel,
-    updateAccept
+    updateAccept,
+    getLicenseByIdPointWardDis,
+    deleteLicense
 }
