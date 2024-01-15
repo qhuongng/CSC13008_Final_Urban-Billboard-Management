@@ -51,10 +51,10 @@ const createPoint = (newPoint) => {
         const cleanedNamewar = ward.trim();
         const withoutPrefixwar = cleanedNamewar.replace("Phường ", "");
         if (withoutPrefixwar.length > 2) {
-          wardId = 'Q' + withoutPrefixwar.split(' ').map(word => word[0]).join('');
+          wardId = 'P' + withoutPrefixwar.split(' ').map(word => word[0]).join('');
         }
         else {
-          wardId = 'Q' + (withoutPrefixwar.length === 2 ? withoutPrefixwar : '0' + withoutPrefixwar)
+          wardId = 'P' + (withoutPrefixwar.length === 2 ? withoutPrefixwar : '0' + withoutPrefixwar)
         }
 
         //check

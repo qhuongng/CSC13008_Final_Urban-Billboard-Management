@@ -2,6 +2,7 @@ const DistrictService = require('../Services/district.services')
 
 const createDistrict = async (req, res) => {
     try {
+        console.log(req.body);
         const response = await DistrictService.createDistrict(req.body)
         if (response.status === "ERR") {
             return res.status(205).json(response)

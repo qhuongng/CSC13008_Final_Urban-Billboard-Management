@@ -17,10 +17,6 @@
         </h5>
         <div class="card-body">
           <div class="form-group">
-            <label for="disId">ID quận</label>
-            <input type="text" class="form-control" id="disId" name="disId" placeholder="Q01" autofocus>
-          </div>
-          <div class="form-group">
             <label for="disName">Tên quận</label>
             <input type="text" class="form-control" id="disName" name="disName" placeholder="Quận 1" autofocus>
           </div>
@@ -63,28 +59,12 @@
       // Function to send PUT request
       const sendPostRequest = async () => {
         const txtDisNameInput = $('#disName')
-        const txtDisIdInput = $('#disId')
-        if (!txtDisIdInput.val() && !txtDisNameInput.val()) {
-          toastr.error("Vui lòng điền đầy đủ ID quận và tên quận.");
-          txtDisIdInput.addClass('border-danger');
-          txtDisIdInput.focus();
-          txtDisNameInput.addClass('border-danger');
-          txtDisNameInput.focus();
-        }
-        else if (!txtDisIdInput.val() && txtDisNameInput.val()) {
-          toastr.error("Vui lòng điền ID quận.");
-          txtDisIdInput.addClass('border-danger');
-          txtDisNameInput.removeClass('border-danger');
-          txtDisIdInput.focus();
-        }
-        else if (txtDisIdInput.val() && !txtDisNameInput.val()) {
+        if (!txtDisNameInput.val()) {
           toastr.error("Vui lòng điền tên quận.");
           txtDisNameInput.addClass('border-danger');
-          txtDisIdInput.removeClass('border-danger');
           txtDisNameInput.focus();
         }
         else {
-          txtDisIdInput.removeClass('border-danger');
           txtDisNameInput.removeClass('border-danger');
           try {
             const response = await fetch('http://localhost:3500/api/district/createDistrict', {
@@ -93,7 +73,6 @@
                 'Content-Type': 'application/json',
               },
               body: JSON.stringify({
-                disId: txtDisIdInput.val(),
                 disName: txtDisNameInput.val()
               }),
             });

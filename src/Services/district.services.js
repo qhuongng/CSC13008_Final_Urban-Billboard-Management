@@ -3,26 +3,32 @@ const Ward = require("../Models/Ward")
 
 const createDistrict = (newDistrict) => {
     return new Promise(async (resolve, reject) => {
-        const { disId, disName } = newDistrict;
         try {
-            const checkDistrictId = await District.findOne({
-                disId: disId,
-            });
+            const disName = newDistrict.disName;
             const checkDistrictName = await District.findOne({
                 disName: disName,
             });
-
-            if (checkDistrictId !== null || checkDistrictName !== null) {
+            if (checkDistrictName !== null) {
                 resolve({
                     status: "ERR",
                     message: "The District is already",
                 });
             }
 
-            if (checkDistrictId === null && checkDistrictName === null) {
+            if (checkDistrictName === null) {
+                let disId;
+                const cleanedNamedis = disName.trim();
+                const withoutPrefixdis = cleanedNamedis.replace("Quận ", "")
+                if (withoutPrefixdis.length > 2) {
+                    disId = 'Q' + withoutPrefixdis.split(' ').map(word => word[0]).join('');
+                }
+                else {
+                    disId = 'Q' + (withoutPrefixdis.length === 2 ? withoutPrefixdis : '0' + withoutPrefixdis)
+                }
+                console.log(disId);
                 const newDistrict = await District.create({
-                    disId,
-                    disName,
+                    disId: disId,
+                    disName: disName,
                 });
                 if (newDistrict) {
                     resolve({

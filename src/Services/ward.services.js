@@ -3,21 +3,26 @@ const District = require("../Models/District");
 
 const createWard = (newWard) => {
     return new Promise(async (resolve, reject) => {
-        const { wardId, wardName, districtRefId } = newWard;
+        const { wardName, districtRefId } = newWard;
         try {
-            const checkWardById = await Ward.findOne({
-                wardId: wardId,
-                districtRefId: districtRefId,
-            });
             const checkWardByName = await Ward.findOne({
                 wardName: wardName,
                 districtRefId: districtRefId,
             });
-            if (checkWardById === null && checkWardByName === null) {
+            if (checkWardByName === null) {
+                let wardId
+                const cleanedNamewar = wardName.trim();
+                const withoutPrefixwar = cleanedNamewar.replace("Phường ", "");
+                if (withoutPrefixwar.length > 2) {
+                    wardId = 'P' + withoutPrefixwar.split(' ').map(word => word[0]).join('');
+                }
+                else {
+                    wardId = 'P' + (withoutPrefixwar.length === 2 ? withoutPrefixwar : '0' + withoutPrefixwar)
+                }
                 const newWard = await Ward.create({
-                    wardId,
-                    wardName,
-                    districtRefId,
+                    wardId: wardId,
+                    wardName: wardName,
+                    districtRefId: districtRefId,
                 });
                 if (newWard) {
                     resolve({
