@@ -1,6 +1,5 @@
 var map; // Mapbox map
 var marker;
-var locate;
 
 mapboxgl.accessToken =
   "pk.eyJ1IjoibmhhdGhvYTE0IiwiYSI6ImNscDZjMnZ2cDBkY3AybHNoaTk4cnZ2eHMifQ.KhkP2ZxWJQ5CwtdIr8c_IA";
