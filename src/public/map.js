@@ -654,7 +654,7 @@ function setupMap(center) {
                 const ward = JSON.parse(props.area).ward;
                 const address = `${props.address}<br>${ward}, ${district}`;
                 const addressURL = `${props.address.trim()}, ${ward}, ${district}`;
-                const imgUrl = `https://lh3.google.com/u/0/d/${props.picturePoint}`;
+                const imgUrl = `http://localhost:3500/api/pointImg/getImgPoint/${props.picturePoint}`;
                 const placeInfoPaneHeader = `<div class="card-body">
                                                 <h5 class="card-title">
                                                     <i class="bi bi-info-circle"></i>
@@ -760,8 +760,6 @@ function setupMap(center) {
                                         }
                                     }
                                 }
-
-                                console.log(info.panelReport);
 
                                 if (info.panelReport === 0) {
                                     if (!(map.getLayoutProperty("unclustered-point", "visibility") !== "visible" && map.getLayoutProperty("unclustered-point-zoned", "visibility") !== "visible")) {
