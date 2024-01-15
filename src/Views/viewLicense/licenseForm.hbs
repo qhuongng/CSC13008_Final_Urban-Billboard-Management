@@ -4,10 +4,23 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
+    <script src="https://cdn.tiny.cloud/1/ezd73nxbzc7bu6e86g2l82jbbffke0mwevwrnyvc5q8h89j6/tinymce/6/tinymce.min.js"
+        referrerpolicy="origin"></script>
+
     <script src="http://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.2/js/toastr.min.js"></script>
     <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 
+    <script>
+        tinymce.init({
+            selector: '#content',
+            menubar: false,
+            plugins: 'paste link autolink lists',
+            toolbar: [
+                'undo redo | bold italic underline strikethrough | numlist bullist | alignleft aligncenter alignright | forecolor backcolor | link',
+            ],
+        });
+    </script>
     <style>
         .tox-statusbar__path-item {
             display: none !important;
@@ -18,7 +31,7 @@
 <body>
     <div class="control-responsive p-4 d-flex flex-column align-items-center">
         <div class="container m-5">
-            <h2 class="mb-4">Gửi yêu cầu cấp phép</h2>
+            <h2 class="mb-4">Gửi yêu cầu cấp phép quảng cáo</h2>
             <form action="" method="post" enctype="multipart/form-data">
                 <!-- Input fields for new report information -->
                 <div class="form-group">
@@ -30,7 +43,11 @@
                     <input class="form-control" type="text" name="panel" id="panel" readonly>
                 </div>
                 <div class="form-group">
-                    <label for="image">Nội dung quảng cáo</label>
+                    <label for="content">Nội dung quảng cáo</label>
+                    <textarea class="form-control" id="content" name="content" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="image">Hình ảnh đính kèm</label>
                     <input type="file" class="form-control" id="image" name="image" required>
                     <small class="form-text text-muted">Chọn một ảnh thể hiện nội dung bảng quảng cáo</small>
                 </div>
@@ -100,18 +117,23 @@
             const postContent = async (event) => {
                 event.preventDefault();
 
+                // lấy content từ editor TinyMCE đưa vào textarea gốc
+                var postContent = tinymce.activeEditor.getContent();
+                document.querySelector('#content').value = postContent;
+
                 const comNameInput = $('#company-name');
                 const emailInput = $('#email');
                 const phoneInput = $('#phone');
-                const addressInput = $('#address')
+                const addressInput = $('#address');
+                const contentInput = $('#content');
                 const imageInput = $('#image');
                 const startDate = $('#start-date');
                 const endDate = $('#end-date');
 
-                if (!emailInput.val() || !comNameInput.val() || !phoneInput.val() || !addressInput.val() || !startDate.val() || !endDate.val()) {
+                if (!emailInput.val() || !comNameInput.val() || !phoneInput.val() || !addressInput.val() || !startDate.val() || !endDate.val() || !content.val()) {
                     toastr.error("Vui lòng điền đầy đủ thông tin.");
 
-                    let inputs = [comNameInput, emailInput, phoneInput, addressInput];
+                    let inputs = [comNameInput, emailInput, phoneInput, addressInput, contentInput, startDate, endDate];
 
                     inputs.forEach((input) => {
                         if (!input.val()) {
@@ -123,7 +145,7 @@
                 else if (!/^[0-9]{10}$/.test(phoneInput.val())) {
                     toastr.error("Số điện thoại không hợp lệ (số điện thoại gồm 10 chữ số).");
 
-                    let inputs = [comNameInput, emailInput, addressInput];
+                    let inputs = [comNameInput, emailInput, addressInput, startDate, endDate, contentInput, imageInput];
 
                     inputs.forEach((input) => {
                         input.removeClass('border-danger');
@@ -135,19 +157,7 @@
                 else if (imageInput.prop('files').length === 0) {
                     toastr.error("Vui lòng thêm hình ảnh nội dung quảng cáo.");
 
-                    let inputs = [comNameInput, emailInput, phoneInput, addressInput];
-
-                    inputs.forEach((input) => {
-                        input.removeClass('border-danger');
-                    });
-
-                    imageInput.addClass('border-danger');
-                    imageInput.focus();
-                }
-                else if (imageInput.prop('files').length > 1) {
-                    toastr.error("Số lượng hình ảnh vượt quá mức cho phép. Vui lòng chỉ thêm 1 ảnh.");
-
-                    let inputs = [comNameInput, emailInput, phoneInput, addressInput];
+                    let inputs = [comNameInput, emailInput, phoneInput, addressInput, startDate, endDate, contentInput];
 
                     inputs.forEach((input) => {
                         input.removeClass('border-danger');
@@ -159,7 +169,7 @@
                 else if (!startDate.val().match(/^[0-9]{2}\/[0-9]{2}\/[0-9]{4}$/)) {
                     toastr.error('Ngày bắt đầu hợp đồng không hợp lệ.');
 
-                    let inputs = [comNameInput, emailInput, phoneInput, addressInput, imageInput];
+                    let inputs = [comNameInput, emailInput, phoneInput, addressInput, imageInput, endDate, contentInput];
 
                     inputs.forEach((input) => {
                         input.removeClass('border-danger');
@@ -170,7 +180,7 @@
                 else if (!endDate.val().match(/^[0-9]{2}\/[0-9]{2}\/[0-9]{4}$/)) {
                     toastr.error('Ngày kết thúc hợp đồng không hợp lệ.');
 
-                    let inputs = [comNameInput, emailInput, phoneInput, addressInput, imageInput];
+                    let inputs = [comNameInput, emailInput, phoneInput, addressInput, imageInput, startDate, contentInput];
 
                     inputs.forEach((input) => {
                         input.removeClass('border-danger');
@@ -179,7 +189,7 @@
                     endDate.addClass('border-danger');
                 }
                 else {
-                    let inputs = [comNameInput, emailInput, phoneInput, addressInput, imageInput, startDate, endDate];
+                    let inputs = [comNameInput, emailInput, phoneInput, addressInput, contentInput, imageInput, startDate, endDate];
 
                     inputs.forEach((input) => {
                         input.removeClass('border-danger');
