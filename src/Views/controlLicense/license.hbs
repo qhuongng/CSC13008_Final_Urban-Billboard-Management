@@ -16,7 +16,7 @@
             <h2 class="mb-4">Quản lý yêu cầu cấp phép</h2>
 
             <div class="d-flex flex-column mb-4" id="filters-container">
-                <div class="row d-flex" id="location-filters">
+                <div class="row d-flex align-items-end" id="location-filters">
                     <div class="form-group col-2">
                         <label for="district">Quận</label>
                         <input type="text" class="form-control" id="district" name="district"
@@ -24,31 +24,30 @@
                     </div>
                     <div class="form-group col-9 ml-auto">
                         <label for="ward">Phường</label>
-                        <div id="wardCheckboxes" class="d-flex flex-wrap mt-2">
+                        <div id="wardCheckboxes" class="d-flex flex-wrap">
                             <!-- Checkboxes for wards will be dynamically added here -->
                         </div>
                     </div>
                     <div class="form-group col-1 ml-auto">
-                        <button type="button" class="btn btn-outline-primary btn-block float-right"
+                        <button type="button" class="btn btn-outline-primary text-nowrap float-right"
                             onclick="filterLicenses()">
                             <i class="bi bi-funnel"></i>
                             Lọc
                         </button>
                     </div>
                 </div>
-                
             </div>
 
-            <div class="d-flex" id="info-container">
-
+            <small class="text-muted">Click đúp vào một dòng để xem thông tin chi tiết.</small>
+            <div class="d-flex mt-2" id="info-container">
                 <div class="table-responsive">
                     <table class="table table-hover" id="licensesTable">
                         <thead>
                             <tr>
-                                <th>ID Điểm đặt</th>
-                                <th>ID Bảng quảng cáo</th>
+                                <th>ID điểm đặt</th>
+                                <th>ID bảng quảng cáo</th>
                                 <th>Tên công ty</th>
-                                <th>Emai công ty</th>
+                                <th>Email công ty</th>
                                 <th>Điện thoại liên lạc</th>
                                 <th>Tình trạng</th>
                             </tr>
@@ -311,33 +310,52 @@
             }
         }
 
-        function loadDetails(licenses) {
+        async function loadDetails(license) {
             document.getElementById('modalContent').innerHTML = "";
 
             const cancelButton = document.getElementById('deleteButton');
 
             // Check if the licenses.isAccept is 0, then show the cancel button
-            if (licenses.isAccept === 0) {
+            if (license.isAccept === 0) {
                 cancelButton.style.display = 'inline-block';
             } else {
                 cancelButton.style.display = 'none';
             }
 
-            const details = `
-        <p class="card-text">
-            <div id="licenseId">ID yêu cầu: <b>${licenses._id}</b><br></div>
-            ID điểm đặt: <b>${licenses.idPoint}</b><br>
-            ID bảng quảng cáo: <b>${licenses.idPanel}</b><br>
-            Nội dung: <b>${licenses.content}</b><br>
-            Tên công ty: <b>${licenses.companyName}</b><br>
-            Email công ty: <b>${licenses.companyEmail}</b><br>
-            Điện thoại liên lạc: <b>${licenses.companyPhone}</b><br>
-            Ngày bắt đầu: <b>${licenses.startDay}</b><br>
-            Ngày kết thúc: <b>${licenses.endDay}</b><br>
-            Tình trạng: <b style="color:${getColorByAccept(licenses.isAccept)}">${formatAccept(licenses.isAccept)}</b><br>
-            Hình ảnh yêu cầu:<br><br>
-            <img class="img-fluid" src="http://localhost:3500/api/licenseImg/getImgLicense/${licenses.imageId}" referrerpolicy="no-referrer" >
-        </p>`;
+            let address;
+            let panel;
+
+            await fetch(`http://localhost:3500/api/point/getPoint/${license.idPoint}`)
+                .then(response => response.json())
+                .then(data => {
+                    let point = data.data;
+                    address = point.address.trim() + ", " + point.area.ward + ", " + point.area.district;
+                });
+
+            await fetch(`http://localhost:3500/api/panel/getPanelById/${license.idPanel}`)
+                .then(response => response.json())
+                .then(data => {
+                    let fetched = data.data;
+                    panel = fetched.Paneltype + " (" + license.idPanel + ")";
+                });
+
+            let details = `<div id="licenseId">ID yêu cầu: <b>${license._id}</b></div><br><br>
+                            <h6 class="card-subtitle mb-2">Thông tin quảng cáo</h6>
+                            <p class="card-text">Địa chỉ điểm đặt: <b>${address}</b><br>
+                                                Bảng quảng cáo: <b>${panel}</b><br>
+                                                Nội dung quảng cáo:<br>${license.content}<br>
+                                                Hình ảnh đính kèm:<br><br>
+                                                <img class="img-fluid" src="http://localhost:3500/api/licenseImg/getImgLicense/${license.imageId}" alt=""><br><br>
+                            </p>
+                            <h6 class="card-subtitle mb-2">Thông tin công ty xin cấp phép</h6>
+                            <p class="card-text">Tên công ty: <b>${license.companyName}</b><br>
+                                                Email: <b>${license.companyEmail}</b><br>
+                                                Số điện thoại: <b>${license.companyPhone}</b><br>
+                                                Địa chỉ công ty: <b>${license.companyAddress}</b><br>
+                                                Ngày bắt đầu hợp đồng: <b>${license.startDay}</b><br>
+                                                Ngày kết thúc hợp đồng: <b>${license.endDay}</b><br><br>
+                                                Tình trạng xét duyệt: <b style="color:${license.isAccept == 1 ? 'green"> Đã duyệt' : license.isAccept == 0 ? 'gold"> Chưa duyệt' : 'red"> Bị từ chối'}</b>
+                            </p>`;
 
             document.getElementById('modalContent').innerHTML = details;
         }
@@ -425,16 +443,16 @@
                 </div>
             </div>
 
-            <div class="d-flex" id="info-container">
-
+            <small class="text-muted">Click đúp vào một dòng để xem thông tin chi tiết.</small>
+            <div class="d-flex mt-2" id="info-container">
                 <div class="table-responsive">
                     <table class="table table-hover" id="licensesTable">
                         <thead>
                             <tr>
-                                <th>ID Điểm đặt</th>
-                                <th>ID Bảng quảng cáo</th>
+                                <th>ID điểm đặt</th>
+                                <th>ID bảng quảng cáo</th>
                                 <th>Tên công ty</th>
-                                <th>Emai công ty</th>
+                                <th>Email công ty</th>
                                 <th>Điện thoại liên lạc</th>
                                 <th>Tình trạng</th>
                             </tr>
@@ -626,33 +644,52 @@
             }
         }
 
-        function loadDetails(licenses) {
+        async function loadDetails(license) {
             document.getElementById('modalContent').innerHTML = "";
 
             const cancelButton = document.getElementById('deleteButton');
 
             // Check if the licenses.isAccept is 0, then show the cancel button
-            if (licenses.isAccept === 0) {
+            if (license.isAccept === 0) {
                 cancelButton.style.display = 'inline-block';
             } else {
                 cancelButton.style.display = 'none';
             }
 
-            const details = `
-        <p class="card-text">
-            <div id="licenseId">ID yêu cầu: <b>${licenses._id}</b><br></div>
-            ID điểm đặt: <b>${licenses.idPoint}</b><br>
-            ID bảng quảng cáo: <b>${licenses.idPanel}</b><br>
-            Nội dung: <b>${licenses.content}</b><br>
-            Tên công ty: <b>${licenses.companyName}</b><br>
-            Email công ty: <b>${licenses.companyEmail}</b><br>
-            Điện thoại liên lạc: <b>${licenses.companyPhone}</b><br>
-            Ngày bắt đầu: <b>${licenses.startDay}</b><br>
-            Ngày kết thúc: <b>${licenses.endDay}</b><br>
-            Tình trạng: <b style="color:${getColorByAccept(licenses.isAccept)}">${formatAccept(licenses.isAccept)}</b><br>
-            Hình ảnh yêu cầu:<br><br>
-            <img class="img-fluid" src="http://localhost:3500/api/licenseImg/getImgLicense/${licenses.imageId}" referrerpolicy="no-referrer" >
-        </p>`;
+            let address;
+            let panel;
+
+            await fetch(`http://localhost:3500/api/point/getPoint/${license.idPoint}`)
+                .then(response => response.json())
+                .then(data => {
+                    let point = data.data;
+                    address = point.address.trim() + ", " + point.area.ward + ", " + point.area.district;
+                });
+
+            await fetch(`http://localhost:3500/api/panel/getPanelById/${license.idPanel}`)
+                .then(response => response.json())
+                .then(data => {
+                    let fetched = data.data;
+                    panel = fetched.Paneltype + " (" + license.idPanel + ")";
+                });
+
+            let details = `<div id="licenseId">ID yêu cầu: <b>${license._id}</b></div><br><br>
+                            <h6 class="card-subtitle mb-2">Thông tin quảng cáo</h6>
+                            <p class="card-text">Địa chỉ điểm đặt: <b>${address}</b><br>
+                                                Bảng quảng cáo: <b>${panel}</b><br>
+                                                Nội dung quảng cáo:<br>${license.content}<br>
+                                                Hình ảnh đính kèm:<br><br>
+                                                <img class="img-fluid" src="http://localhost:3500/api/licenseImg/getImgLicense/${license.imageId}" alt=""><br><br>
+                            </p>
+                            <h6 class="card-subtitle mb-2">Thông tin công ty xin cấp phép</h6>
+                            <p class="card-text">Tên công ty: <b>${license.companyName}</b><br>
+                                                Email: <b>${license.companyEmail}</b><br>
+                                                Số điện thoại: <b>${license.companyPhone}</b><br>
+                                                Địa chỉ công ty: <b>${license.companyAddress}</b><br>
+                                                Ngày bắt đầu hợp đồng: <b>${license.startDay}</b><br>
+                                                Ngày kết thúc hợp đồng: <b>${license.endDay}</b><br><br>
+                                                Tình trạng xét duyệt: <b style="color:${license.isAccept == 1 ? 'green"> Đã duyệt' : license.isAccept == 0 ? 'gold"> Chưa duyệt' : 'red"> Bị từ chối'}</b>
+                            </p>`;
 
             document.getElementById('modalContent').innerHTML = details;
         }
