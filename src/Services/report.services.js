@@ -218,7 +218,6 @@ const getReportByWardAndDisAndEmail = async (wardName, disName, email) => {
 
 const updateReport = (id, data) => {
     return new Promise(async (resolve, reject) => {
-        console.log(data);
         try {
             const checkReport = await Report.findOne({
                 _id: id
@@ -227,6 +226,7 @@ const updateReport = (id, data) => {
                 reject('The Report is not defined');
             }
             const updatedReport = await Report.findByIdAndUpdate(id, data, { new: true })
+
             let color, status
             if (data.state == '1') {
                 color = 'yellow';

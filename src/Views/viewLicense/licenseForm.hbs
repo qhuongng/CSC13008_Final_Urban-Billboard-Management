@@ -237,8 +237,8 @@
                             body: formData,
                         }).then(response => response.json()).then(data => {
                             console.log(data);
-                            // toastr.options.onHidden = () => { window.location.href = '/'; }
-                            // toastr.success("Yêu cầu đã được gửi thành công.");
+                            toastr.options.onHidden = () => { window.location.href = '/api/controlLicense'; }
+                            toastr.success("Yêu cầu đã được gửi thành công.");
                         }).catch(error => {
                             // report request failed
                             toastr.error('Có lỗi xảy ra khi gửi yêu cầu. Vui lòng thử lại sau.');
