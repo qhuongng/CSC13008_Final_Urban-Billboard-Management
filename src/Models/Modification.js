@@ -5,7 +5,8 @@ const modificationSchema = new mongoose.Schema(
         idPanel: String, // "-1" nếu là điểm đặt
         changedList: Array,
         reason: String,
-        state: Number // 0: chưa duyệt, -1 : bị từ chối, 1: chấp nhập
+        state: Number, // 0: chưa duyệt, -1 : bị từ chối, 1: chấp nhập
+        idUser: String,
     },
     {
         timestamps: true,

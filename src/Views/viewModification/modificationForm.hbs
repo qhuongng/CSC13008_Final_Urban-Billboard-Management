@@ -395,7 +395,7 @@
                         })
 
                         if (response.status === 200) {
-                            // toastr.options.onHidden = () => { window.location.href = "/" }
+                            toastr.options.onHidden = () => { window.location.href = "/api/wardStatistics" }
                             toastr.success("Yêu cầu đã được gửi thành công.")
                         } else {
                             toastr.error("Có lỗi xảy ra. Vui lòng thử lại sau.");
@@ -538,7 +538,7 @@
                         })
 
                         if (response.status === 200) {
-                            // toastr.options.onHidden = () => { window.location.href = "/" }
+                            toastr.options.onHidden = () => { window.location.href = "/api/wardStatistics" }
                             toastr.success("Yêu cầu đã được gửi thành công.")
                         } else {
                             toastr.error("Có lỗi xảy ra. Vui lòng thử lại sau.");
