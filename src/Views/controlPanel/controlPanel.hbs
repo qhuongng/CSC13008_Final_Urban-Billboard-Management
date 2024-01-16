@@ -29,11 +29,6 @@
         </table>
     </div>
 </div>
-</div>
-
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
 <div class="modal fade" id="panelDetailModal" tabindex="-1" role="dialog" aria-labelledby="panelDetailModalLabel"
     aria-hidden="true">
@@ -74,23 +69,9 @@
                     </div>
                     <div class="form-group">
                         <label for="pointName">Điểm đặt</label>
-                        <input type="text" class="form-control" id="pointName"
+                        <input type="text" class="form-control" id="selectIdPoint"
                             onclick='window.open("http://localhost:3500/api/controlPanel/submap", "popup" ,"width=600,height=600")'
                             placeholder="Click me to open subwindow">
-                    </div>
-                    <div class="form-group">
-                        <label for="address">Địa chỉ</label>
-                        <input type="text" class="form-control" id="address"
-                            onclick='window.open("http://localhost:3500/api/controlPanel/submap", "popup" ,"width=600,height=600")'
-                            placeholder="Click me to open subwindow">
-                    </div>
-                    <div class="form-group">
-                        <label for="district">Quận</label>
-                        <input type="text" class="form-control" id="district" name="district" value="" readonly>
-                    </div>
-                    <div class="form-group">
-                        <label for="ward">Phường</label>
-                        <input type="text" class="form-control" id="ward" name="ward" value="" readonly>
                     </div>
 
                     <div class="form-group">
@@ -101,14 +82,10 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="add-data">Hình thức quảng cáo</label>
-                        <select class="form-control" id="selectAdsForm-add" name="selectAdsForm-add">
-                        </select>
+                        <label for="selectAmount">Số lượng</label>
+                        <input type="text" class="form-control" id="selectAmount" name="selectAmount" />
                     </div>
-                    <div class="form-group">
-                        <label for="image">Hình ảnh</label>
-                        <input type="file" class="form-control" id="image" name="image" required />
-                    </div>
+
                 </form>
             </div>
             <div class="modal-footer">
@@ -144,7 +121,7 @@
 
                     <div class="form-group">
                         <label for="edit-data">ID điểm đăt quảng cáo </label>
-                        <input type="text" class="form-control" id="selectIdPoint" readonly />
+                        <input type="text" class="form-control" id="selectIdPoint-edit" readonly />
                     </div>
 
                     <div class="form-group">
@@ -200,7 +177,7 @@
                     <i class="bi bi-skip-backward-fill"></i>
                     Quay lại
                 </button>
-                <button type="button" class="btn btn-outline-danger" onclick="deletePoint()">
+                <button type="button" class="btn btn-outline-danger" onclick="deletePanel()">
                     <i class="bi bi-trash-fill"></i>
                     Xóa
                 </button>
@@ -261,21 +238,19 @@
     $('#panelDetailModal').on('show.bs.modal', function (event) {
         const button = $(event.relatedTarget);
         const panelId = button.data('id');
-        console.log(panelId)
 
         try {
             fetch(`http://localhost:3500/api/panel/getPanelById/${panelId}`)
                 .then(response => response.json())
                 .then(data => {
                     const panel = data.data;
-                    const modalBody = document.getElementById('panelDetailBody');
-                    console.log(panel)
+                    const modalBody = document.getElementById('panelDetailBody');    
 
                     fetch(`http://localhost:3500/api/point/getPoint/${panel.idPoint}`)
                         .then(response => response.json())
                         .then(data => {
                             const point = data.data;
-                            console.log(point)
+                            
                             modalBody.innerHTML = `
                             <p><strong>ID: </strong> ${panel._id}</p>
                             <p><strong>Loại bảng quảng cáo: </strong> ${panel.Paneltype}</p>
@@ -333,76 +308,55 @@
         .catch(err => console.log(err));
 
     async function addPoint() {
-        const name = $('#add-data').val();
-        const lnglat = $('#lnglat').val();
-        const address = $('#address').val();
-        const positionType = $('#selectPositionType').val();
-        const formAdvertising = $('#selectAdsForm-add').val();
-        const district = $('#district').val();
-        const ward = $('#ward').val();
-        const havePanel = false;
-        const picturePoint = $('#image');
-        const isZoning = false;
+        const idPoint = $('#selectIdPoint').val();
+        const panelType = $('#selectPanelType').val();
+        const width = $('#selectSizeWidth').val();
+        const height = $('#selectSizeHeight').val();
+        const amount = $('#selectAmount').val();
 
-        if (!name) {
-            toastr.error("Vui lòng điền tên điểm đặt.");
-            document.getElementById('add-data').focus();
-        } else if (!lnglat) {
-            toastr.error("Vui lòng chọn toạ độ.");
-            document.getElementById('lnglat').focus();
-        } else if (!address) {
-            toastr.error("Vui lòng chọn địa chỉ.");
-            document.getElementById('address').focus();
-        } else if (!positionType) {
-            toastr.error("Vui lòng điền loại vị trí.");
-            document.getElementById('add-data').focus();
-        } else if (!formAdvertising) {
-            toastr.error("Vui lòng chọn hình thức quảng cáo.");
-            document.getElementById('selectAdsForm-add').focus();
-        } else if (!district) {
-            toastr.error("Vui lòng chọn quận.");
-            document.getElementById('selectDistrict').focus();
-        } else if (!ward) {
-            toastr.error("Vui lòng chọn phường.");
-            document.getElementById('selectWard').focus();
-        } else if (!picturePoint.val()) {
-            toastr.error("Vui lòng chọn ảnh.");
-            document.getElementById('image').focus();
+        if (!idPoint) {
+            toastr.error("Vui lòng chọn điểm đặt quảng cáo.");
+            document.getElementById('selectIdPoint').focus();
+        }
+        else if (!panelType) {
+            toastr.error("Vui lòng chọn loại bảng quảng cáo.");
+            document.getElementById('selectPanelType').focus();
+        }
+        else if (!width) {
+            toastr.error("Vui lòng chọn chiều rộng bảng quảng cáo.");
+            document.getElementById('selectSizeWidth').focus();
+        } else if (!height) {
+            toastr.error("Vui lòng chọn chiều cao bảng quảng cáo.");
+            document.getElementById('selectSizeHeight').focus();
+        } else if (!amount) {
+            toastr.error("Vui lòng chọn số lượng bảng quảng cáo.");
+            document.getElementById('selectAmount').focus();
         } else {
             try {
-                const img = document.getElementById('image');
-                console.log(img.files.length)
-                const imgInput = img.files[0]
-                const locate = lnglat.split(',').map(item => parseFloat(item));
-                const area = ward + ',' + district;
-                const form = new FormData();
-                form.append('name', name);
-                form.append('address', address);
-                form.append('area', area);
-                form.append('locate', locate);
-                form.append('positionType', positionType);
-                form.append('formAdvertising', formAdvertising);
-                form.append('isZoning', isZoning);
-                form.append('havePanel', havePanel);
-                form.append('image', imgInput);
-                const response = await fetch('http://localhost:3500/api/point/uploadPoint', {
+                const size = width + 'm x ' + height + "m";
+                const response = await fetch('http://localhost:3500/api/panel/uploadPanel', {
                     method: 'POST',
-                    body: form
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        idPoint: idPoint,
+                        Paneltype: panelType,
+                        size: size,
+                        amount: amount
+                    })
                 })
-
                 if (response.status === 200) {
-                    toastr.options.onHidden = () => { window.location.href = "/api/controlPoint" }
-                    toastr.success("Thêm điểm đặt quảng cáo thành công.")
+                    toastr.options.onHidden = () => { window.location.href = "/api/controlPanel" }
+                    toastr.success("Thêm bảng quảng cáo thành công.")
                 } else {
-                    toastr.error("Tên điểm đặt quảng cáo đã tồn tại.");
+                    toastr.error("Địa điểm này chưa quy hoạch");
                 }
-            }
-            catch (e) {
+            } catch (e) {
                 toastr.error("Có lỗi xảy ra. Vui lòng thử lại.");
             }
         }
     }
-
 
     function editRow(rowIdentifier, id, idPoint) {
         const numericPart = rowIdentifier + 1;
@@ -410,7 +364,7 @@
 
         if (row) {
             document.getElementById('edit-data').value = id;
-            document.getElementById('selectIdPoint').value = idPoint;
+            document.getElementById('selectIdPoint-edit').value = idPoint;
         } else {
             console.log(`Row ${rowIdentifier} not found.`);
 
@@ -419,19 +373,13 @@
 
     function deleteRow(rowIdentifier, id, idPoint) {
         const numericPart = rowIdentifier + 1;
-        const row = document.querySelector(`tbody tr:nth-child(${numericPart})`);
-
-        if (row) {
-            console.log(`Deleting row ${rowIdentifier}`);
-            document.getElementById('deleted-id').value = id;
-        } else {
-            console.log(`Row ${rowIdentifier} not found.`);
-        }
+        console.log(`Deleting row ${rowIdentifier}`);
+        document.getElementById('deleted-id').value = id;
     }
 
     async function editPanel() {
         const id = $('#edit-data').val();
-        const idPoint = $('#selectIdPoint').val();
+        const idPoint = $('#selectIdPoint-edit').val();
         const panelType = $('#selectPanelType-edit').val();
         const width = $('#selectSizeWidth-edit').val();
         const height = $('#selectSizeHeight-edit').val();
@@ -447,7 +395,7 @@
         }
         else if (!idPoint) {
             toastr.error("Vui lòng chọn điểm đặt quảng cáo.");
-            document.getElementById('selectIdPoint').focus();
+            document.getElementById('selectIdPoint-edit').focus();
         }
         else if (!width) {
             toastr.error("Vui lòng chọn chiều rộng bảng quảng cáo.");
@@ -473,7 +421,7 @@
                         amount: amount
                     })
                 })
-                if (response.status === 200) {
+                if (response.status === "OK") {
                     toastr.options.onHidden = () => { window.location.href = "/api/controlPanel" }
                     toastr.success("Chỉnh sửa thông tin bảng quảng cáo thành công.")
                 } else {
@@ -485,14 +433,14 @@
         }
     }
 
-    function deletePoint() {
+    function deletePanel() {
         const id = $('#deleted-id').val();
         if (!id) {
             toastr.error("Vui lòng chọn bảng quảng cáo.");
             document.getElementById('deleted-id').focus();
         } else {
             try {
-                fetch(`http://localhost:3500/api/point/deletePoint/${id}`, {
+                fetch(`http://localhost:3500/api/panel/deletePanel/${id}`, {
                     method: 'DELETE'
                 })
                     .then(response => response.json())
@@ -511,8 +459,8 @@
         }
     }
 
-    function updateInputLnglat(lng, lat) {
-        document.getElementById("lnglat").value = `${lng}, ${lat}`;
+    function updateInput(id, pointName, long, lat, addressURL) {
+        document.getElementById("selectIdPoint").value = `${id}`;
     }
 
     function updateInputAddress(inputName, inputAddress) {
