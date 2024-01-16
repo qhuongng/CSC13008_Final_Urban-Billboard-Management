@@ -109,7 +109,7 @@
                                 </button>
                             </div>
                             <div class="modal-body">
-                                <p>Bạn có chắc chắn muốn cấp phép không?</p>
+                                <p>Bạn có chắc chắn muốn chỉnh sửa không?</p>
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-outline-secondary"
@@ -133,7 +133,7 @@
                                 </button>
                             </div>
                             <div class="modal-body">
-                                <p>Bạn có chắc chắn muốn từ chối cấp phép không?</p>
+                                <p>Bạn có chắc chắn muốn từ chối chỉnh sửa không?</p>
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-outline-secondary"
@@ -225,15 +225,17 @@
                 noDataRow.appendChild(noDataCell);
                 modificationsBody.appendChild(noDataRow);
             } else {
+
                 const pendingModifications = modifications.filter(modification => modification.state === 0);
                 const otherModifications = modifications.filter(modification => modification.state !== 0);
 
                 const sortedModifications = pendingModifications.concat(otherModifications);
 
                 sortedModifications.forEach(modification => {
-                    const row = document.createElement('tr');
+                    if (modification.idPanel === '-1') {
+                        const row = document.createElement('tr');
 
-                    row.innerHTML = `
+                        row.innerHTML = `
                 <td>${modification.idPoint}</td>
                 <td>${modification.changedList[0] === '-1' ? 'Không chỉnh sửa' : 'Yêu cầu chỉnh sửa'}</td>
                 <td>${modification.changedList[1] === "-1" ? 'Không chỉnh sửa' : 'Yêu cầu chỉnh sửa'}</td>
@@ -242,7 +244,7 @@
                 <td style="color: ${getColorByState(modification.state)}">${formatState(modification.state)}</td>
                 <td class="col-2">
                     ${modification.state === 0 ?
-                            `<button class="btn btn-outline-success btn-block float-right" onclick="openConfirmationModal('${modification._id}', 'grant')">
+                                `<button class="btn btn-outline-success btn-block float-right" onclick="openConfirmationModal('${modification._id}', 'grant')">
                 <i class="bi bi-check2"></i>
                 Cấp phép
             </button>
@@ -256,14 +258,16 @@
                 </td>
             `;
 
-                    row.addEventListener('dblclick', () => {
-                        loadDetails(modification);
-                        $('#detailsModal').modal('show');
-                    });
+                        row.addEventListener('dblclick', () => {
+                            loadDetails(modification);
+                            $('#detailsModal').modal('show');
+                        });
 
-                    row.addEventListener('click', () => highlightRow(row));
+                        row.addEventListener('click', () => highlightRow(row));
 
-                    modificationsBody.appendChild(row);
+                        modificationsBody.appendChild(row);
+                    }
+
                 });
             }
         }
