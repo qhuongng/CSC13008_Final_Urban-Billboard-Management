@@ -26,6 +26,8 @@ const licenseImgRouter = require('./licenseImg.routes');
 const controlLicenseRouter = require('./controlLicense.routes');
 const reviewLicenseRouter = require('./reviewLicense.routes');
 const modificationRouter = require('./modification.routes');
+const modificationPointRouter = require('./controlModPoint.routes');
+const modificationPanelRouter = require('./controlModPanel.routes');
 
 const routes = (app) => {
   // đường dẫn dùng cho citizen
@@ -56,6 +58,8 @@ const routes = (app) => {
   app.use('/api/controlLicense', controlLicenseRouter);
   app.use('/api/reviewLicense', reviewLicenseRouter);
   app.use('/api/modification', modificationRouter);
+  app.use('/api/controlModPoint', modificationPointRouter);
+  app.use('/api/controlModPanel', modificationPanelRouter);
   //
   app.get("/", (req, res) => {
     if (res.locals.auth == false) {
