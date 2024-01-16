@@ -37,10 +37,43 @@ function setupMap(center) {
     accessToken: mapboxgl.accessToken,
     mapboxgl: mapboxgl,
     reverseGeocode: true,
+    marker: false,
     language: "en-US, vi-VN",
   });
 
   map.addControl(geocoder, "top-left");
+
+  geocoder.on('result', (e) => {
+    const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${e.result.center[0]},${e.result.center[1]}.json?access_token=${mapboxgl.accessToken}`;
+
+    fetch(url)
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.features && data.features.length > 0) {
+          console.log(data.features[0])
+          const [name, ...addressParts] =
+            data.features[0].place_name.split(",");
+          const address = addressParts.join(",");
+          const ward = data.features[0].context[0].text;
+          const district = data.features[0].context[2].text;
+          console.log(name, address, ward, district);
+          if (window.opener) {
+            window.opener.updateInputLnglat(e.result.center[0], e.result.center[1]);
+            window.opener.updateInputAddress(name, address);
+            window.opener.updateInputWardDistrict(ward, district);
+          }
+        }
+      });
+
+    if (marker) {
+      marker.remove();
+    }
+
+    marker = new mapboxgl.Marker({ color: "#0000ff" })
+      .setLngLat(e.result.center)
+      .addTo(map);
+  });
+
   map.addControl(new mapboxgl.GeolocateControl());
 
   map.on("style.load", () => {
