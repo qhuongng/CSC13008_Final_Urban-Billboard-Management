@@ -46,7 +46,8 @@
                                 <input type="checkbox" class="form-check-input" id="group0Checkbox">
                                 <label class="form-check-label mb-2" for="group0Checkbox">Loại vị trí</label>
                             </div>
-                            <input type="text" class="form-control" name="positionType" id="group0" disabled>
+                            <select class="custom-select" name="positionType" id="group0" disabled>
+                            </select>
                         </div>
                     </div>
                     <div class="col-md-4">
@@ -55,7 +56,8 @@
                                 <input type="checkbox" class="form-check-input" id="group1Checkbox">
                                 <label class="form-check-label mb-2" for="group1Checkbox">Hình thức quảng cáo</label>
                             </div>
-                            <input type="text" class="form-control" name="billboardType" id="group1" disabled>
+                            <select class="custom-select" name="billboardType" id="group1" disabled>
+                            </select>
                         </div>
                     </div>
                     <div class="col-md-4">
@@ -65,8 +67,6 @@
                                 <label class="form-check-label mb-2" for="group2Checkbox">Trạng thái quy hoạch</label>
                             </div>
                             <select class="custom-select" name="isZoning" id="group2" disabled>
-                                <option selected value="1">Đã quy hoạch</option>
-                                <option value="0">Chưa quy hoạch</option>
                             </select>
                         </div>
                     </div>
@@ -79,7 +79,8 @@
                                 <input type="checkbox" class="form-check-input" id="group0Checkbox">
                                 <label class="form-check-label mb-2" for="group0Checkbox">Loại bảng quảng cáo</label>
                             </div>
-                            <input type="text" class="form-control" name="Paneltype" id="group0" disabled>
+                            <select class="custom-select" name="Paneltype" id="group0" disabled>
+                            </select>
                         </div>
                     </div>
                     <div class="col-md-4">
@@ -181,26 +182,103 @@
 
         // handle user errors
         document.addEventListener('DOMContentLoaded', async function () {
-            // let point;
-            // let panel;
+            let point;
+            let panel;
 
-            // await fetch(`http://localhost:3500/api/point/getPoint/${pointId}`)
-            //     .then(response => response.json())
-            //     .then(data => {
-            //         point = data.data;
-            //     });
+            await fetch(`http://localhost:3500/api/point/getPoint/${pointId}`)
+                .then(response => response.json())
+                .then(data => {
+                    point = data.data;
+                });
 
-            // document.getElementById("point").value = point.address.trim() + ", " + point.area.ward + ", " + point.area.district;
+            document.getElementById("point").value = point.address.trim() + ", " + point.area.ward + ", " + point.area.district;
 
-            // if (panelId != "-1") {
-            //     await fetch(`http://localhost:3500/api/panel/getPanelById/${panelId}`)
-            //         .then(response => response.json())
-            //         .then(data => {
-            //             panel = data.data;
-            //         });
+            if (panelId != "-1") {
+                await fetch(`http://localhost:3500/api/panel/getPanelById/${panelId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        panel = data.data;
+                    });
 
-            //     document.getElementById("panel").value = panel.Paneltype + " (" + panel._id + ")";
-            // }
+                document.getElementById("panel").value = panel.Paneltype + " (" + panel._id + ")";
+
+                // fetch panel types
+                await fetch(`http://localhost:3500/api/panelType/getAllPanelType`)
+                    .then(response => response.json())
+                    .then(data => {
+                        let types = data.data;
+                        let selectHtml = "";
+
+                        types.forEach(type => {
+                            if (type.panName == panel.Paneltype) {
+                                selectHtml += `<option selected value=${type.panName}>${type.panName}</option>`;
+                            }
+                            else {
+                                selectHtml += `<option value=${type.panName}>${type.panName}</option>`;
+                            }
+                        });
+
+                        let dimensions = panel.size.match(/\d+(\.\d+)?/g);
+
+                        document.getElementById("group0").innerHTML = selectHtml;
+                        document.getElementById("group1").value = panel.amount;
+                        document.getElementById("group2-1").value = dimensions[0];
+                        document.getElementById("group2-2").value = dimensions[1];
+                    });
+            } else {
+                // fetch position types
+                await fetch(`http://localhost:3500/api/positionType/getAllTypePos`)
+                    .then(response => response.json())
+                    .then(data => {
+                        let types = data.data;
+                        let selectHtml = "";
+
+                        types.forEach(type => {
+                            if (type.posName == point.positionType) {
+                                selectHtml += `<option selected value=${type.posName}>${type.posName}</option>`;
+                            }
+                            else {
+                                selectHtml += `<option value=${type.posName}>${type.posName}</option>`;
+                            }
+
+                        });
+
+                        document.getElementById("group0").innerHTML = selectHtml;
+                    });
+
+                // fetch ad types
+                await fetch(`http://localhost:3500/api/adsForm/getAllForm`)
+                    .then(response => response.json())
+                    .then(data => {
+                        let forms = data.data;
+                        let selectHtml = "";
+
+                        forms.forEach(form => {
+                            if (form.formName == point.formAdvertising) {
+                                selectHtml += `<option selected value=${form.formName}>${form.formName}</option>`;
+                            }
+                            else {
+                                selectHtml += `<option value=${form.formName}>${form.formName}</option>`;
+                            }
+
+                        });
+
+                        document.getElementById("group1").innerHTML = selectHtml;
+                    });
+
+                let zoneHtml;
+
+                if (point.isZoning == true) {
+                    zoneHtml = `<option selected value="1">Đã quy hoạch</option>
+                                <option value="0">Chưa quy hoạch</option>`;
+                }
+                else {
+                    zoneHtml = `<option value="1">Đã quy hoạch</option>
+                                <option selected value="0">Chưa quy hoạch</option>`;
+                }
+
+                document.getElementById("group2").innerHTML = zoneHtml;
+            }
 
             const postContent = async (event) => {
                 event.preventDefault();
