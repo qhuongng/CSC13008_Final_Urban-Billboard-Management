@@ -21,10 +21,16 @@
     {{#if panel}}
     <input type="hidden" id="panel-id" value="{{panel}}">
     {{/if}}
+    <input type="hidden" id="user-id" value="{{authUser._id}}">
     <div class="control-responsive p-4 d-flex flex-column align-items-center">
         <div class="container mt-3">
             <h2 class="mb-4">Gửi yêu cầu chỉnh sửa</h2>
             <form action="" method="post" enctype="multipart/form-data">
+                <div class="form-group mt-4">
+                    <label for="point">Email cán bộ gửi yêu cầu</label>
+                    <input class="form-control" type="email" name="email" id="email" value="{{authUser.email}}"
+                        readonly>
+                </div>
                 <h5 class="my-4">Đối tượng cần chỉnh sửa</h5>
                 <div class="form-group">
                     <label for="point">Điểm đặt</label>
@@ -54,7 +60,8 @@
                         <div class="form-group">
                             <div class="form-check">
                                 <input type="checkbox" class="form-check-input" id="group1Checkbox">
-                                <label class="form-check-label mb-2" for="group1Checkbox">Hình thức quảng cáo</label>
+                                <label class="form-check-label mb-2" for="group1Checkbox">Hình thức quảng
+                                    cáo</label>
                             </div>
                             <select class="custom-select" name="billboardType" id="group1" disabled>
                             </select>
@@ -64,7 +71,8 @@
                         <div class="form-group">
                             <div class="form-check">
                                 <input type="checkbox" class="form-check-input" id="group2Checkbox">
-                                <label class="form-check-label mb-2" for="group2Checkbox">Trạng thái quy hoạch</label>
+                                <label class="form-check-label mb-2" for="group2Checkbox">Trạng thái quy
+                                    hoạch</label>
                             </div>
                             <select class="custom-select" name="isZoning" id="group2" disabled>
                             </select>
@@ -77,7 +85,8 @@
                         <div class="form-group">
                             <div class="form-check">
                                 <input type="checkbox" class="form-check-input" id="group0Checkbox">
-                                <label class="form-check-label mb-2" for="group0Checkbox">Loại bảng quảng cáo</label>
+                                <label class="form-check-label mb-2" for="group0Checkbox">Loại bảng quảng
+                                    cáo</label>
                             </div>
                             <select class="custom-select" name="Paneltype" id="group0" disabled>
                             </select>
@@ -379,6 +388,7 @@
                             body: JSON.stringify({
                                 idPoint: pointId,
                                 idPanel: panelId,
+                                idUser: $('#user-id').val(),
                                 reason: $('#reason').val(),
                                 changedList: changedList
                             })
@@ -521,6 +531,7 @@
                             body: JSON.stringify({
                                 idPoint: pointId,
                                 idPanel: panelId,
+                                idUser: $('#user-id').val(),
                                 reason: $('#reason').val(),
                                 changedList: changedList
                             })
