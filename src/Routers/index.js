@@ -10,22 +10,25 @@ const ReportTypeRouter = require("./reportType.routes");
 const ReportRouter = require("./report.routes");
 const ReportImgRouter = require("./reportImg.routes");
 const UserRouter = require("./user.routes");
-const OtpRouter = require('./otp.routes');
-const controlWardDistrictRouter = require('./controlward_district.routes');
-const { authLogin } = require('../Middleware/authMiddleware');
-const reportStatisticsRouter = require('./reportStatistics.routes');
-const wardStatisticsRouter = require('./wardStatistics.routes')
-const controlPanelTypeRouter = require('./controlPanelType.routes');
-const controlReportTypeRouter = require('./controlReportType.routes');
-const RegistrationRouter = require('./registration.routes');
-const controlPointRouter = require('./controlPoint.routes');
-const controlReportRouter = require('./controlReport.routes');
-const licenseRouter = require('./license.routes');
-const ProfileRouter = require('./profile.routes')
-const licenseImgRouter = require('./licenseImg.routes');
-const controlLicenseRouter = require('./controlLicense.routes');
-const reviewLicenseRouter = require('./reviewLicense.routes');
-const modificationRouter = require('./modification.routes');
+
+const OtpRouter = require("./otp.routes");
+const controlWardDistrictRouter = require("./controlward_district.routes");
+const { authLogin } = require("../Middleware/authMiddleware");
+const reportStatisticsRouter = require("./reportStatistics.routes");
+const wardStatisticsRouter = require("./wardStatistics.routes");
+const controlPanelTypeRouter = require("./controlPanelType.routes");
+const controlReportTypeRouter = require("./controlReportType.routes");
+const RegistrationRouter = require("./registration.routes");
+const controlPointRouter = require("./controlPoint.routes");
+const controlReportRouter = require("./controlReport.routes");
+const licenseRouter = require("./license.routes");
+const ProfileRouter = require("./profile.routes");
+const licenseImgRouter = require("./licenseImg.routes");
+
+const controlPanelRouter = require("./controlPanel.routes");
+const controlLicenseRouter = require("./controlLicense.routes");
+const reviewLicenseRouter = require("./reviewLicense.routes");
+const modificationRouter = require("./modification.routes");
 const modificationPointRouter = require('./controlModPoint.routes');
 const modificationPanelRouter = require('./controlModPanel.routes');
 
@@ -42,37 +45,39 @@ const routes = (app) => {
   app.use("/api/reportType", ReportTypeRouter);
   app.use("/api/report", ReportRouter);
   app.use("/api/reportImg", ReportImgRouter);
-  app.use('/api/user', UserRouter);
-  app.use('/api/otp', OtpRouter);
-  app.use('/api/controlWardDistrict', controlWardDistrictRouter);
-  app.use('/api/reportStatistics', reportStatisticsRouter);
-  app.use('/api/wardStatistics', wardStatisticsRouter);
-  app.use('/api/controlPanelType', controlPanelTypeRouter);
-  app.use('/api/controlReportType', controlReportTypeRouter);
-  app.use('/api/registration', RegistrationRouter);
-  app.use('/api/controlPoint', controlPointRouter);
-  app.use('/api/controlReport', controlReportRouter);
-  app.use('/api/license', licenseRouter);
-  app.use('/api/profile', ProfileRouter)
-  app.use('/api/licenseImg', licenseImgRouter);
-  app.use('/api/controlLicense', controlLicenseRouter);
-  app.use('/api/reviewLicense', reviewLicenseRouter);
-  app.use('/api/modification', modificationRouter);
+
+  app.use("/api/user", UserRouter);
+  app.use("/api/otp", OtpRouter);
+  app.use("/api/controlWardDistrict", controlWardDistrictRouter);
+  app.use("/api/reportStatistics", reportStatisticsRouter);
+  app.use("/api/wardStatistics", wardStatisticsRouter);
+  app.use("/api/controlPanelType", controlPanelTypeRouter);
+  app.use("/api/controlReportType", controlReportTypeRouter);
+  app.use("/api/registration", RegistrationRouter);
+  app.use("/api/controlPoint", controlPointRouter);
+  app.use("/api/controlReport", controlReportRouter);
+  app.use("/api/license", licenseRouter);
+  app.use("/api/profile", ProfileRouter);
+  app.use("/api/licenseImg", licenseImgRouter);
+  app.use("/api/controlLicense", licenseRouter);
+  app.use("/api/controlLicense", controlLicenseRouter);
+  app.use("/api/reviewLicense", reviewLicenseRouter);
+  app.use("/api/modification", modificationRouter);
+  app.use("/api/controlPanel", controlPanelRouter);
   app.use('/api/controlModPoint', modificationPointRouter);
   app.use('/api/controlModPanel', modificationPanelRouter);
   //
   app.get("/", (req, res) => {
     if (res.locals.auth == false) {
       res.render("viewUser/login", {
-        layout: false
+        layout: false,
       });
     } else {
       res.render("index", {
-        authUserRole: JSON.stringify(res.locals.authUser).replace(/\s/g, '%20')
+        authUserRole: JSON.stringify(res.locals.authUser).replace(/\s/g, "%20"),
       });
     }
   });
 };
-
 
 module.exports = routes;
