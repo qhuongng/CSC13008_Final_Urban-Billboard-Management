@@ -83,6 +83,55 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Confirmation Modal -->
+                <div class="modal fade" id="confirmationModal" tabindex="-1" role="dialog"
+                    aria-labelledby="confirmation-modal-title" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="confirmation-modal-title">Xác nhận</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <p>Bạn có chắc chắn muốn cấp phép không?</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-outline-secondary"
+                                    data-dismiss="modal">Không</button>
+                                <button type="button" class="btn btn-outline-primary"
+                                    onclick="confirmAction()">Có</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Confirmation Modal -->
+                <div class="modal fade" id="denyModal" tabindex="-1" role="dialog"
+                    aria-labelledby="confirmation-modal-title" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="confirmation-modal-title">Xác nhận</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <p>Bạn có chắc chắn muốn từ chối cấp phép không?</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-outline-secondary"
+                                    data-dismiss="modal">Không</button>
+                                <button type="button" class="btn btn-outline-primary"
+                                    onclick="denyAction()">Có</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>
@@ -158,14 +207,18 @@
                 // If no data, create a single row with a "No data" message
                 const noDataRow = document.createElement('tr');
                 const noDataCell = document.createElement('td');
-                noDataCell.setAttribute('colspan', '6');
+                noDataCell.setAttribute('colspan', '7');
                 noDataCell.textContent = 'Không có dữ liệu';
                 noDataCell.classList.add('text-center');
                 noDataRow.appendChild(noDataCell);
                 licensesBody.appendChild(noDataRow);
             } else {
-                // If there is data, create rows for each point with isAccept equal to 0
-                licenses.filter(license => license.isAccept === 0).forEach(license => {
+                const pendingLicenses = licenses.filter(license => license.isAccept === 0);
+                const otherLicenses = licenses.filter(license => license.isAccept !== 0);
+
+                const sortedLicenses = pendingLicenses.concat(otherLicenses);
+
+                sortedLicenses.forEach(license => {
                     const row = document.createElement('tr');
 
                     row.innerHTML = `
@@ -176,14 +229,18 @@
                 <td>${license.companyPhone}</td>
                 <td style="color: ${getColorByAccept(license.isAccept)}">${formatAccept(license.isAccept)}</td>
                 <td class="col-2">
-                    <button class="btn btn-outline-success btn-block float-right" onclick="grantLicense('${license._id}')">
-                        <i class="bi bi-check2"></i>
-                        Cấp phép
-                    </button>
-                    <button class="btn btn-outline-danger btn-block float-right" onclick="denyLicense('${license._id}')">
-                        <i class="bi bi-x-lg"></i>
-                        Từ chối
-                    </button>
+                    ${license.isAccept === 0 ?
+                            `<button class="btn btn-outline-success btn-block float-right" onclick="openConfirmationModal('${license._id}', 'grant')">
+                <i class="bi bi-check2"></i>
+                Cấp phép
+            </button>
+            <button class="btn btn-outline-danger btn-block float-right" onclick="openDenyModal('${license._id}', 'deny')">
+                <i class="bi bi-x-lg"></i>
+                Từ chối
+            </button>` : `<button class="btn btn-outline-success btn-block float-right" disabled>
+                <i class="bi bi-check2"></i>
+                Đã xử lý
+            </button>`}
                 </td>
             `;
 
@@ -197,6 +254,44 @@
                     licensesBody.appendChild(row);
                 });
             }
+        }
+        function openConfirmationModal(licenseId, action) {
+            // Store licenseId and action in data attributes of the modal
+            $('#confirmationModal').data('licenseId', licenseId);
+            $('#confirmationModal').data('action', action);
+            // Show the confirmation modal
+            $('#confirmationModal').modal('show');
+        }
+
+        function openDenyModal(licenseId, action) {
+            // Store licenseId and action in data attributes of the modal
+            $('#denyModal').data('licenseId', licenseId);
+            $('#denyModal').data('action', action);
+            // Show the confirmation modal
+            $('#denyModal').modal('show');
+        }
+
+        // Add this function to confirm the action
+        function confirmAction() {
+            // Get licenseId and action from data attributes
+            const licenseId = $('#confirmationModal').data('licenseId');
+            const action = $('#confirmationModal').data('action');
+
+            grantLicense(licenseId);
+
+            // Hide the confirmation modal
+            $('#confirmationModal').modal('hide');
+        }
+
+        function denyAction() {
+            // Get licenseId and action from data attributes
+            const licenseId = $('#denyModal').data('licenseId');
+            const action = $('#denyModal').data('action');
+
+            denyLicense(licenseId);
+
+            // Hide the confirmation modal
+            $('#denyModal').modal('hide');
         }
 
         async function grantLicense(licenseId) {
