@@ -244,13 +244,13 @@
                 .then(response => response.json())
                 .then(data => {
                     const panel = data.data;
-                    const modalBody = document.getElementById('panelDetailBody');    
+                    const modalBody = document.getElementById('panelDetailBody');
 
                     fetch(`http://localhost:3500/api/point/getPoint/${panel.idPoint}`)
                         .then(response => response.json())
                         .then(data => {
                             const point = data.data;
-                            
+
                             modalBody.innerHTML = `
                             <p><strong>ID: </strong> ${panel._id}</p>
                             <p><strong>Loại bảng quảng cáo: </strong> ${panel.Paneltype}</p>
@@ -359,20 +359,12 @@
     }
 
     function editRow(rowIdentifier, id, idPoint) {
-        const numericPart = rowIdentifier + 1;
-        const row = document.querySelector(`tbody tr:nth-child(${numericPart})`);
-
-        if (row) {
-            document.getElementById('edit-data').value = id;
-            document.getElementById('selectIdPoint-edit').value = idPoint;
-        } else {
-            console.log(`Row ${rowIdentifier} not found.`);
-
-        }
+        console.log(`Editing row ${rowIdentifier}`);
+        document.getElementById('edit-data').value = id;
+        document.getElementById('selectIdPoint-edit').value = idPoint;
     }
 
     function deleteRow(rowIdentifier, id, idPoint) {
-        const numericPart = rowIdentifier + 1;
         console.log(`Deleting row ${rowIdentifier}`);
         document.getElementById('deleted-id').value = id;
     }
@@ -421,7 +413,7 @@
                         amount: amount
                     })
                 })
-                if (response.status === "OK") {
+                if (response.status === 200) {
                     toastr.options.onHidden = () => { window.location.href = "/api/controlPanel" }
                     toastr.success("Chỉnh sửa thông tin bảng quảng cáo thành công.")
                 } else {
