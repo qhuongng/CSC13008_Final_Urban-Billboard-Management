@@ -289,20 +289,32 @@
         console.log(panelId)
 
         try {
-            fetch(`http://localhost:3500/api/panel/getListPanel/${panelId}`)
+            fetch(`http://localhost:3500/api/panel/getPanelById/${panelId}`)
                 .then(response => response.json())
                 .then(data => {
                     const panel = data.data;
-                    console.log(panel)
                     const modalBody = document.getElementById('panelDetailBody');
+                    console.log(panel)
 
-                    modalBody.innerHTML = `
-                    <p><strong>ID: </strong> ${panel._id}</p>
-                    <p><strong>Loại bảng quảng cáo: </strong> ${panel.Paneltype}</p>
-                    <p><strong>Kích thước: </strong> ${panel.size}</p>
-                    <p><strong>Số lượng:</strong> ${panel.amount}</p>
-                    <p><strong>ID điểm đặt: </strong> ${panel.idPoint}</p>
-                `;
+                    fetch(`http://localhost:3500/api/point/getPoint/${panel.idPoint}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            const point = data.data;
+                            console.log(point)
+                            modalBody.innerHTML = `
+                            <p><strong>ID: </strong> ${panel._id}</p>
+                            <p><strong>Loại bảng quảng cáo: </strong> ${panel.Paneltype}</p>
+                            <p><strong>Kích thước: </strong> ${panel.size}</p>
+                            <p><strong>Số lượng:</strong> ${panel.amount}</p>
+                            <p><strong>ID điểm đặt: </strong> ${panel.idPoint}</p>
+                            <p><strong>Tên điểm đặt: </strong> ${point.name}</p>
+                            <p><strong>Địa chỉ: </strong> ${point.address}</p>
+                            <p><strong>Loại vị trí: </strong> ${point.positionType}</p>
+                            <p><strong>Hình thức quảng cáo: </strong> ${point.formAdvertising}</p>
+                            <p><strong>Quy hoạch: </strong> ${point.isZoning ? "Đã quy hoạch" : "Chưa quy hoạch"}</p>
+                            <p><strong>Ảnh:</strong> <br><img class="img-fluid" src="http://localhost:3500/api/pointImg/getImgPoint/${point.picturePoint}" referrerpolicy="no-referrer" ></p>
+                        `;
+                        }).catch(err => console.log(err));
                 }).catch(err => console.log(err));
         } catch (e) {
             console.log(e)
