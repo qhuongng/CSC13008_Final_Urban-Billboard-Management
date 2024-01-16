@@ -50,6 +50,7 @@
                                 <th>Email công ty</th>
                                 <th>Điện thoại liên lạc</th>
                                 <th>Tình trạng</th>
+                                <th>&nbsp;</th>
                             </tr>
                         </thead>
                         <tbody id="licensesBody">
@@ -174,11 +175,15 @@
                 <td>${license.companyEmail}</td>
                 <td>${license.companyPhone}</td>
                 <td style="color: ${getColorByAccept(license.isAccept)}">${formatAccept(license.isAccept)}</td>
-                <td>
-                    <button class="btn btn-success text-nowrap float-right" onclick="grantLicense('${license._id}')">Cấp phép</button>
-                </td>
-                <td>
-                    <button class="btn btn-danger text-nowrap float-right" onclick="denyLicense('${license._id}')">Từ chối</button>
+                <td class="col-2">
+                    <button class="btn btn-outline-success btn-block float-right" onclick="grantLicense('${license._id}')">
+                        <i class="bi bi-check2"></i>
+                        Cấp phép
+                    </button>
+                    <button class="btn btn-outline-danger btn-block float-right" onclick="denyLicense('${license._id}')">
+                        <i class="bi bi-x-lg"></i>
+                        Từ chối
+                    </button>
                 </td>
             `;
 
@@ -293,6 +298,8 @@
                     let fetched = data.data;
                     panel = fetched.Paneltype + " (" + license.idPanel + ")";
                 });
+
+            console.log(license);
 
             let details = `<div id="licenseId">ID yêu cầu: <b>${license._id}</b></div><br><br>
                             <h6 class="card-subtitle mb-2">Thông tin quảng cáo</h6>
