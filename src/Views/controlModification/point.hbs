@@ -326,7 +326,7 @@
 
                 const data = await response.json();
 
-                if (data.status === 'OK') {
+                if (data.status === 200) {
                     toastr.success('Cấp phép thành công');
                     filterModPoint();
                 } else {
@@ -354,7 +354,7 @@
 
                 console.log(data)
 
-                if (data.status === 'OK') {
+                if (data.status === 200) {
                     toastr.success('Từ chối thành công');
                     filterModPoint();
                 } else {
