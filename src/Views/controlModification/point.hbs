@@ -97,7 +97,7 @@
                     </div>
                 </div>
 
-                <!-- Confirmation Modal -->
+                <!-- Deny Modal -->
                 <div class="modal fade" id="confirmationModal" tabindex="-1" role="dialog"
                     aria-labelledby="confirmation-modal-title" aria-hidden="true">
                     <div class="modal-dialog modal-dialog-centered" role="document">
@@ -403,6 +403,7 @@
                 .then(data => {
                     let point = data.data;
                     idpoint = point._id;
+                    namePoint = point.name;
                     address = point.address.trim() + ", " + point.area.ward + ", " + point.area.district;
                     picture = point.picturePoint;
                     positionType = point.positionType;
@@ -425,6 +426,7 @@
             let details = `<div id="modificationId">ID yêu cầu: <b>${modification._id}</b></div><br><br>
                             <h6 class="card-subtitle mb-2">Thông tin điểm đặt</h6>
                             <p class="card-text">Địa chỉ điểm đặt: <b>${address}</b><br>
+                                                Tên điểm đặt: <b>${namePoint}</b><br>
                                                 Loại vị trí: <b>${positionType}</b><br>
                                                 Loại hình quảng cáo: <b>${formAdvertising}</b><br>
                                                 Tình trạng quy hoạch: <b>${isZoning ? 'Đã quy hoạch' : 'Chưa quy hoạch'}</b><br>
