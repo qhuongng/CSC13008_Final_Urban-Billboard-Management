@@ -352,7 +352,7 @@
 
             const details = `<h6 class="card-subtitle mb-2 text-muted">${report.address}</h6>
                       <p class="card-text">
-                          <div id="reportId">ID Report: <b>${report._id}</b><br></div>
+                          <div id="reportId">ID report: <b>${report._id}</b><br></div>
                           Họ tên người gửi: <b>${report.name}</b><br>
                           Email: <b>${report.email}</b><br>
                           Số điện thoại: <b>${report.phone}</b><br>
@@ -392,10 +392,10 @@
             const reportIdElement = document.getElementById('reportId');
             const reportIdText = reportIdElement.innerText.trim();
 
-            // Check if the reportIdText contains "ID Report:"
-            if (reportIdText.startsWith('ID Report:')) {
+            // Check if the reportIdText contains "ID report:"
+            if (reportIdText.startsWith('ID report:')) {
                 // Extract only the ID part
-                const reportId = reportIdText.replace('ID Report:', '').trim();
+                const reportId = reportIdText.replace('ID report:', '').trim();
                 console.log(reportId)
                 const statusSelect = document.getElementById('statusSelect');
                 const handlingMethodInput = document.getElementById('handlingMethodInput');
@@ -724,7 +724,7 @@
 
             const details = `<h6 class="card-subtitle mb-2 text-muted">${report.address}</h6>
                       <p class="card-text">
-                          <div id="reportId">ID Report: <b>${report._id}</b><br></div>
+                          <div id="reportId">ID report: <b>${report._id}</b><br></div>
                           Họ tên người gửi: <b>${report.name}</b><br>
                           Email: <b>${report.email}</b><br>
                           Số điện thoại: <b>${report.phone}</b><br>
@@ -763,10 +763,10 @@
             const reportIdElement = document.getElementById('reportId');
             const reportIdText = reportIdElement.innerText.trim();
 
-            // Check if the reportIdText contains "ID Report:"
-            if (reportIdText.startsWith('ID Report:')) {
+            // Check if the reportIdText contains "ID report:"
+            if (reportIdText.startsWith('ID report:')) {
                 // Extract only the ID part
-                const reportId = reportIdText.replace('ID Report:', '').trim();
+                const reportId = reportIdText.replace('ID report:', '').trim();
 
                 const statusSelect = document.getElementById('statusSelect');
                 const handlingMethodInput = document.getElementById('handlingMethodInput');

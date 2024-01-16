@@ -36,7 +36,7 @@
     <input type="hidden" id="panel-id" value="{{panel}}">
     {{/if}}
     <div class="control-responsive p-4 d-flex flex-column align-items-center">
-        <div class="container m-5">
+        <div class="container mt-3">
             <h2 class="mb-4">Gửi yêu cầu cấp phép quảng cáo</h2>
             <form action="" method="post" enctype="multipart/form-data">
                 <!-- Input fields for new report information -->
@@ -225,11 +225,6 @@
                     // lấy form và dữ liệu từ form
                     var form = document.querySelector('form');
                     var formData = new FormData(form);
-
-                    // const img = document.getElementById('image');
-                    // console.log(img.files.length);
-                    // const imgInput = img.files[0];
-                    // formData.append('image', imgInput);
 
                     fetch(`http://localhost:3500/api/license/?point=${pointId}&panel=${panelId}`,
                         {
