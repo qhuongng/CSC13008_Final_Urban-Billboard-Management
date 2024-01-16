@@ -49,8 +49,8 @@
                                 <th>Loại vị trí</th>
                                 <th>Loại hình quảng cáo</th>
                                 <th>Quy hoạch</th>
-                                <th>Tình trạng </th>
                                 <th>Lí do thay đổi</th>
+                                <th>Tình trạng </th>
                                 <th>&nbsp;</th>
                             </tr>
                         </thead>
@@ -238,6 +238,7 @@
                 <td>${modification.changedList[0] === '-1' ? 'Không chỉnh sửa' : 'Yêu cầu chỉnh sửa'}</td>
                 <td>${modification.changedList[1] === "-1" ? 'Không chỉnh sửa' : 'Yêu cầu chỉnh sửa'}</td>
                 <td>${modification.changedList[2] === "-1" ? 'Không chỉnh sửa' : 'Yêu cầu chỉnh sửa'}</td>
+                <td>${modification.reason}</td>
                 <td style="color: ${getColorByState(modification.state)}">${formatState(modification.state)}</td>
                 <td class="col-2">
                     ${modification.state === 0 ?
@@ -508,6 +509,7 @@
                                             </tr>
                                         </tbody>
                                         </table><br>
+                                        Lý do chỉnh sửa: <b>${modification.reason}</b><br><br>
                                         Tình trạng xét duyệt: <b style="color:${modification.state == 1 ? 'green"> Đã duyệt' : modification.state == 0 ? 'gold"> Chưa duyệt' : 'red"> Bị từ chối'}</b>`;
 
                 document.getElementById("place-modification").innerHTML = bodyHtml;
