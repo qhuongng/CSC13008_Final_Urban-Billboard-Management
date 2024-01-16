@@ -69,19 +69,19 @@
             <div class="modal-body">
                 <form id="addForm">
                     <div class="form-group">
-                        <label for="add-data">Loại bảng quảng cáo</label>
-                        <select class="form-control" id="selectPanelType" name="selectPanelType">
+                        <label for="selectPanelType">Loại bảng quảng cáo</label>
+                        <select class="custom-select" id="selectPanelType" name="selectPanelType"></select>
                     </div>
                     <div class="form-group">
-                        <label for="add-data">Toạ độ</label>
-                        <input type="text" class="form-control" id="lnglat"
-                            onclick='window.open("http://localhost:3500/api/controlPoint/submap", "popup" , "width=600,height=600" )'
+                        <label for="pointName">Điểm đặt</label>
+                        <input type="text" class="form-control" id="pointName"
+                            onclick='window.open("http://localhost:3500/api/controlPanel/submap", "popup" ,"width=600,height=600")'
                             placeholder="Click me to open subwindow">
                     </div>
                     <div class="form-group">
-                        <label for="add-data">Địa chỉ</label>
+                        <label for="address">Địa chỉ</label>
                         <input type="text" class="form-control" id="address"
-                            onclick='window.open("http://localhost:3500/api/controlPoint/submap", "popup" , "width=600,height=600" )'
+                            onclick='window.open("http://localhost:3500/api/controlPanel/submap", "popup" ,"width=600,height=600")'
                             placeholder="Click me to open subwindow">
                     </div>
                     <div class="form-group">
@@ -526,7 +526,7 @@
 
     function showPosition(lng, lat) {
         try {
-            const popup = window.open('http://localhost:3500/api/controlPoint/submap', 'popup', 'width=600,height=600');
+            const popup = window.open('http://localhost:3500/api/controlPanel/submap', 'popup', 'width=600,height=600');
             popup.onload = () => {
                 if (popup.opener) {
                     popup.opener.showAlert();
