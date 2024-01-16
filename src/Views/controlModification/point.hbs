@@ -313,12 +313,13 @@
 
         async function grantmodification(modificationId) {
             try {
-                const response = await fetch(`http://localhost:3500/api/modification/updateModification/${modificationId}`, {
+                const response = await fetch('http://localhost:3500/api/modification/updateState', {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
+                        modifyId: modificationId,
                         state: 1
                     }),
                 });
@@ -340,12 +341,13 @@
 
         async function denymodification(modificationId) {
             try {
-                const response = await fetch(`http://localhost:3500/api/modification/updatemodification/${modificationId}`, {
+                const response = await fetch('http://localhost:3500/api/modification/updateState', {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
+                        modifyId: modificationId,
                         state: -1
                     }),
                 });
