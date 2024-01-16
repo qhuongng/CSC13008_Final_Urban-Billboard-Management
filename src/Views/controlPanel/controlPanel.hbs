@@ -94,9 +94,10 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="selectPositionType">Loại vị trí</label>
-                        <select class="form-control" id="selectPositionType" name="selectPositionType">
-                        </select>
+                        <label for="selectSizeWidth">Chiều rộng bảng quảng cáo</label>
+                        <input type="text" class="form-control" id="selectSizeWidth" name="selectSize">
+                        <label for="selectSizeHeight">Chiều cao bảng quảng cáo</label>
+                        <input type="text" class="form-control" id="selectSizeHeight" name="selectSize">
                     </div>
 
                     <div class="form-group">
@@ -129,7 +130,7 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="editModalLabel">Chỉnh sửa điểm đặt quảng cáo</h5>
+                <h5 class="modal-title" id="editModalLabel">Chỉnh sửa bảng quảng cáo</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -137,30 +138,32 @@
             <div class="modal-body">
                 <form id="editForm">
                     <div class="form-group">
-                        <label for="edit-data">ID điểm đặt quảng cáo </label>
+                        <label for="edit-data">ID bảng quảng cáo </label>
                         <input type="text" class="form-control" id="edit-data" readonly />
                     </div>
 
                     <div class="form-group">
-                        <label for="edit-data">Loại vị trí</label>
-                        <select class="form-control" id="selectPositionType-edit" name="selectPositionType-edit">
+                        <label for="edit-data">ID điểm đăt quảng cáo </label>
+                        <input type="text" class="form-control" id="selectIdPoint" readonly />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="edit-data">Loại bảng quảng cáo</label>
+                        <select class="form-control" id="selectPanelType-edit" name="selectPanelType-edit">
                         </select>
                     </div>
 
                     <div class="form-group">
-                        <label for="edit-data">Hình thức quảng cáo</label>
-                        <select class="form-control" id="selectAdsForm-edit" name="selectAdsForm-edit">
-                        </select>
+                        <label for="selectSizeWidth">Chiều rộng bảng quảng cáo</label>
+                        <input type="text" class="form-control" id="selectSizeWidth-edit" name="selectSize">
+                        <label for="selectSizeHeight">Chiều cao bảng quảng cáo</label>
+                        <input type="text" class="form-control" id="selectSizeHeight-edit" name="selectSize">
                     </div>
 
                     <div class="form-group">
-                        <label for="edit-data">Quy hoạch</label>
-                        <select class="form-control" id="isZoning-edit" name="isZoning-edit">
-                            <option value="false">Chưa quy hoạch</option>
-                            <option value="true">Đã quy hoạch</option>
-                        </select>
+                        <label for="edit-data">Số lượng</label>
+                        <input type="text" class="form-control" id="selectAmount-edit" name="selectAmount" />
                     </div>
-
                 </form>
             </div>
             <div class="modal-footer">
@@ -168,7 +171,7 @@
                     <i class="bi bi-skip-backward-fill"></i>
                     Quay lại
                 </button>
-                <button type="button" class="btn btn-outline-primary" onclick="editPoint()">
+                <button type="button" class="btn btn-outline-primary" onclick="editPanel()">
                     <i class="bi bi-check2"></i>
                     Lưu
                 </button>
@@ -188,9 +191,9 @@
                 </button>
             </div>
             <div class="modal-body">
-                <label for="deleted-id">ID điểm đặt quảng cáo</label>
+                <label for="deleted-id">ID bảng quảng cáo</label>
                 <input type="text" class="form-control" id="deleted-id" readonly />
-                <br>Bạn có chắc chắn muốn xóa điểm đặt này?
+                <br>Bạn có chắc chắn muốn xóa bảng quảng cáo này?
             </div>
             <div class="modal-footer justify-content-end">
                 <button type="button" class="btn btn-outline-success" data-dismiss="modal">
@@ -229,57 +232,29 @@
         "hideMethod": "fadeOut"
     }
     try {
-        fetch('http://localhost:3500/api/positionType/getAllTypePos')
+        fetch('http://localhost:3500/api/panelType/getAllPanelType')
             .then(response => response.json())
             .then(data => {
-                const listPositionType = data.data;
-                const addPositionType = document.getElementById('selectPositionType');
-                const editPositionType = document.getElementById('selectPositionType-edit');
-                addPositionType.innerHTML = '';
-                editPositionType.innerHTML = '';
-                listPositionType.forEach(item => {
+                const listPanelType = data.data;
+                const addPanelType = document.getElementById('selectPanelType');
+                const editAdsForm = document.getElementById('selectPanelType-edit');
+                addPanelType.innerHTML = '';
+                listPanelType.forEach(item => {
                     const optionAdd = document.createElement('option');
-                    optionAdd.className = `${item.posId}`;
-                    optionAdd.value = item.posId;
-                    optionAdd.innerText = item.posName;
-                    addPositionType.appendChild(optionAdd);
+                    optionAdd.className = `${item.panId}`;
+                    optionAdd.value = item.panId;
+                    optionAdd.innerText = item.panName;
+                    addPanelType.appendChild(optionAdd);
 
                     const optionEdit = document.createElement('option');
-                    optionEdit.className = `${item.posId}`;
-                    optionEdit.value = item.posId;
-                    optionEdit.innerText = item.posName;
-                    editPositionType.appendChild(optionEdit);
+                    optionEdit.className = `${item.panId}`;
+                    optionEdit.value = item.panId;
+                    optionEdit.innerText = item.panName;
+                    editAdsForm.appendChild(optionEdit);
                 });
             }).catch(err => console.log(err));
     }
     catch (e) {
-        console.log(e)
-    }
-
-    try {
-        fetch('http://localhost:3500/api/adsForm/getAllForm')
-            .then(response => response.json())
-            .then(data => {
-                listAdsForm = data.data;
-                const addAdsForm = document.getElementById('selectAdsForm-add');
-                const editAdsForm = document.getElementById('selectAdsForm-edit');
-                addAdsForm.innerHTML = '';
-                editAdsForm.innerHTML = '';
-                listAdsForm.forEach(item => {
-                    const optionAdd = document.createElement('option');
-                    optionAdd.className = `${item.formId}`;
-                    optionAdd.value = item.formId;
-                    optionAdd.innerText = item.formName;
-                    addAdsForm.appendChild(optionAdd);
-
-                    const optionEdit = document.createElement('option');
-                    optionEdit.className = `${item.formId}`;
-                    optionEdit.value = item.formId;
-                    optionEdit.innerText = item.formName;
-                    editAdsForm.appendChild(optionEdit);
-                });
-            }).catch(err => console.log(err));
-    } catch (e) {
         console.log(e)
     }
 
@@ -325,7 +300,7 @@
         .then(response => response.json())
         .then(data => {
             listPoint = data.data;
-            listPoint.forEach(item => {
+            listPoint.forEach((item, index) => {
                 const id = item._id;
                 const row = `<tr>
                                 <th scope="row">
@@ -340,12 +315,12 @@
                                         data-id="${id}">${item.idPoint.substr(-4)}</a>
                                 </td>
                                 <td class="text-nowrap overflow-hidden" style="width: 1%;">
-                                    <button class="btn btn-sm btn-outline-primary" onclick="editRow('${id}')" data-toggle="modal"
+                                    <button class="btn btn-sm btn-outline-primary" onclick="editRow('${index}', '${id}', '${item.idPoint}')" data-toggle="modal"
                                         data-target="#editModal">
                                         <i class="bi bi-pencil"></i>
                                         Edit
                                     </button>
-                                    <button class="btn btn-sm btn-outline-danger" onclick="deleteRow('${id}')" data-toggle="modal"
+                                    <button class="btn btn-sm btn-outline-danger" onclick="deleteRow('${index}', '${id}', '${item.idPoint}')" data-toggle="modal"
                                         data-target="#deleteModal">
                                         <i class="bi bi-trash"></i>
                                         Delete
@@ -383,7 +358,7 @@
             document.getElementById('add-data').focus();
         } else if (!formAdvertising) {
             toastr.error("Vui lòng chọn hình thức quảng cáo.");
-            document.getElementById('selectAdsForm').focus();
+            document.getElementById('selectAdsForm-add').focus();
         } else if (!district) {
             toastr.error("Vui lòng chọn quận.");
             document.getElementById('selectDistrict').focus();
@@ -429,66 +404,80 @@
     }
 
 
-    function editRow(rowIdentifier) {
-        const numericPart = parseInt(rowIdentifier.slice(1), 10);
+    function editRow(rowIdentifier, id, idPoint) {
+        const numericPart = rowIdentifier + 1;
         const row = document.querySelector(`tbody tr:nth-child(${numericPart})`);
+
         if (row) {
-            document.getElementById('edit-data').value = rowIdentifier;
+            document.getElementById('edit-data').value = id;
+            document.getElementById('selectIdPoint').value = idPoint;
         } else {
             console.log(`Row ${rowIdentifier} not found.`);
+
         }
     }
 
-    function deleteRow(rowIdentifier) {
-        const numericPart = parseInt(rowIdentifier.slice(1), 10);
+    function deleteRow(rowIdentifier, id, idPoint) {
+        const numericPart = rowIdentifier + 1;
         const row = document.querySelector(`tbody tr:nth-child(${numericPart})`);
 
         if (row) {
             console.log(`Deleting row ${rowIdentifier}`);
-            document.getElementById('deleted-id').value = rowIdentifier;
+            document.getElementById('deleted-id').value = id;
         } else {
             console.log(`Row ${rowIdentifier} not found.`);
         }
     }
 
-    async function editPoint() {
-        const id = document.getElementById('edit-data').value;
-        const formAdvertising = document.getElementById('selectAdsForm-edit').value;
-        const positionType = document.getElementById('selectPositionType-edit').value;
-        const isZoning = document.getElementById('isZoning-edit').value;
+    async function editPanel() {
+        const id = $('#edit-data').val();
+        const idPoint = $('#selectIdPoint').val();
+        const panelType = $('#selectPanelType-edit').val();
+        const width = $('#selectSizeWidth-edit').val();
+        const height = $('#selectSizeHeight-edit').val();
+        const amount = $('#selectAmount-edit').val();
 
         if (!id) {
-            toastr.error("Vui lòng chọn điểm đặt quảng cáo.");
+            toastr.error("Vui lòng chọn bảng quảng cáo.");
             document.getElementById('edit-data').focus();
-        } else if (!formAdvertising) {
-            toastr.error("Vui lòng chọn hình thức quảng cáo.");
-            document.getElementById('selectAdsForm-edit').focus();
-        } else if (!positionType) {
-            toastr.error("Vui lòng chọn loại vị trí.");
-            document.getElementById('selectPositionType-edit').focus();
-        } else if (!isZoning) {
-            toastr.error("Vui lòng chọn quy hoạch.");
-            document.getElementById('isZoning-edit').focus();
         }
-        else {
+        else if (!panelType) {
+            toastr.error("Vui lòng chọn loại bảng quảng cáo.");
+            document.getElementById('selectPanelType-edit').focus();
+        }
+        else if (!idPoint) {
+            toastr.error("Vui lòng chọn điểm đặt quảng cáo.");
+            document.getElementById('selectIdPoint').focus();
+        }
+        else if (!width) {
+            toastr.error("Vui lòng chọn chiều rộng bảng quảng cáo.");
+            document.getElementById('selectSizeWidth-edit').focus();
+        } else if (!height) {
+            toastr.error("Vui lòng chọn chiều cao bảng quảng cáo.");
+            document.getElementById('selectSizeHeight-edit').focus();
+        } else if (!amount) {
+            toastr.error("Vui lòng chọn số lượng bảng quảng cáo.");
+            document.getElementById('selectAmount-edit').focus();
+        } else {
             try {
-                const response = await fetch(`http://localhost:3500/api/point/updatePoint/${id}`, {
+                const size = width + 'm x ' + height + "m";
+                const response = await fetch(`http://localhost:3500/api/panel/updatePanel/${id}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        id: id,
-                        formAdvertising: formAdvertising,
-                        positionType: positionType,
-                        isZoning: isZoning
+                        idPoint: idPoint,
+                        Paneltype: panelType,
+                        size: size,
+                        amount: amount
                     })
                 })
                 if (response.status === 200) {
-                    toastr.options.onHidden = () => { window.location.href = "/api/controlPoint" }
-                    toastr.success("Chỉnh sửa thông tin hình thức báo cáo thành công.")
+                    toastr.options.onHidden = () => { window.location.href = "/api/controlPanel" }
+                    toastr.success("Chỉnh sửa thông tin bảng quảng cáo thành công.")
                 } else {
-                    toastr.error("Tên hình thức báo cáo đã tồn tại.");
+                    toastr.error("Có lỗi xảy ra. Vui lòng thử lại.");
                 }
             } catch (e) {
                 toastr.error("Có lỗi xảy ra. Vui lòng thử lại.");
@@ -497,9 +486,9 @@
     }
 
     function deletePoint() {
-        const id = document.getElementById('deleted-id').value;
+        const id = $('#deleted-id').val();
         if (!id) {
-            toastr.error("Vui lòng chọn điểm đặt quảng cáo.");
+            toastr.error("Vui lòng chọn bảng quảng cáo.");
             document.getElementById('deleted-id').focus();
         } else {
             try {
@@ -509,7 +498,7 @@
                     .then(response => response.json())
                     .then(data => {
                         if (data.status === "OK") {
-                            toastr.options.onHidden = () => { window.location.href = "/api/controlPoint" }
+                            toastr.options.onHidden = () => { window.location.href = "/api/controlPanel" }
                             toastr.success("Xóa điểm đặt quảng cáo thành công.")
                         } else {
                             toastr.error("Có lỗi xảy ra. Vui lòng thử lại.");

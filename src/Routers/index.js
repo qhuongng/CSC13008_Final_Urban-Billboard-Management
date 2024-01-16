@@ -55,7 +55,7 @@ const routes = (app) => {
   app.use("/api/license", licenseRouter);
   app.use("/api/profile", ProfileRouter);
   app.use("/api/licenseImg", licenseImgRouter);
-  app.use("/api/controlLicense", controlLicense);
+  app.use("/api/controlLicense", licenseRouter);
   app.use("/api/controlLicense", controlLicenseRouter);
   app.use("/api/reviewLicense", reviewLicenseRouter);
   app.use("/api/modification", modificationRouter);
