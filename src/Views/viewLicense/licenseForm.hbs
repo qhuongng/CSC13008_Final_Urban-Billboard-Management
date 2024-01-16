@@ -226,11 +226,6 @@
                     var form = document.querySelector('form');
                     var formData = new FormData(form);
 
-                    // const img = document.getElementById('image');
-                    // console.log(img.files.length);
-                    // const imgInput = img.files[0];
-                    // formData.append('image', imgInput);
-
                     fetch(`http://localhost:3500/api/license/?point=${pointId}&panel=${panelId}`,
                         {
                             method: 'POST',
