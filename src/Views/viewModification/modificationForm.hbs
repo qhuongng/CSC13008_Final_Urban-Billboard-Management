@@ -211,10 +211,10 @@
 
                         types.forEach(type => {
                             if (type.panName == panel.Paneltype) {
-                                selectHtml += `<option selected value=${type.panName}>${type.panName}</option>`;
+                                selectHtml += `<option selected value=${encodeURIComponent(type.panName)}>${type.panName}</option>`;
                             }
                             else {
-                                selectHtml += `<option value=${type.panName}>${type.panName}</option>`;
+                                selectHtml += `<option value=${encodeURIComponent(type.panName)}>${type.panName}</option>`;
                             }
                         });
 
@@ -235,10 +235,10 @@
 
                         types.forEach(type => {
                             if (type.posName == point.positionType) {
-                                selectHtml += `<option selected value=${type.posName}>${type.posName}</option>`;
+                                selectHtml += `<option selected value=${encodeURIComponent(type.posName)}>${type.posName}</option>`;
                             }
                             else {
-                                selectHtml += `<option value=${type.posName}>${type.posName}</option>`;
+                                selectHtml += `<option value=${encodeURIComponent(type.posName)}>${type.posName}</option>`;
                             }
 
                         });
@@ -255,10 +255,10 @@
 
                         forms.forEach(form => {
                             if (form.formName == point.formAdvertising) {
-                                selectHtml += `<option selected value=${form.formName}>${form.formName}</option>`;
+                                selectHtml += `<option selected value=${encodeURIComponent(form.formName)}>${form.formName}</option>`;
                             }
                             else {
-                                selectHtml += `<option value=${form.formName}>${form.formName}</option>`;
+                                selectHtml += `<option value=${encodeURIComponent(form.formName)}>${form.formName}</option>`;
                             }
 
                         });
@@ -269,12 +269,12 @@
                 let zoneHtml;
 
                 if (point.isZoning == true) {
-                    zoneHtml = `<option selected value="1">Đã quy hoạch</option>
-                                <option value="0">Chưa quy hoạch</option>`;
+                    zoneHtml = `<option selected value="true">Đã quy hoạch</option>
+                                <option value="false">Chưa quy hoạch</option>`;
                 }
                 else {
-                    zoneHtml = `<option value="1">Đã quy hoạch</option>
-                                <option selected value="0">Chưa quy hoạch</option>`;
+                    zoneHtml = `<option value="true">Đã quy hoạch</option>
+                                <option selected value="false">Chưa quy hoạch</option>`;
                 }
 
                 document.getElementById("group2").innerHTML = zoneHtml;
@@ -287,44 +287,109 @@
                     // point modification
                     const posType = $('#group0');
                     const bbType = $('#group1');
+                    const zoneState = $('#group2');
                     const reasonInput = $('#reason');
 
                     if ($('.form-check-input:checked').length === 0) {
                         toastr.error("Vui lòng chọn ít nhất một nội dung cần chỉnh sửa.");
                     }
-                    else if (($('#group0Checkbox').prop('checked') && !posType.val()) || ($('#group1Checkbox').prop('checked') && !bbType.val()) || !reasonInput.val()) {
-                        toastr.error("Vui lòng điền đầy đủ thông tin.");
+                    else if (!reasonInput.val()) {
+                        toastr.error("Vui lòng điền lí do cần chỉnh sửa.");
 
-                        let inputs = [posType, bbType];
+                        reasonInput.addClass('border-danger');
+                        reasonInput.focus();
+                    }
+                    else if ($('#group0Checkbox').prop('checked') && decodeURIComponent($('#group0').val()) == point.positionType) {
+                        toastr.error("Vui lòng thay đổi loại vị trí của điểm đặt.");
 
-                        inputs.forEach((input, index) => {
-                            if ($(`#group${index}Checkbox`).prop('checked') && !input.val()) {
-                                input.addClass('border-danger');
-                                input.focus();
-                            }
-                            else if (!$(`#group${index}Checkbox`).prop('checked') || ($(`#group${index}Checkbox`).prop('checked') && input.val())) {
-                                input.removeClass('border-danger');
-                            }
+                        let inputs = [bbType, zoneState, reasonInput];
+
+                        inputs.forEach(input => {
+                            input.removeClass('border-danger');
                         });
 
-                        if (!reasonInput.val()) {
-                            reasonInput.addClass('border-danger');
-                        }
-                        else {
-                            reasonInput.removeClass('border-danger');
-                        }
+                        posType.addClass('border-danger');
+                        posType.focus();
+                    }
+                    else if ($('#group1Checkbox').prop('checked') && decodeURIComponent($('#group1').val()) == point.formAdvertising) {
+                        toastr.error("Vui lòng thay đổi hình thức quảng cáo của điểm đặt.");
+
+                        let inputs = [posType, zoneState, reasonInput];
+
+                        inputs.forEach(input => {
+                            input.removeClass('border-danger');
+                        });
+
+                        bbType.addClass('border-danger');
+                        bbType.focus();
+                    }
+                    else if ($('#group2Checkbox').prop('checked') && (($('#group2').val().toLowerCase() === "true") === point.isZoning)) {
+                        toastr.error("Vui lòng thay đổi trạng thái quy hoạch của điểm đặt.");
+
+                        let inputs = [posType, bbType, reasonInput];
+
+                        inputs.forEach(input => {
+                            input.removeClass('border-danger');
+                        });
+
+                        zoneState.addClass('border-danger');
+                        zoneState.focus();
                     }
                     else {
-                        let inputs = [posType, bbType, reasonInput];
+                        let inputs = [posType, bbType, zoneState, reasonInput];
 
                         inputs.forEach((input) => {
                             input.removeClass('border-danger');
                         });
 
-                        // TODO: handle POST request
+                        // prepare body to send POST request
+                        let changedList = [];
+                        let group0 = "-1";
+                        let group1 = "-1";
+                        let group2 = "-1";
 
-                        // temporary toastr to signify form sending success
-                        toastr.success("Pass handle error rùi deeeeeeeeee");
+                        if ($('#group0Checkbox').prop('checked')) {
+                            group0 = {
+                                oldValue: point.positionType,
+                                newValue: decodeURIComponent($('#group0').val())
+                            }
+                        }
+
+                        if ($('#group1Checkbox').prop('checked')) {
+                            group1 = {
+                                oldValue: point.formAdvertising,
+                                newValue: decodeURIComponent($('#group1').val())
+                            }
+                        }
+
+                        if ($('#group2Checkbox').prop('checked')) {
+                            group2 = {
+                                oldValue: point.isZoning,
+                                newValue: Boolean($('#group2').val())
+                            }
+                        }
+
+                        changedList.push(group0);
+                        changedList.push(group1);
+                        changedList.push(group2);
+
+                        const response = await fetch('http://localhost:3500/api/modification/createModification', {
+                            method: 'POST',
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                                idPoint: pointId,
+                                idPanel: panelId,
+                                reason: $('#reason').val(),
+                                changedList: changedList
+                            })
+                        })
+
+                        if (response.status === 200) {
+                            // toastr.options.onHidden = () => { window.location.href = "/" }
+                            toastr.success("Yêu cầu đã được gửi thành công.")
+                        } else {
+                            toastr.error("Có lỗi xảy ra. Vui lòng thử lại sau.");
+                        }
                     }
                 }
                 else {
@@ -335,23 +400,21 @@
                     const heightInput = $('#group2-2');
                     const reasonInput = $('#reason');
 
+                    let dimensions = panel.size.match(/\d+(\.\d+)?/g);
+
                     if ($('.form-check-input:checked').length === 0) {
                         toastr.error("Vui lòng chọn ít nhất một nội dung cần chỉnh sửa.");
                     }
-                    else if (($('#group0Checkbox').prop('checked') && !panTypeInput.val()) || ($('#group1Checkbox').prop('checked') && !amountInput.val()) || ($('#group2Checkbox').prop('checked') && (!widthInput.val() || !heightInput.val())) || !reasonInput.val()) {
+                    else if (($('#group1Checkbox').prop('checked') && !amountInput.val()) || ($('#group2Checkbox').prop('checked') && (!widthInput.val() || !heightInput.val())) || !reasonInput.val()) {
                         toastr.error("Vui lòng điền đầy đủ thông tin.");
 
-                        let inputs = [panTypeInput, amountInput];
-
-                        inputs.forEach((input, index) => {
-                            if ($(`#group${index}Checkbox`).prop('checked') && !input.val()) {
-                                input.addClass('border-danger');
-                                input.focus();
-                            }
-                            else if (!$(`#group${index}Checkbox`).prop('checked') || ($(`#group${index}Checkbox`).prop('checked') && input.val())) {
-                                input.removeClass('border-danger');
-                            }
-                        });
+                        if ($(`#group1Checkbox`).prop('checked') && !amountInput.val()) {
+                            amountInput.addClass('border-danger');
+                            amountInput.focus();
+                        }
+                        else if (!$(`#group1Checkbox`).prop('checked') || ($(`#group1Checkbox`).prop('checked') && amountInput.val())) {
+                            amountInput.removeClass('border-danger');
+                        }
 
                         let sizeInputs = [widthInput, heightInput];
 
@@ -377,6 +440,43 @@
                             reasonInput.removeClass('border-danger');
                         }
                     }
+                    else if ($('#group0Checkbox').prop('checked') && decodeURIComponent($('#group0').val()) == panel.Paneltype) {
+                        toastr.error("Vui lòng thay đổi loại bảng quảng cáo.");
+
+                        let inputs = [amountInput, widthInput, heightInput, reasonInput];
+
+                        inputs.forEach(input => {
+                            input.removeClass('border-danger');
+                        });
+
+                        panTypeInput.addClass('border-danger');
+                        panTypeInput.focus();
+                    }
+                    else if ($('#group1Checkbox').prop('checked') && $('#group1').val() == panel.amount) {
+                        toastr.error("Vui lòng thay đổi số lượng bảng quảng cáo.");
+
+                        let inputs = [panTypeInput, widthInput, heightInput, reasonInput];
+
+                        inputs.forEach(input => {
+                            input.removeClass('border-danger');
+                        });
+
+                        amountInput.addClass('border-danger');
+                        amountInput.focus();
+                    }
+                    else if ($('#group2Checkbox').prop('checked') && ($('#group2-1').val() == dimensions[0] && $('#group2-2').val() == dimensions[1])) {
+                        toastr.error("Vui lòng thay đổi kích thước bảng quảng cáo.");
+
+                        let inputs = [panTypeInput, amountInput, reasonInput];
+
+                        inputs.forEach(input => {
+                            input.removeClass('border-danger');
+                        });
+
+                        widthInput.addClass('border-danger');
+                        heightInput.addClass('border-danger');
+                        widthInput.focus();
+                    }
                     else {
                         let inputs = [panTypeInput, amountInput, widthInput, heightInput, reasonInput];
 
@@ -384,10 +484,54 @@
                             input.removeClass('border-danger');
                         });
 
-                        // TODO: handle POST request
+                        // prepare body to send POST request#
+                        let changedList = [];
+                        let group0 = "-1";
+                        let group1 = "-1";
+                        let group2 = "-1";
 
-                        // temporary toastr to signify form sending success
-                        toastr.success("Pass handle error rùi deeeeeeeeee");
+                        if ($('#group0Checkbox').prop('checked')) {
+                            group0 = {
+                                oldValue: panel.Paneltype,
+                                newValue: decodeURIComponent($('#group0').val())
+                            }
+                        }
+
+                        if ($('#group1Checkbox').prop('checked')) {
+                            group1 = {
+                                oldValue: panel.amount,
+                                newValue: $('#group1').val()
+                            }
+                        }
+
+                        if ($('#group2Checkbox').prop('checked')) {
+                            group2 = {
+                                oldValue: panel.size,
+                                newValue: $('#group2-1').val() + "m x " + $('#group2-2').val() + "m"
+                            }
+                        }
+
+                        changedList.push(group0);
+                        changedList.push(group1);
+                        changedList.push(group2);
+
+                        const response = await fetch('http://localhost:3500/api/modification/createModification', {
+                            method: 'POST',
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                                idPoint: pointId,
+                                idPanel: panelId,
+                                reason: $('#reason').val(),
+                                changedList: changedList
+                            })
+                        })
+
+                        if (response.status === 200) {
+                            // toastr.options.onHidden = () => { window.location.href = "/" }
+                            toastr.success("Yêu cầu đã được gửi thành công.")
+                        } else {
+                            toastr.error("Có lỗi xảy ra. Vui lòng thử lại sau.");
+                        }
                     }
                 }
             };
