@@ -10,6 +10,7 @@
 </head>
 
 <body>
+    <input type="hidden" id="user-id" value="{{authUser._id}}">
     {{#ifCond authUser.role.[0] '===' "-1"}}
     <div class="control-responsive p-4 d-flex flex-column align-items-center">
         <div class="container mt-3">
@@ -38,7 +39,8 @@
                 </div>
             </div>
 
-            <small class="text-muted">Click đúp vào một dòng để xem thông tin chi tiết và xin cấp phép.</small>
+            <small class="text-muted">Click đúp vào một dòng để xem thông tin chi tiết, xin cấp phép và xem yêu cầu
+                chỉnh sửa đã gửi (nếu có).</small>
             <div class="d-flex mt-2" id="info-container">
                 <div class="table-responsive">
                     <table class="table table-hover" id="panelsTable">
@@ -75,6 +77,9 @@
                                     <li class="nav-item"><a class="nav-link" href="#billboard-permits"
                                             data-toggle="tab">Cấp phép</a>
                                     </li>
+                                    <li class="nav-item"><a class="nav-link" href="#billboard-modification"
+                                            data-toggle="tab">Yêu cầu chỉnh sửa</a>
+                                    </li>
                                 </ul>
                                 <div class="tab-content">
                                     <div class="tab-pane active" id="billboard-info">
@@ -82,6 +87,8 @@
                                     <div class="tab-pane" id="billboard-permits">
                                         <div id="modal-accordion">
                                         </div>
+                                    </div>
+                                    <div class="tab-pane" id="billboard-modification">
                                     </div>
                                 </div>
                             </div>
@@ -97,6 +104,8 @@
     </div>
 
     <script>
+        const userId = $('#user-id').val();
+
         toastr.options.closeButton = true;
         toastr.options = {
             "closeButton": true,
@@ -261,7 +270,7 @@
                                 return fetchedPanels;
                             }
                         } else {
-                            throw new Error(`Error fetching panels: ${data.message}`);
+                            throw new Error(`Error fetching panels of point ${point.address}: ${data.message}`);
                         }
                     });
 
@@ -296,18 +305,46 @@
                 panelsBody.appendChild(noDataRow);
             } else {
                 // If there is data, create rows for each point
-                panels.forEach(panel => {
+                panels.forEach(async (panel) => {
+                    // load modification request by the current user
+                    // if the request exists, hide the request button
+                    let modification;
+
+                    await fetch(`http://localhost:3500/api/modification/getAllModification`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.data.length > 0) {
+                                let fetchedMods = data.data;
+
+                                fetchedMods.forEach(mod => {
+                                    if (mod.idPanel == panel._id && mod.idUser == userId) {
+                                        modification = mod;
+                                    }
+                                })
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error fetching panel modification request:', error);
+                        });
+
                     const row = document.createElement('tr');
 
-                    row.innerHTML = `<th scope="row">${panel._id}</th>
+                    let rowHtml = `<th scope="row">${panel._id}</th>
                                     <td>${panel.Paneltype}</td>
-                                    <td>${panel.address}</td>
-                                    <td>
+                                    <td>${panel.address}</td>`;
+
+                    if (!modification) {
+                        rowHtml += `<td>
                                         <a href="/api/modification/?point=${panel.idPoint}&panel=${panel._id}" class="btn btn-outline-primary float-right text-nowrap" id="editButton">
                                             <i class="bi bi-pencil-square"></i>
                                             Yêu cầu chỉnh sửa
                                         </a>
                                     </td>`;
+                    } else {
+                        rowHtml += '<td><em class="float-right" style="color:red">Đã yêu cầu chỉnh sửa</em></td>';
+                    }
+
+                    row.innerHTML = rowHtml;
 
                     row.addEventListener('dblclick', () => {
                         loadDetails(panel);
@@ -325,6 +362,7 @@
             // clear the previous info from the modal
             document.getElementById('billboard-info').innerHTML = "";
             document.getElementById('modal-accordion').innerHTML = "";
+            document.getElementById('billboard-modification').innerHTML = "";
             document.getElementById('modal-footer').innerHTML = "";
 
             let licenseImgId;
@@ -433,6 +471,64 @@
                                     </a>`;
 
             document.getElementById("modal-footer").innerHTML = modalFooterHtml;
+
+            // load modification request by the current user
+            let modification;
+
+            await fetch(`http://localhost:3500/api/modification/getAllModification`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.data.length > 0) {
+                        let fetchedMods = data.data;
+
+                        fetchedMods.forEach(mod => {
+                            if (mod.idPanel == panel._id && mod.idUser == userId) {
+                                modification = mod;
+                            }
+                        })
+                    }
+                })
+                .catch(error => {
+                    // Handle any errors that occurred during the fetch
+                    console.error('Error fetching panel modification request:', error);
+                });
+
+            let panelModHtml = '';
+
+            if (!modification) {
+                document.getElementById("billboard-modification").innerHTML = "Cán bộ chưa gửi yêu cầu chỉnh sửa cho bảng quảng cáo này.";
+            }
+            else {
+                let bodyHtml = `<table class="table">
+                                    <thead>
+                                        <tr>
+                                        <th scope="col">Thông tin</th>
+                                        <th scope="col">Cũ</th>
+                                        <th scope="col">Chỉnh sửa thành</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                        <th scope="row">Loại bảng quảng cáo</th>
+                                        <td>${modification.changedList[0] == "-1" ? panel.Paneltype : modification.changedList[0].oldValue}</td>
+                                        <td>${modification.changedList[0] == "-1" ? "<em>Không chỉnh sửa</em>" : modification.changedList[0].newValue}</td>
+                                        </tr>
+                                        <tr>
+                                        <th scope="row">Số lượng</th>
+                                        <td>${modification.changedList[1] == "-1" ? panel.amount : modification.changedList[1].oldValue}</td>
+                                        <td>${modification.changedList[1] == "-1" ? "<em>Không chỉnh sửa</em>" : modification.changedList[1].newValue}</td>
+                                        </tr>
+                                        <tr>
+                                        <th scope="row">Kích thước</th>
+                                        <td>${modification.changedList[2] == "-1" ? panel.size : modification.changedList[2].oldValue}</td>
+                                        <td>${modification.changedList[2] == "-1" ? "<em>Không chỉnh sửa</em>" : modification.changedList[2].newValue}</td>
+                                        </tr>
+                                    </tbody>
+                                    </table><br>
+                                    Tình trạng xét duyệt: <b style="color:${modification.state == 1 ? 'green"> Đã duyệt' : modification.state == 0 ? 'gold"> Chưa duyệt' : 'red"> Bị từ chối'}</b>`;
+
+                document.getElementById("billboard-modification").innerHTML = bodyHtml;
+            }
         }
 
         function highlightRow(row) {
@@ -470,7 +566,8 @@
                 </div>
             </div>
 
-            <small class="text-muted">Click đúp vào một dòng để xem thông tin chi tiết và xin cấp phép.</small>
+            <small class="text-muted">Click đúp vào một dòng để xem thông tin chi tiết, xin cấp phép và xem yêu cầu
+                chỉnh sửa đã gửi (nếu có).</small>
             <div class="d-flex mt-2" id="info-container">
                 <div class="table-responsive">
                     <table class="table table-hover" id="panelsTable">
@@ -507,6 +604,9 @@
                                     <li class="nav-item"><a class="nav-link" href="#billboard-permits"
                                             data-toggle="tab">Cấp phép</a>
                                     </li>
+                                    <li class="nav-item"><a class="nav-link" href="#billboard-modification"
+                                            data-toggle="tab">Yêu cầu chỉnh sửa</a>
+                                    </li>
                                 </ul>
                                 <div class="tab-content">
                                     <div class="tab-pane active" id="billboard-info">
@@ -514,6 +614,8 @@
                                     <div class="tab-pane" id="billboard-permits">
                                         <div id="modal-accordion">
                                         </div>
+                                    </div>
+                                    <div class="tab-pane" id="billboard-modification">
                                     </div>
                                 </div>
                             </div>
@@ -529,6 +631,8 @@
     </div>
 
     <script>
+        const userId = $('#user-id').val();
+
         toastr.options.closeButton = true;
         toastr.options = {
             "closeButton": true,
@@ -665,18 +769,46 @@
                 panelsBody.appendChild(noDataRow);
             } else {
                 // If there is data, create rows for each point
-                panels.forEach(panel => {
+                panels.forEach(async (panel) => {
+                    // load modification request by the current user
+                    // if the request exists, hide the request button
+                    let modification;
+
+                    await fetch(`http://localhost:3500/api/modification/getAllModification`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.data.length > 0) {
+                                let fetchedMods = data.data;
+
+                                fetchedMods.forEach(mod => {
+                                    if (mod.idPanel == panel._id && mod.idUser == userId) {
+                                        modification = mod;
+                                    }
+                                })
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error fetching panel modification request:', error);
+                        });
+
                     const row = document.createElement('tr');
 
-                    row.innerHTML = `<th scope="row">${panel._id}</th>
+                    let rowHtml = `<th scope="row">${panel._id}</th>
                                     <td>${panel.Paneltype}</td>
-                                    <td>${panel.address}</td>
-                                    <td>
+                                    <td>${panel.address}</td>`;
+
+                    if (!modification) {
+                        rowHtml += `<td>
                                         <a href="/api/modification/?point=${panel.idPoint}&panel=${panel._id}" class="btn btn-outline-primary float-right text-nowrap" id="editButton">
                                             <i class="bi bi-pencil-square"></i>
                                             Yêu cầu chỉnh sửa
                                         </a>
                                     </td>`;
+                    } else {
+                        rowHtml += '<td><em class="float-right" style="color:red">Đã yêu cầu chỉnh sửa</em></td>';
+                    }
+
+                    row.innerHTML = rowHtml;
 
                     row.addEventListener('dblclick', () => {
                         loadDetails(panel);
@@ -694,6 +826,7 @@
             document.getElementById('modal-footer').innerHTML = "";
             document.getElementById('billboard-info').innerHTML = "";
             document.getElementById('modal-accordion').innerHTML = "";
+            document.getElementById('billboard-modification').innerHTML = "";
 
             let licenseImgId;
 
@@ -787,6 +920,64 @@
                 }
 
                 document.getElementById("modal-accordion").innerHTML = panelLicenseHtml;
+            }
+
+            // load modification request by the current user
+            let modification;
+
+            await fetch(`http://localhost:3500/api/modification/getAllModification`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.data.length > 0) {
+                        let fetchedMods = data.data;
+
+                        fetchedMods.forEach(mod => {
+                            if (mod.idPanel == panel._id && mod.idUser == userId) {
+                                modification = mod;
+                            }
+                        })
+                    }
+                })
+                .catch(error => {
+                    // Handle any errors that occurred during the fetch
+                    console.error('Error fetching panel modification request:', error);
+                });
+
+            let panelModHtml = '';
+
+            if (!modification) {
+                document.getElementById("billboard-modification").innerHTML = "Cán bộ chưa gửi yêu cầu chỉnh sửa cho bảng quảng cáo này.";
+            }
+            else {
+                let bodyHtml = `<table class="table">
+                                    <thead>
+                                        <tr>
+                                        <th scope="col">Thông tin</th>
+                                        <th scope="col">Cũ</th>
+                                        <th scope="col">Chỉnh sửa thành</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                        <th scope="row">Loại bảng quảng cáo</th>
+                                        <td>${modification.changedList[0] == "-1" ? panel.Paneltype : modification.changedList[0].oldValue}</td>
+                                        <td>${modification.changedList[0] == "-1" ? "<em>Không chỉnh sửa</em>" : modification.changedList[0].newValue}</td>
+                                        </tr>
+                                        <tr>
+                                        <th scope="row">Số lượng</th>
+                                        <td>${modification.changedList[1] == "-1" ? panel.amount : modification.changedList[1].oldValue}</td>
+                                        <td>${modification.changedList[1] == "-1" ? "<em>Không chỉnh sửa</em>" : modification.changedList[1].newValue}</td>
+                                        </tr>
+                                        <tr>
+                                        <th scope="row">Kích thước</th>
+                                        <td>${modification.changedList[2] == "-1" ? panel.size : modification.changedList[2].oldValue}</td>
+                                        <td>${modification.changedList[2] == "-1" ? "<em>Không chỉnh sửa</em>" : modification.changedList[2].newValue}</td>
+                                        </tr>
+                                    </tbody>
+                                    </table><br>
+                                    Tình trạng xét duyệt: <b style="color:${modification.state == 1 ? 'green"> Đã duyệt' : modification.state == 0 ? 'gold"> Chưa duyệt' : 'red"> Bị từ chối'}</b>`;
+
+                document.getElementById("billboard-modification").innerHTML = bodyHtml;
             }
 
             // insert the license request button with props into the modal footer
