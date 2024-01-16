@@ -11,6 +11,7 @@
 </head>
 
 <body>
+    <input type="hidden" id="user-id" value="{{authUser._id}}">
     {{#ifCond authUser.role.[0] '===' "-1"}}
     <div class="control-responsive p-4 d-flex flex-column align-items-center">
         <div class="container mt-3">
@@ -40,7 +41,8 @@
                 </div>
             </div>
 
-            <small class="text-muted">Click đúp vào một dòng để xem thông tin chi tiết.</small>
+            <small class="text-muted">Click đúp vào một dòng để xem thông tin chi tiết và yêu cầu chỉnh sửa đã gửi (nếu
+                có).</small>
             <div class="d-flex mt-2" id="info-container">
                 <div class="table-responsive">
                     <table class="table table-hover" id="pointsTable">
@@ -72,7 +74,19 @@
                                 </button>
                             </div>
                             <div class="modal-body">
-                                <div id="modalContent">
+                                <ul class="nav nav-tabs mb-3" id="tab-content">
+                                    <li class="nav-item "><a class="nav-link active" href="#modalContent"
+                                            data-toggle="tab">Chi tiết</a>
+                                    </li>
+                                    <li class="nav-item"><a class="nav-link" href="#place-modification"
+                                            data-toggle="tab">Yêu cầu chỉnh sửa</a>
+                                    </li>
+                                </ul>
+                                <div class="tab-content">
+                                    <div class="tab-pane active" id="modalContent">
+                                    </div>
+                                    <div class="tab-pane" id="place-modification">
+                                    </div>
                                 </div>
                             </div>
                             <div class="modal-footer">
@@ -91,6 +105,8 @@
     </div>
 
     <script>
+        let userId = $('#user-id').val();
+
         toastr.options.closeButton = true;
         toastr.options = {
             "closeButton": true,
@@ -258,20 +274,50 @@
                 pointsBody.appendChild(noDataRow);
             } else {
                 // If there is data, create rows for each point
-                points.forEach(point => {
+                points.forEach(async (point) => {
                     const row = document.createElement('tr');
 
-                    row.innerHTML = `
-                <td>${point.name}</td>
-                <td>${point.address.trim()}, ${point.area.ward}, ${point.area.district}</td>
-                <td>${point.positionType}</td>
-                <td>${point.formAdvertising}</td>
-                <td>${point.isZoning ? '<h6 style="color:green">Đã quy hoạch' : '<h6 style="color:red">Chưa quy hoạch'}</h6></td>
-                <td><a class="btn btn-outline-primary text-nowrap float-right" href="/api/modification/?point=${point._id}&panel=-1" id="saveButton1">
-                      <i class="bi bi-pencil-square"></i>
-                      Yêu cầu chỉnh sửa
-                    </a></td>
-            `;
+                    // load modification request by the current user
+                    // if the request exists, hide the request button
+                    let modification;
+
+                    await fetch(`http://localhost:3500/api/modification/getAllModification`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.data.length > 0) {
+                                let fetchedMods = data.data;
+
+                                fetchedMods.forEach(mod => {
+                                    if (mod.idPoint == point._id && mod.idUser == userId) {
+                                        modification = mod;
+                                    }
+                                })
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error fetching panel modification request:', error);
+                        });
+
+                    console.log(modification);
+
+                    let rowHtml = `<th scope="row">${point.name}</th>
+                                    <td>${point.address.trim()}, ${point.area.ward}, ${point.area.district}</td>
+                                    <td>${point.positionType}</td>
+                                    <td>${point.formAdvertising}</td>
+                                    <td>${point.isZoning ? '<h6 style="color:green">Đã quy hoạch' : '<h6 style="color:red">Chưa quy hoạch'}</h6></td>`;
+
+                    if (!modification) {
+                        rowHtml += `<td>
+                                        <a href="/api/modification/?point=${point._id}&panel=-1" class="btn btn-outline-primary float-right text-nowrap" id="editButton">
+                                            <i class="bi bi-pencil-square"></i>
+                                            Yêu cầu chỉnh sửa
+                                        </a>
+                                    </td>`;
+                    } else {
+                        rowHtml += '<td><em class="float-right" style="color:red">Đã yêu cầu chỉnh sửa</em></td>';
+                    }
+
+                    row.innerHTML = rowHtml;
 
                     row.addEventListener('dblclick', () => {
                         loadDetails(point);
@@ -285,8 +331,9 @@
             }
         }
 
-        function loadDetails(point) {
+        async function loadDetails(point) {
             document.getElementById('modalContent').innerHTML = "";
+            document.getElementById('place-modification').innerHTML = "";
 
             const imgUrl = `http://localhost:3500/api/pointImg/getImgPoint/${point.picturePoint}`;
 
@@ -304,6 +351,88 @@
                           </p>`;
 
             document.getElementById('modalContent').innerHTML = details;
+
+            // load modification request by the current user
+            let modification;
+
+            await fetch(`http://localhost:3500/api/modification/getAllModification`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.data.length > 0) {
+                        let fetchedMods = data.data;
+
+                        fetchedMods.forEach(mod => {
+                            if (mod.idPoint == point._id && mod.idUser == userId) {
+                                modification = mod;
+                            }
+                        })
+                    }
+                })
+                .catch(error => {
+                    // Handle any errors that occurred during the fetch
+                    console.error('Error fetching panel modification request:', error);
+                });
+
+            let panelModHtml = '';
+
+            if (!modification) {
+                document.getElementById("place-modification").innerHTML = "Cán bộ chưa gửi yêu cầu chỉnh sửa cho điểm đặt này.";
+            }
+            else {
+                let oldZoneState;
+                let newZoneState;
+
+                // prepare the zoning state value
+                if (modification.changedList[2] != "-1") {
+                    if (modification.changedList[2].newValue === true) {
+                        oldZoneState = '<b style="color:red">Chưa quy hoạch</b>';
+                        newZoneState = '<b style="color:green">Đã quy hoạch</b>';
+                    }
+                    else {
+                        oldZoneState = '<b style="color:green">Đã quy hoạch</b>';
+                        newZoneState = '<b style="color:red">Chưa quy hoạch</b>';
+                    }
+                } else {
+                    if (point.isZoning === true) {
+                        oldZoneState = '<b style="color:green">Đã quy hoạch</b>';
+                    }
+                    else {
+                        oldZoneState = '<b style="color:red">Chưa quy hoạch</b>';
+                    }
+
+                    newZoneState = '<em>Không chỉnh sửa</em>'
+                }
+
+                let bodyHtml = `<table class="table">
+                                    <thead>
+                                        <tr>
+                                        <th scope="col">Thông tin</th>
+                                        <th scope="col">Cũ</th>
+                                        <th scope="col">Chỉnh sửa thành</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                        <th scope="row">Loại vị trí</th>
+                                        <td>${modification.changedList[0] == "-1" ? point.positionType : modification.changedList[0].oldValue}</td>
+                                        <td>${modification.changedList[0] == "-1" ? "<em>Không chỉnh sửa</em>" : modification.changedList[0].newValue}</td>
+                                        </tr>
+                                        <tr>
+                                        <th scope="row">Loại hình quảng cáo</th>
+                                        <td>${modification.changedList[1] == "-1" ? point.formAdvertising : modification.changedList[1].oldValue}</td>
+                                        <td>${modification.changedList[1] == "-1" ? "<em>Không chỉnh sửa</em>" : modification.changedList[1].newValue}</td>
+                                        </tr>
+                                        <tr>
+                                        <th scope="row">Quy hoạch</th>
+                                        <td>${oldZoneState}</td>
+                                        <td>${newZoneState}</td>
+                                        </tr>
+                                    </tbody>
+                                    </table><br>
+                                    Tình trạng xét duyệt: <b style="color:${modification.state == 1 ? 'green"> Đã duyệt' : modification.state == 0 ? 'gold"> Chưa duyệt' : 'red"> Bị từ chối'}</b>`;
+
+                document.getElementById("place-modification").innerHTML = bodyHtml;
+            }
         }
 
 
@@ -343,7 +472,8 @@
                 </div>
             </div>
 
-            <small class="text-muted">Click đúp vào một dòng để xem thông tin chi tiết.</small>
+            <small class="text-muted">Click đúp vào một dòng để xem thông tin chi tiết và yêu cầu chỉnh sửa đã gửi (nếu
+                có).</small>
             <div class="d-flex mt-2" id="info-container">
                 <div class="table-responsive">
                     <table class="table table-hover" id="pointsTable">
@@ -375,7 +505,19 @@
                                 </button>
                             </div>
                             <div class="modal-body">
-                                <div id="modalContent">
+                                <ul class="nav nav-tabs mb-3" id="tab-content">
+                                    <li class="nav-item "><a class="nav-link active" href="#modalContent"
+                                            data-toggle="tab">Chi tiết</a>
+                                    </li>
+                                    <li class="nav-item"><a class="nav-link" href="#place-modification"
+                                            data-toggle="tab">Yêu cầu chỉnh sửa</a>
+                                    </li>
+                                </ul>
+                                <div class="tab-content">
+                                    <div class="tab-pane active" id="modalContent">
+                                    </div>
+                                    <div class="tab-pane" id="place-modification">
+                                    </div>
                                 </div>
                             </div>
                             <div class="modal-footer">
@@ -394,6 +536,8 @@
     </div>
 
     <script>
+        let userId = $('#user-id').val();
+
         toastr.options.closeButton = true;
         toastr.options = {
             "closeButton": true,
@@ -494,20 +638,50 @@
                 pointsBody.appendChild(noDataRow);
             } else {
                 // If there is data, create rows for each point
-                points.forEach(point => {
+                points.forEach(async (point) => {
                     const row = document.createElement('tr');
 
-                    row.innerHTML = `
-                <td>${point.name}</td>
-                <td>${point.address.trim()}, ${point.area.ward}, ${point.area.district}</td>
-                <td>${point.positionType}</td>
-                <td>${point.formAdvertising}</td>
-                <td>${point.isZoning ? '<h6 style="color:green">Đã quy hoạch' : '<h6 style="color:red">Chưa quy hoạch'}</h6></td>
-                <td><a class="btn btn-outline-primary text-nowrap float-right" href="/api/modification/?point=${point._id}&panel=-1" id="saveButton1">
-                      <i class="bi bi-pencil-square"></i>
-                      Yêu cầu chỉnh sửa
-                    </a></td>
-            `;
+                    // load modification request by the current user
+                    // if the request exists, hide the request button
+                    let modification;
+
+                    await fetch(`http://localhost:3500/api/modification/getAllModification`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.data.length > 0) {
+                                let fetchedMods = data.data;
+
+                                fetchedMods.forEach(mod => {
+                                    if (mod.idPoint == point._id && mod.idUser == userId) {
+                                        modification = mod;
+                                    }
+                                })
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error fetching panel modification request:', error);
+                        });
+
+                    console.log(modification);
+
+                    let rowHtml = `<th scope="row">${point.name}</th>
+                                    <td>${point.address.trim()}, ${point.area.ward}, ${point.area.district}</td>
+                                    <td>${point.positionType}</td>
+                                    <td>${point.formAdvertising}</td>
+                                    <td>${point.isZoning ? '<h6 style="color:green">Đã quy hoạch' : '<h6 style="color:red">Chưa quy hoạch'}</h6></td>`;
+
+                    if (!modification) {
+                        rowHtml += `<td>
+                                        <a href="/api/modification/?point=${point._id}&panel=-1" class="btn btn-outline-primary float-right text-nowrap" id="editButton">
+                                            <i class="bi bi-pencil-square"></i>
+                                            Yêu cầu chỉnh sửa
+                                        </a>
+                                    </td>`;
+                    } else {
+                        rowHtml += '<td><em class="float-right" style="color:red">Đã yêu cầu chỉnh sửa</em></td>';
+                    }
+
+                    row.innerHTML = rowHtml;
 
                     row.addEventListener('dblclick', () => {
                         loadDetails(point);
@@ -521,8 +695,9 @@
             }
         }
 
-        function loadDetails(point) {
+        async function loadDetails(point) {
             document.getElementById('modalContent').innerHTML = "";
+            document.getElementById('place-modification').innerHTML = "";
 
             const imgUrl = `http://localhost:3500/api/pointImg/getImgPoint/${point.picturePoint}`;
 
@@ -540,6 +715,88 @@
                           </p>`;
 
             document.getElementById('modalContent').innerHTML = details;
+
+            // load modification request by the current user
+            let modification;
+
+            await fetch(`http://localhost:3500/api/modification/getAllModification`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.data.length > 0) {
+                        let fetchedMods = data.data;
+
+                        fetchedMods.forEach(mod => {
+                            if (mod.idPoint == point._id && mod.idUser == userId) {
+                                modification = mod;
+                            }
+                        })
+                    }
+                })
+                .catch(error => {
+                    // Handle any errors that occurred during the fetch
+                    console.error('Error fetching panel modification request:', error);
+                });
+
+            let panelModHtml = '';
+
+            if (!modification) {
+                document.getElementById("place-modification").innerHTML = "Cán bộ chưa gửi yêu cầu chỉnh sửa cho điểm đặt này.";
+            }
+            else {
+                let oldZoneState;
+                let newZoneState;
+
+                // prepare the zoning state value
+                if (modification.changedList[2] != "-1") {
+                    if (modification.changedList[2].newValue === true) {
+                        oldZoneState = '<b style="color:red">Chưa quy hoạch</b>';
+                        newZoneState = '<b style="color:green">Đã quy hoạch</b>';
+                    }
+                    else {
+                        oldZoneState = '<b style="color:green">Đã quy hoạch</b>';
+                        newZoneState = '<b style="color:red">Chưa quy hoạch</b>';
+                    }
+                } else {
+                    if (point.isZoning === true) {
+                        oldZoneState = '<b style="color:green">Đã quy hoạch</b>';
+                    }
+                    else {
+                        oldZoneState = '<b style="color:red">Chưa quy hoạch</b>';
+                    }
+
+                    newZoneState = '<em>Không chỉnh sửa</em>'
+                }
+
+                let bodyHtml = `<table class="table">
+                                    <thead>
+                                        <tr>
+                                        <th scope="col">Thông tin</th>
+                                        <th scope="col">Cũ</th>
+                                        <th scope="col">Chỉnh sửa thành</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                        <th scope="row">Loại vị trí</th>
+                                        <td>${modification.changedList[0] == "-1" ? point.positionType : modification.changedList[0].oldValue}</td>
+                                        <td>${modification.changedList[0] == "-1" ? "<em>Không chỉnh sửa</em>" : modification.changedList[0].newValue}</td>
+                                        </tr>
+                                        <tr>
+                                        <th scope="row">Loại hình quảng cáo</th>
+                                        <td>${modification.changedList[1] == "-1" ? point.formAdvertising : modification.changedList[1].oldValue}</td>
+                                        <td>${modification.changedList[1] == "-1" ? "<em>Không chỉnh sửa</em>" : modification.changedList[1].newValue}</td>
+                                        </tr>
+                                        <tr>
+                                        <th scope="row">Quy hoạch</th>
+                                        <td>${oldZoneState}</td>
+                                        <td>${newZoneState}</td>
+                                        </tr>
+                                    </tbody>
+                                    </table><br>
+                                    Tình trạng xét duyệt: <b style="color:${modification.state == 1 ? 'green"> Đã duyệt' : modification.state == 0 ? 'gold"> Chưa duyệt' : 'red"> Bị từ chối'}</b>`;
+
+                document.getElementById("place-modification").innerHTML = bodyHtml;
+            }
         }
 
 
