@@ -29,11 +29,6 @@
         </table>
     </div>
 </div>
-</div>
-
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
 <div class="modal fade" id="panelDetailModal" tabindex="-1" role="dialog" aria-labelledby="panelDetailModalLabel"
     aria-hidden="true">
@@ -74,23 +69,9 @@
                     </div>
                     <div class="form-group">
                         <label for="pointName">Điểm đặt</label>
-                        <input type="text" class="form-control" id="pointName"
+                        <input type="text" class="form-control" id="selectIdPoint"
                             onclick='window.open("http://localhost:3500/api/controlPanel/submap", "popup" ,"width=600,height=600")'
                             placeholder="Click me to open subwindow">
-                    </div>
-                    <div class="form-group">
-                        <label for="address">Địa chỉ</label>
-                        <input type="text" class="form-control" id="address"
-                            onclick='window.open("http://localhost:3500/api/controlPanel/submap", "popup" ,"width=600,height=600")'
-                            placeholder="Click me to open subwindow">
-                    </div>
-                    <div class="form-group">
-                        <label for="district">Quận</label>
-                        <input type="text" class="form-control" id="district" name="district" value="" readonly>
-                    </div>
-                    <div class="form-group">
-                        <label for="ward">Phường</label>
-                        <input type="text" class="form-control" id="ward" name="ward" value="" readonly>
                     </div>
 
                     <div class="form-group">
@@ -511,8 +492,8 @@
         }
     }
 
-    function updateInputLnglat(lng, lat) {
-        document.getElementById("lnglat").value = `${lng}, ${lat}`;
+    function updateIdPoint(id) {
+        document.getElementById("selectIdPoint").value = `${id}`;
     }
 
     function updateInputAddress(inputName, inputAddress) {
