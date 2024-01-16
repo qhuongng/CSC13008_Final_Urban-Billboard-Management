@@ -220,10 +220,10 @@
 
                         types.forEach(type => {
                             if (type.panName == panel.Paneltype) {
-                                selectHtml += `<option selected value=${encodeURIComponent(type.panName)}>${type.panName}</option>`;
+                                selectHtml += `<option selected value=${encodeURIComponent(type.panId)}>${type.panName}</option>`;
                             }
                             else {
-                                selectHtml += `<option value=${encodeURIComponent(type.panName)}>${type.panName}</option>`;
+                                selectHtml += `<option value=${encodeURIComponent(type.panId)}>${type.panName}</option>`;
                             }
                         });
 
@@ -244,10 +244,10 @@
 
                         types.forEach(type => {
                             if (type.posName == point.positionType) {
-                                selectHtml += `<option selected value=${encodeURIComponent(type.posName)}>${type.posName}</option>`;
+                                selectHtml += `<option selected value=${encodeURIComponent(type.posId)}>${type.posName}</option>`;
                             }
                             else {
-                                selectHtml += `<option value=${encodeURIComponent(type.posName)}>${type.posName}</option>`;
+                                selectHtml += `<option value=${encodeURIComponent(type.posId)}>${type.posName}</option>`;
                             }
 
                         });
@@ -264,10 +264,10 @@
 
                         forms.forEach(form => {
                             if (form.formName == point.formAdvertising) {
-                                selectHtml += `<option selected value=${encodeURIComponent(form.formName)}>${form.formName}</option>`;
+                                selectHtml += `<option selected value=${encodeURIComponent(form.formId)}>${form.formName}</option>`;
                             }
                             else {
-                                selectHtml += `<option value=${encodeURIComponent(form.formName)}>${form.formName}</option>`;
+                                selectHtml += `<option value=${encodeURIComponent(form.formId)}>${form.formName}</option>`;
                             }
 
                         });
@@ -510,7 +510,7 @@
                         if ($('#group1Checkbox').prop('checked')) {
                             group1 = {
                                 oldValue: panel.amount,
-                                newValue: $('#group1').val()
+                                newValue: Integer.parseInt($('#group1').val())
                             }
                         }
 
