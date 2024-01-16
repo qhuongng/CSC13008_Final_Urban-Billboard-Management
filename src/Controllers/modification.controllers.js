@@ -38,9 +38,69 @@ const updateState = async (req, res) => {
     }
 }
 
+const getModificationByWardDis = async (req, res) => {
+    try {
+        const { wardName, districtName } = req.params;
+        const listModification = await modificationServices.getModificationByWardDis(wardName, districtName);
+        if (listModification) {
+            res.status(200).json(listModification);
+        }
+    } catch (error) {
+        res.status(400).json({ message: error.message })
+    }
+}
+
+const deleteModification = async (req, res) => {
+    try {
+        const ModificationId = req.params.id
+        const response = await modificationServices.deleteModification(ModificationId)
+        return res.status(200).json(response)
+    } catch (e) {
+        return res.status(404).json({
+            message: e
+        })
+    }
+}
+
+const getModificationByDis = async (req, res) => {
+    try {
+        const districtName = req.params.districtName;
+        const listModification = await modificationServices.getModificationByDis(districtName);
+        if (listModification) {
+            res.status(200).json(listModification);
+        }
+    } catch (error) {
+        res.status(400).json({ message: error.message })
+    }
+}
+
+
+const updateModification = async (req, res) => {
+    try {
+        const modificationId = req.params.id
+        const data = req.body
+        if (!modificationId) {
+            return res.status(404).json({
+                status: 'ERR',
+                message: 'The modificationId is required'
+            })
+        }
+
+        const response = await modificationServices.updateModification(modificationId, data)
+        return res.status(200).json(response)
+    } catch (e) {
+        return res.status(404).json({
+            message: e
+        })
+    }
+}
 
 module.exports = {
     createModification,
     getAllModification,
-    updateState
+    updateState,
+    deleteModification,
+    getModificationByWardDis,
+    getModificationByDis,
+    updateModification
 }

@@ -5,6 +5,8 @@ const panelTypeService = require('../Services/panelType.services');
 const Point = require('../Models/Point');
 const Panel = require('../Models/Panel');
 const User = require('../Models/Users');
+const Ward = require("../Models/Ward");
+const District = require("../Models/District");
 const nodemailer = require('nodemailer');
 require("dotenv").config();
 
@@ -244,8 +246,160 @@ const updateAction = (modifyId, action) => {
     })
 }
 
+const getModificationByWardDis = (wardName, districtName) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const ward = await Ward.findOne({ wardName: wardName });
+            if (!ward) {
+                reject({
+                    status: 'ERR',
+                    message: 'Ward is undefined'
+                });
+                return;
+            }
+
+            const district = await District.findOne({ disName: districtName });
+            if (!district) {
+                reject({
+                    status: 'ERR',
+                    message: 'District is undefined'
+                });
+                return;
+            }
+
+            const points = await Point.find({
+                'area.ward': ward.wardId,
+                'area.district': district.disId
+            });
+
+            if (points.length === 0) {
+                reject({
+                    status: 'ERR',
+                    message: 'No points found for the specified ward and district'
+                });
+                return;
+            }
+
+            const modifications = await Modification.find({ idPoint: { $in: points.map(point => point._id) } });
+
+            if (modifications.length === 0) {
+                reject({
+                    status: 'ERR',
+                    message: 'No modifications found for the specified points'
+                });
+                return;
+            }
+
+            resolve({
+                status: 'OK',
+                message: 'SUCCESS',
+                data: modifications
+            });
+
+        } catch (error) {
+            reject({
+                status: 'ERR',
+                message: 'Error in processing',
+                error: error
+            });
+        }
+    });
+};
+
+
+const deleteModification = (ModificationId) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            await Modification.findOneAndDelete({
+                _id: ModificationId
+            });
+            resolve({
+                status: 'OK',
+                message: 'Delete Modification success',
+            });
+        } catch (e) {
+            reject(e);
+        }
+    });
+};
+
+const getModificationByDis = (districtName) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const district = await District.findOne({ disName: districtName });
+            if (!district) {
+                reject({
+                    status: 'ERR',
+                    message: 'District is undefined'
+                });
+                return;
+            }
+
+            const points = await Point.find({
+                'area.district': district.disId
+            });
+
+            if (points.length === 0) {
+                reject({
+                    status: 'ERR',
+                    message: 'No points found for the specified ward and district'
+                });
+                return;
+            }
+
+            const modifications = await Modification.find({ idPoint: { $in: points.map(point => point._id) } });
+
+            if (modifications.length === 0) {
+                reject({
+                    status: 'ERR',
+                    message: 'No modifications found for the specified points'
+                });
+                return;
+            }
+
+            resolve({
+                status: 'OK',
+                message: 'SUCCESS',
+                data: modifications
+            });
+
+        } catch (error) {
+            reject({
+                status: 'ERR',
+                message: 'Error in processing',
+                error: error
+            });
+        }
+    });
+};
+
+const updateModification = (id, data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const checkModification = await Modification.findOne({
+                _id: id
+            })
+            if (checkModification === null) {
+                reject('The Modification is not defined');
+            }
+            const updatedMod = await Modification.findByIdAndUpdate(id, data, { new: true })
+            resolve({
+                status: 'OK',
+                message: 'Update Modification success',
+                data: updatedMod
+            })
+        } catch (e) {
+            reject(e)
+        }
+    })
+}
+
 module.exports = {
     createModification,
     getAllModification,
-    updateAction
+    updateAction,
+    deleteModification,
+    getModificationByWardDis,
+    getModificationByDis,
+    updateModification
 }

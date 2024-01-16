@@ -10,6 +10,7 @@ const ReportTypeRouter = require("./reportType.routes");
 const ReportRouter = require("./report.routes");
 const ReportImgRouter = require("./reportImg.routes");
 const UserRouter = require("./user.routes");
+
 const OtpRouter = require("./otp.routes");
 const controlWardDistrictRouter = require("./controlward_district.routes");
 const { authLogin } = require("../Middleware/authMiddleware");
@@ -28,6 +29,8 @@ const controlPanelRouter = require("./controlPanel.routes");
 const controlLicenseRouter = require("./controlLicense.routes");
 const reviewLicenseRouter = require("./reviewLicense.routes");
 const modificationRouter = require("./modification.routes");
+const modificationPointRouter = require('./controlModPoint.routes');
+const modificationPanelRouter = require('./controlModPanel.routes');
 
 const routes = (app) => {
   // đường dẫn dùng cho citizen
@@ -42,6 +45,7 @@ const routes = (app) => {
   app.use("/api/reportType", ReportTypeRouter);
   app.use("/api/report", ReportRouter);
   app.use("/api/reportImg", ReportImgRouter);
+
   app.use("/api/user", UserRouter);
   app.use("/api/otp", OtpRouter);
   app.use("/api/controlWardDistrict", controlWardDistrictRouter);
@@ -60,6 +64,8 @@ const routes = (app) => {
   app.use("/api/reviewLicense", reviewLicenseRouter);
   app.use("/api/modification", modificationRouter);
   app.use("/api/controlPanel", controlPanelRouter);
+  app.use('/api/controlModPoint', modificationPointRouter);
+  app.use('/api/controlModPanel', modificationPanelRouter);
   //
   app.get("/", (req, res) => {
     if (res.locals.auth == false) {

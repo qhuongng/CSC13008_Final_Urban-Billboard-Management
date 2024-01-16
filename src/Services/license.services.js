@@ -160,7 +160,7 @@ const deleteLicense = (licenseId) => {
             });
             resolve({
                 status: 'OK',
-                message: 'Delete Ward success',
+                message: 'Delete License success',
             });
         } catch (e) {
             reject(e);

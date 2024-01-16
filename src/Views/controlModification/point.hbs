@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.2/js/toastr.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
+</head>
+
+<body>
+    <div class="control-responsive p-4 d-flex flex-column align-items-center">
+        <div class="container mt-3">
+            <h2 class="mb-4">Xử lý yêu cầu chỉnh sửa điểm đặt</h2>
+
+            <div class="d-flex flex-column mb-4" id="filters-container">
+                <div class="row d-flex align-items-end" id="location-filters">
+                    <div class="form-group col-2">
+                        <label for="district">Quận</label>
+                        <select class="custom-select" id="districtSelect">
+                            <option value="">Tất cả quận</option>
+                        </select>
+                    </div>
+                    <div class="form-group col-9 ml-auto">
+                        <label for="ward">Phường</label>
+                        <select class="custom-select" id="wardSelect">
+                            <option value="">Tất cả phường</option>
+                        </select>
+                    </div>
+                    <div class="form-group col-1 ml-auto">
+                        <button type="button" class="btn btn-outline-primary text-nowrap float-right"
+                            onclick="filterModPoint()">
+                            <i class="bi bi-funnel"></i>
+                            Lọc
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <small class="text-muted">Click đúp vào một dòng để xem thông tin chi tiết và yêu cầu chỉnh sửa đã gửi (nếu
+                có).</small>
+            <div class="d-flex mt-2" id="info-container">
+                <div class="table-responsive">
+                    <table class="table table-hover" id="modificationsTable">
+                        <thead>
+                            <tr>
+                                <th>ID điểm đặt</th>
+                                <th>Loại vị trí</th>
+                                <th>Loại hình quảng cáo</th>
+                                <th>Quy hoạch</th>
+                                <th>Tình trạng </th>
+                                <th>Lí do thay đổi</th>
+                                <th>&nbsp;</th>
+                            </tr>
+                        </thead>
+                        <tbody id="modificationsBody">
+
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Modal for detailed information -->
+                <div class="modal fade" id="detailsModal" tabindex="-1" role="dialog" aria-labelledby="info-modal-title"
+                    aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="info-modal-title">Chi tiết điểm đặt</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <ul class="nav nav-tabs mb-3" id="tab-content">
+                                    <li class="nav-item "><a class="nav-link active" href="#modalContent"
+                                            data-toggle="tab">Chi tiết</a>
+                                    </li>
+                                    <li class="nav-item"><a class="nav-link" href="#place-modification"
+                                            data-toggle="tab">Yêu cầu chỉnh sửa</a>
+                                    </li>
+                                </ul>
+                                <div class="tab-content">
+                                    <div class="tab-pane active" id="modalContent">
+                                    </div>
+                                    <div class="tab-pane" id="place-modification">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-outline-success" data-dismiss="modal">
+                                    <i class="bi bi-skip-backward-fill"></i>
+                                    Quay lại
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Confirmation Modal -->
+                <div class="modal fade" id="confirmationModal" tabindex="-1" role="dialog"
+                    aria-labelledby="confirmation-modal-title" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="confirmation-modal-title">Xác nhận</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <p>Bạn có chắc chắn muốn cấp phép không?</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-outline-secondary"
+                                    data-dismiss="modal">Không</button>
+                                <button type="button" class="btn btn-outline-primary"
+                                    onclick="confirmAction()">Có</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Confirmation Modal -->
+                <div class="modal fade" id="denyModal" tabindex="-1" role="dialog"
+                    aria-labelledby="confirmation-modal-title" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="confirmation-modal-title">Xác nhận</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <p>Bạn có chắc chắn muốn từ chối cấp phép không?</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-outline-secondary"
+                                    data-dismiss="modal">Không</button>
+                                <button type="button" class="btn btn-outline-primary" onclick="denyAction()">Có</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    </div>
+    </div>
+
+
+    <script>
+        toastr.options.closeButton = true;
+        toastr.options = {
+            "closeButton": true,
+            "debug": false,
+            "newestOnTop": false,
+            "progressBar": false,
+            "positionClass": "toast-top-center",
+            "preventDuplicates": false,
+            "onclick": null,
+            "showDuration": "300",
+            "hideDuration": "300",
+            "timeOut": "2000",
+            "extendedTimeOut": "1000",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+        }
+
+        async function filterModPoint() {
+            const wardSelect = document.getElementById('wardSelect');
+            const districtSelect = document.getElementById('districtSelect');
+            const txtDisInput = $('#districtSelect');
+
+            const wardInput = wardSelect.value;
+            const districtInput = districtSelect.value;
+
+            let url;
+
+            if (!districtInput && wardInput) {
+                toastr.error("Vui lòng chọn quận trước.");
+                txtDisInput.addClass('border-danger');
+                txtDisInput.removeClass('border-danger');
+                txtDisInput.focus();
+                return;
+            }
+
+            if (wardInput && districtInput) {
+                url = `http://localhost:3500/api/modification/getModificationByWardDis/${wardInput}/${districtInput}`;
+            } else if (districtInput) {
+                url = `http://localhost:3500/api/modification/getModificationByDis/${districtInput}`;
+            } else {
+                url = `http://localhost:3500/api/modification/getAllModification`;
+            }
+
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (data.status === 'OK') {
+                    displayModification(data.data);
+                } else {
+                    toastr.error(`Error: ${data.message}`);
+                }
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        }
+
+        async function displayModification(modifications) {
+            const modificationsBody = document.getElementById('modificationsBody');
+            modificationsBody.innerHTML = '';
+
+            if (modifications.length === 0) {
+                // If no data, create a single row with a "No data" message
+                const noDataRow = document.createElement('tr');
+                const noDataCell = document.createElement('td');
+                noDataCell.setAttribute('colspan', '6');
+                noDataCell.textContent = 'Không có dữ liệu';
+                noDataCell.classList.add('text-center');
+                noDataRow.appendChild(noDataCell);
+                modificationsBody.appendChild(noDataRow);
+            } else {
+                const pendingModifications = modifications.filter(modification => modification.state === 0);
+                const otherModifications = modifications.filter(modification => modification.state !== 0);
+
+                const sortedModifications = pendingModifications.concat(otherModifications);
+
+                sortedModifications.forEach(modification => {
+                    const row = document.createElement('tr');
+
+                    row.innerHTML = `
+                <td>${modification.idPoint}</td>
+                <td>${modification.changedList[0] === '-1' ? 'Không chỉnh sửa' : 'Yêu cầu chỉnh sửa'}</td>
+                <td>${modification.changedList[1] === "-1" ? 'Không chỉnh sửa' : 'Yêu cầu chỉnh sửa'}</td>
+                <td>${modification.changedList[2] === "-1" ? 'Không chỉnh sửa' : 'Yêu cầu chỉnh sửa'}</td>
+                <td style="color: ${getColorByState(modification.state)}">${formatState(modification.state)}</td>
+                <td class="col-2">
+                    ${modification.state === 0 ?
+                            `<button class="btn btn-outline-success btn-block float-right" onclick="openConfirmationModal('${modification._id}', 'grant')">
+                <i class="bi bi-check2"></i>
+                Cấp phép
+            </button>
+            <button class="btn btn-outline-danger btn-block float-right" onclick="openDenyModal('${modification._id}', 'deny')">
+                <i class="bi bi-x-lg"></i>
+                Từ chối
+            </button>` : `<button class="btn btn-outline-success btn-block float-right" disabled>
+                <i class="bi bi-check2"></i>
+                Đã xử lý
+            </button>`}
+                </td>
+            `;
+
+                    row.addEventListener('dblclick', () => {
+                        loadDetails(modification);
+                        $('#detailsModal').modal('show');
+                    });
+
+                    row.addEventListener('click', () => highlightRow(row));
+
+                    modificationsBody.appendChild(row);
+                });
+            }
+        }
+
+        function openConfirmationModal(modificationId, action) {
+            // Store modificationId and action in data attributes of the modal
+            $('#confirmationModal').data('modificationId', modificationId);
+            $('#confirmationModal').data('action', action);
+            // Show the confirmation modal
+            $('#confirmationModal').modal('show');
+        }
+
+        function openDenyModal(modificationId, action) {
+            // Store modificationId and action in data attributes of the modal
+            $('#denyModal').data('modificationId', modificationId);
+            $('#denyModal').data('action', action);
+            // Show the confirmation modal
+            $('#denyModal').modal('show');
+        }
+
+        // Add this function to confirm the action
+        function confirmAction() {
+            // Get modificationId and action from data attributes
+            const modificationId = $('#confirmationModal').data('modificationId');
+            const action = $('#confirmationModal').data('action');
+
+            grantmodification(modificationId);
+
+            // Hide the confirmation modal
+            $('#confirmationModal').modal('hide');
+        }
+
+        function denyAction() {
+            // Get modificationId and action from data attributes
+            const modificationId = $('#denyModal').data('modificationId');
+            const action = $('#denyModal').data('action');
+
+            denymodification(modificationId);
+
+            // Hide the confirmation modal
+            $('#denyModal').modal('hide');
+        }
+
+        async function grantmodification(modificationId) {
+            try {
+                const response = await fetch(`http://localhost:3500/api/modification/updateModification/${modificationId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        state: 1
+                    }),
+                });
+
+                const data = await response.json();
+
+                console.log(data)
+
+                if (data.status === 'OK') {
+                    toastr.success('Cấp phép thành công');
+                    filterModPoint();
+                } else {
+                    toastr.error('Cấp phép thất bại');
+                }
+            } catch (error) {
+                console.error('Error granting modification:', error);
+            }
+        }
+
+        async function denymodification(modificationId) {
+            try {
+                const response = await fetch(`http://localhost:3500/api/modification/updatemodification/${modificationId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        state: -1
+                    }),
+                });
+
+                const data = await response.json();
+
+                console.log(data)
+
+                if (data.status === 'OK') {
+                    toastr.success('Từ chối thành công');
+                    filterModPoint();
+                } else {
+                    toastr.error('Từ chối thất bại');
+                }
+            } catch (error) {
+                console.error('Error deny modification:', error);
+            }
+        }
+
+        function getColorByState(accept) {
+            switch (accept) {
+                case -1:
+                    return 'red'
+                case 0:
+                    return 'gold';
+                case 1:
+                    return 'green';
+                default:
+                    return 'black';
+            }
+        }
+
+        function formatState(accept) {
+            switch (accept) {
+                case -1:
+                    return 'Bị từ chối'
+                case 0:
+                    return 'Chờ duyệt';
+                case 1:
+                    return 'Chấp nhận';
+                default:
+                    return 'Unknown';
+            }
+        }
+
+        async function loadDetails(modification) {
+            document.getElementById('modalContent').innerHTML = "";
+            document.getElementById('place-modification').innerHTML = "";
+
+            let address;
+            let panel;
+
+            await fetch(`http://localhost:3500/api/point/getPoint/${modification.idPoint}`)
+                .then(response => response.json())
+                .then(data => {
+                    let point = data.data;
+                    idpoint = point._id;
+                    address = point.address.trim() + ", " + point.area.ward + ", " + point.area.district;
+                    picture = point.picturePoint;
+                    positionType = point.positionType;
+                    formAdvertising = point.formAdvertising;
+                    isZoning = point.isZoning;
+                });
+
+            await fetch(`http://localhost:3500/api/user/getDetails-user/${modification.idUser}`)
+                .then(response => response.json())
+                .then(data => {
+                    let user = data.data;
+                    userId = user._id
+                    name = user.name;
+                    email = user.email;
+                    phone = user.phone
+                });
+
+            console.log(modification);
+
+            let details = `<div id="modificationId">ID yêu cầu: <b>${modification._id}</b></div><br><br>
+                            <h6 class="card-subtitle mb-2">Thông tin điểm đặt</h6>
+                            <p class="card-text">Địa chỉ điểm đặt: <b>${address}</b><br>
+                                                Loại vị trí: <b>${positionType}</b><br>
+                                                Loại hình quảng cáo: <b>${formAdvertising}</b><br>
+                                                Tình trạng quy hoạch: <b>${isZoning ? 'Đã quy hoạch' : 'Chưa quy hoạch'}</b><br>
+                                                Hình ảnh đính kèm:<br><br>
+                                                <img class="img-fluid" src="http://localhost:3500/api/pointImg/getImgPoint/${picture}" alt=""><br><br>
+                            </p>
+                            <h6 class="card-subtitle mb-2">Thông tin cán bộ</h6>
+                            <p class="card-text">Tên cán bộ: <b>${name}</b><br>
+                                                Email cán bộ: <b>${email}</b><br>
+                                                Số điện thoại: <b>${phone}</b><br><br>
+                                                Tình trạng xét duyệt: <b style="color:${modification.state == 1 ? 'green"> Chấp nhận' : modification.state == 0 ? 'gold"> Chưa duyệt' : 'red"> Bị từ chối'}</b>
+                            </p>`;
+
+            document.getElementById('modalContent').innerHTML = details;
+            await fetch(`http://localhost:3500/api/modification/getAllModification`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.data.length > 0) {
+                        let fetchedMods = data.data;
+
+                        fetchedMods.forEach(mod => {
+                            if (mod.idPoint == idpoint && mod.idUser == userId) {
+                                modification = mod;
+                            }
+                        })
+                    }
+                })
+                .catch(error => {
+                    // Handle any errors that occurred during the fetch
+                    console.error('Error fetching panel modification request:', error);
+                });
+
+            let panelModHtml = '';
+
+            if (!modification) {
+                document.getElementById("place-modification").innerHTML = "Cán bộ chưa gửi yêu cầu chỉnh sửa cho điểm đặt này.";
+            }
+            else {
+                let oldZoneState;
+                let newZoneState;
+
+                // prepare the zoning state value
+                if (modification.changedList[2] != "-1") {
+                    if (modification.changedList[2].newValue === true) {
+                        oldZoneState = '<b style="color:red">Chưa quy hoạch</b>';
+                        newZoneState = '<b style="color:green">Đã quy hoạch</b>';
+                    }
+                    else {
+                        oldZoneState = '<b style="color:green">Đã quy hoạch</b>';
+                        newZoneState = '<b style="color:red">Chưa quy hoạch</b>';
+                    }
+                } else {
+                    if (isZoning === true) {
+                        oldZoneState = '<b style="color:green">Đã quy hoạch</b>';
+                    }
+                    else {
+                        oldZoneState = '<b style="color:red">Chưa quy hoạch</b>';
+                    }
+
+                    newZoneState = '<em>Không chỉnh sửa</em>'
+                }
+
+                let bodyHtml = `<table class="table">
+                                        <thead>
+                                            <tr>
+                                            <th scope="col">Thông tin</th>
+                                            <th scope="col">Cũ</th>
+                                            <th scope="col">Chỉnh sửa thành</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                            <th scope="row">Loại vị trí</th>
+                                            <td>${modification.changedList[0] == "-1" ? positionType : modification.changedList[0].oldValue}</td>
+                                            <td>${modification.changedList[0] == "-1" ? "<em>Không chỉnh sửa</em>" : modification.changedList[0].newValue}</td>
+                                            </tr>
+                                            <tr>
+                                            <th scope="row">Loại hình quảng cáo</th>
+                                            <td>${modification.changedList[1] == "-1" ? formAdvertising : modification.changedList[1].oldValue}</td>
+                                            <td>${modification.changedList[1] == "-1" ? "<em>Không chỉnh sửa</em>" : modification.changedList[1].newValue}</td>
+                                            </tr>
+                                            <tr>
+                                            <th scope="row">Quy hoạch</th>
+                                            <td>${oldZoneState}</td>
+                                            <td>${newZoneState}</td>
+                                            </tr>
+                                        </tbody>
+                                        </table><br>
+                                        Tình trạng xét duyệt: <b style="color:${modification.state == 1 ? 'green"> Đã duyệt' : modification.state == 0 ? 'gold"> Chưa duyệt' : 'red"> Bị từ chối'}</b>`;
+
+                document.getElementById("place-modification").innerHTML = bodyHtml;
+            }
+        }
+
+        function highlightRow(row) {
+            // Remove highlight from all rows
+            const rows = document.querySelectorAll('#modificationsBody tr');
+            rows.forEach(r => r.classList.remove('highlighted'));
+
+            // Add highlight to the clicked row
+            row.classList.add('highlighted');
+        }
+
+        async function populateDropdowns() {
+            const wardSelect = document.getElementById('wardSelect');
+            const districtSelect = document.getElementById('districtSelect');
+
+            try {
+                const wardResponse = await fetch('http://localhost:3500/api/ward/getAll-ward');
+                const wardData = await wardResponse.json();
+
+                wardData.data.forEach(ward => {
+                    const option = document.createElement('option');
+                    option.value = ward.wardName;
+                    option.textContent = ward.wardName;
+                    wardSelect.appendChild(option);
+                });
+
+                const districtResponse = await fetch('http://localhost:3500/api/district/getAll-dis');
+                const districtData = await districtResponse.json();
+
+                districtData.data.forEach(dis => {
+                    const option = document.createElement('option');
+                    option.value = dis.disName;
+                    option.textContent = dis.disName;
+                    districtSelect.appendChild(option);
+                });
+
+                filterModPoint();
+            } catch (error) {
+                console.error('Error fetching ward and district data:', error);
+            }
+        }
+
+        async function populateWardsByDistrict() {
+            const districtSelect = document.getElementById('districtSelect');
+            const wardSelect = document.getElementById('wardSelect');
+
+            // Clear previous options
+            wardSelect.innerHTML = '<option value="">Tất Cả Phường</option>';
+
+            const selectedDistrict = districtSelect.value;
+
+            if (selectedDistrict) {
+                try {
+                    const wardResponse = await fetch(`http://localhost:3500/api/ward/getWard/${selectedDistrict}`);
+                    const wardData = await wardResponse.json();
+
+                    wardData.data.forEach(ward => {
+                        const option = document.createElement('option');
+                        option.value = ward.wardName;
+                        option.textContent = ward.wardName;
+                        wardSelect.appendChild(option);
+                    });
+
+                    filterModPoint();
+                } catch (error) {
+                    console.error('Error fetching ward data:', error);
+                }
+            }
+        }
+
+        // Attach the function to the change event of the district dropdown
+        document.getElementById('districtSelect').addEventListener('change', populateWardsByDistrict);
+
+        populateDropdowns();
+
+    </script>
+
+</body>
+
+</html>
