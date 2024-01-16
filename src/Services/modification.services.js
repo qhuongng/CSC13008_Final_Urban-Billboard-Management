@@ -1,10 +1,13 @@
 const Modification = require('../Models/Modification');
 const positionTypeService = require('../Services/positionType.services');
 const adsFormService = require('../Services/adsForm.services');
-const panelTypeService = require('../Services/panelType.services')
+const panelTypeService = require('../Services/panelType.services');
+const Point = require('../Models/Point');
+const Panel = require('../Models/Panel');
 
 const createModification = (newModify) => {
     return new Promise(async (resolve, reject) => {
+        console.log(newModify);
         try {
             const { idPoint, idPanel, changedList, reason } = newModify
             const newModification = await Modification.create({
@@ -88,15 +91,80 @@ const updateAction = (modifyId, action) => {
                     })
                 }
                 if (action === 1) {
+                    //chỉnh trạng thái sang chấp nhận 
                     const updateModify = await Modification.findOneAndUpdate(
                         { _id: modifyId },
                         { state: action },
                         { new: true }
                     )
+                    //update dành cho point
                     if (updateModify.idPanel === "-1") {
-                        if (updateModify.changedList[0] !== "-1") {
-                            //update point 
+                        for (let index = 0; index < updateModify.changedList.length; index++) {
+                            if (updateModify.changedList[index] !== "-1") {
+                                //update positionType
+                                if (index === 0) {
+                                    const updateType = await Point.findOneAndUpdate(
+                                        { _id: updateModify.idPoint },
+                                        { positionType: updateModify.changedList[index].newValue },
+                                        { new: true }
+                                    )
+                                }
+                                //update AdsForm
+                                else if (index === 1) {
+                                    const updateForm = await Point.findOneAndUpdate(
+                                        { _id: updateModify.idPoint },
+                                        { formAdvertising: updateModify.changedList[index].newValue },
+                                        { new: true }
+                                    )
+                                }
+                                //update isZoning
+                                else {
+                                    const updateZoning = await Point.findOneAndUpdate(
+                                        { _id: updateModify.idPoint },
+                                        { isZoning: updateModify.changedList[index].newValue },
+                                        { new: true }
+                                    )
+                                }
+                            }
                         }
+                        resolve({
+                            status: "OK",
+                            message: "update complete"
+                        })
+                    } else {
+                        //for panel update
+                        for (let index = 0; index < updateModify.changedList.length; index++) {
+                            if (updateModify.changedList[index] !== "-1") {
+                                //update PanelType
+                                if (index === 0) {
+                                    const updateType = await Panel.findOneAndUpdate(
+                                        { _id: updateModify.idPanel },
+                                        { Paneltype: updateModify.changedList[index].newValue },
+                                        { new: true }
+                                    )
+                                }
+                                //update amount
+                                else if (index === 1) {
+                                    const updateAmount = await Panel.findOneAndUpdate(
+                                        { _id: updateModify.idPanel },
+                                        { amount: updateModify.changedList[index].newValue },
+                                        { new: true }
+                                    )
+                                }
+                                //update isZoning
+                                else {
+                                    const updateSize = await Panel.findOneAndUpdate(
+                                        { _id: updateModify.idPanel },
+                                        { size: updateModify.changedList[index].newValue },
+                                        { new: true }
+                                    )
+                                }
+                            }
+                        }
+                        resolve({
+                            status: "OK",
+                            message: "update complete"
+                        })
                     }
                 }
             }
@@ -108,5 +176,6 @@ const updateAction = (modifyId, action) => {
 
 module.exports = {
     createModification,
-    getAllModification
+    getAllModification,
+    updateAction
 }
