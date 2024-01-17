@@ -193,6 +193,9 @@
         document.addEventListener('DOMContentLoaded', async function () {
             let point;
             let panel;
+            let adForms;
+            let panelTypes;
+            let posTypes;
 
             await fetch(`http://localhost:3500/api/point/getPoint/${pointId}`)
                 .then(response => response.json())
@@ -215,10 +218,11 @@
                 await fetch(`http://localhost:3500/api/panelType/getAllPanelType`)
                     .then(response => response.json())
                     .then(data => {
-                        let types = data.data;
+                        panelTypes = data.data;
+
                         let selectHtml = "";
 
-                        types.forEach(type => {
+                        panelTypes.forEach(type => {
                             if (type.panName == panel.Paneltype) {
                                 selectHtml += `<option selected value=${encodeURIComponent(type.panId)}>${type.panName}</option>`;
                             }
@@ -239,10 +243,11 @@
                 await fetch(`http://localhost:3500/api/positionType/getAllTypePos`)
                     .then(response => response.json())
                     .then(data => {
-                        let types = data.data;
+                        posTypes = data.data;
+
                         let selectHtml = "";
 
-                        types.forEach(type => {
+                        posTypes.forEach(type => {
                             if (type.posName == point.positionType) {
                                 selectHtml += `<option selected value=${encodeURIComponent(type.posId)}>${type.posName}</option>`;
                             }
@@ -259,10 +264,11 @@
                 await fetch(`http://localhost:3500/api/adsForm/getAllForm`)
                     .then(response => response.json())
                     .then(data => {
-                        let forms = data.data;
+                        adForms = data.data;
+
                         let selectHtml = "";
 
-                        forms.forEach(form => {
+                        adForms.forEach(form => {
                             if (form.formName == point.formAdvertising) {
                                 selectHtml += `<option selected value=${encodeURIComponent(form.formId)}>${form.formName}</option>`;
                             }
@@ -358,15 +364,31 @@
                         let group2 = "-1";
 
                         if ($('#group0Checkbox').prop('checked')) {
+                            let oldValue;
+
+                            posTypes.forEach(type => {
+                                if (type.posName == point.positionType) {
+                                    oldValue = type.posId;
+                                }
+                            });
+
                             group0 = {
-                                oldValue: point.positionType,
+                                oldValue: oldValue,
                                 newValue: decodeURIComponent($('#group0').val())
                             }
                         }
 
                         if ($('#group1Checkbox').prop('checked')) {
+                            let oldValue;
+
+                            adForms.forEach(form => {
+                                if (form.formName == point.formAdvertising) {
+                                    oldValue = form.formId;
+                                }
+                            });
+
                             group1 = {
-                                oldValue: point.formAdvertising,
+                                oldValue: oldValue,
                                 newValue: decodeURIComponent($('#group1').val())
                             }
                         }
@@ -501,8 +523,16 @@
                         let group2 = "-1";
 
                         if ($('#group0Checkbox').prop('checked')) {
+                            let oldValue;
+
+                            panelTypes.forEach(type => {
+                                if (type.panName == panel.Paneltype) {
+                                    oldValue = type.panId;
+                                }
+                            });
+
                             group0 = {
-                                oldValue: panel.Paneltype,
+                                oldValue: oldValue,
                                 newValue: decodeURIComponent($('#group0').val())
                             }
                         }
