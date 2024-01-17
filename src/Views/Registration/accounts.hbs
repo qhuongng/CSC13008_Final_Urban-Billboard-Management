@@ -261,11 +261,12 @@
                                 <td>${item.name}</td>
                                 <td id="user-email">${item.email}</td>
                                 <td id="user-role">${roleString}</td>
-                                <td>
+                                ${roleString !== "Sở" ? `<td>
                                     <button class="btn btn-sm btn-outline-primary float-right" onclick="editRow('${item._id}', '${item.name}', '${roleString}')" data-toggle="modal" data-target="#editModal">
                                         <i class="bi bi-clipboard-check-fill"></i> Phân công</i>
                                     </button>
-                                </td>
+                                </td>` : `<td>&nbsp;</td>`}
+
                             </tr>`;
 
                 $('tbody').append(row);
