@@ -160,7 +160,7 @@
                         <i class="bi bi-skip-backward-fill"></i>
                         &nbsp;Quay lại</button>
                       <a class="btn btn-outline-danger float-right" id="detail-report-button"
-                        href="/api/report/${info.panelId}?address=${info.address}&lng=${info.long}&lat=${info.lat}">
+                        href="/api/report/${info.panelId}?address=${encodeURIComponent(info.address)}&lng=${info.long}&lat=${info.lat}">
                           <i class="bi bi-exclamation-octagon-fill"></i> BÁO CÁO VI PHẠM
                       </a>`;
 
