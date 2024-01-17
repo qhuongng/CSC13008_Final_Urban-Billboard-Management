@@ -48,7 +48,8 @@
                     <table class="table table-hover" id="pointsTable">
                         <thead>
                             <tr>
-                                <th>Điểm đặt</th>
+                                <th>ID điểm đặt</th>
+                                <th>Tên điểm đặt</th>
                                 <th>Địa chỉ</th>
                                 <th>Loại vị trí</th>
                                 <th>Loại hình quảng cáo</th>
@@ -300,7 +301,8 @@
 
                     console.log(modification);
 
-                    let rowHtml = `<th scope="row">${point.name}</th>
+                    let rowHtml = `<th scope="row">${point._id.substr(-4)}</th>
+                                    <td>${point.name}</td>
                                     <td>${point.address.trim()}, ${point.area.ward}, ${point.area.district}</td>
                                     <td>${point.positionType}</td>
                                     <td>${point.formAdvertising}</td>
@@ -480,7 +482,8 @@
                     <table class="table table-hover" id="pointsTable">
                         <thead>
                             <tr>
-                                <th>Điểm đặt</th>
+                                <th>ID điểm đặt</th>
+                                <th>Tên điểm đặt</th>
                                 <th>Địa chỉ</th>
                                 <th>Loại vị trí</th>
                                 <th>Loại hình quảng cáo</th>
@@ -665,7 +668,8 @@
 
                     console.log(modification);
 
-                    let rowHtml = `<th scope="row">${point.name}</th>
+                    let rowHtml = `<th scope="row">${point._id.substr(-4)}</th>
+                                    <td>${point.name}</td>
                                     <td>${point.address.trim()}, ${point.area.ward}, ${point.area.district}</td>
                                     <td>${point.positionType}</td>
                                     <td>${point.formAdvertising}</td>

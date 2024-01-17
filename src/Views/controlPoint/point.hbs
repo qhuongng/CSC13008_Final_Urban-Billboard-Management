@@ -1,40 +1,43 @@
 <script src="http://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.2/js/toastr.min.js"></script>
 <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
-<div class="container mt-3">
-    <!-- Page Title -->
-    <div class="mt-3 d-flex justify-content-between">
-        <h2 class="mb-4">Các điểm đặt quảng cáo</h2>
-        <div>
-            <button class="btn btn-outline-success mr-2" data-toggle="modal" data-target="#addModal">
-                <i class="bi bi-plus-circle"></i>
-                Thêm điểm đặt quảng cáo
-            </button>
+<!-- Page Title -->
+<div class="control-responsive p-4 d-flex flex-column align-items-center">
+    <div class="container mt-3">
+        <div class="mt-3 d-flex justify-content-between">
+            <h2 class="mb-4">Các điểm đặt quảng cáo</h2>
+            <div>
+                <button class="btn btn-outline-success" data-toggle="modal" data-target="#addModal">
+                    <i class="bi bi-plus-circle"></i>
+                    Thêm điểm đặt quảng cáo
+                </button>
+            </div>
         </div>
-    </div>
-    <!-- Table -->
-    <div class="table-responsive">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th scope="col">ID</th>
-                    <th scope="col">Tên điểm đặt</th>
-                    <th scope="col">Toạ độ</th>
-                    <th scope="col">Địa chỉ</th>
-                    <th scope="col">Hình thức quảng cáo</th>
-                    <th scope="col">Đã quy hoạch</th>
-                    <th scope="col">&nbsp;</th>
-                </tr>
-            </thead>
-            <tbody>
-            </tbody>
-        </table>
+        <!-- Table -->
+        <div class="table-responsive">
+            <small class="text-muted">Click đúp vào một dòng để xem thông tin chi tiết.</small>
+            <table class="table table-hover mt-2">
+                <thead>
+                    <tr>
+                        <th scope="col">ID điểm đặt</th>
+                        <th scope="col">Tên điểm đặt</th>
+                        <th scope="col">Toạ độ</th>
+                        <th scope="col">Địa chỉ</th>
+                        <th scope="col">Hình thức quảng cáo</th>
+                        <th scope="col">Quy hoạch</th>
+                        <th scope="col">&nbsp;</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 </div>
 
 <div class="modal fade" id="pointDetailModal" tabindex="-1" role="dialog" aria-labelledby="pointDetailModalLabel"
     aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="pointDetailModalLabel">Chi tiết điểm đặt</h5>
@@ -45,8 +48,9 @@
             <div class="modal-body" id="pointDetailBody">
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">
-                    Đóng
+                <button type="button" class="btn btn-outline-success" data-dismiss="modal">
+                    <i class="bi bo-skip-backward-fill"></i>
+                    Quay lại
                 </button>
             </div>
         </div>
@@ -291,22 +295,17 @@
                     const point = data.data;
                     const modalBody = document.getElementById('pointDetailBody');
 
-                    modalBody.innerHTML = `
-                    <p><strong>ID:</strong> ${point._id}</p>
-                    <p><strong>Tên điểm đặt:</strong> ${point.name}</p>
-                    <p><strong>Toạ độ:</strong> 
-                        <a href="#" onclick="showPosition(${point.locate[0]}, ${point.locate[1]})" >
-                            ${point.locate[0]}, ${point.locate[1]}
-                        </a>
-                    </p>
-                    <p><strong>Địa chỉ:</strong> ${point.address}</p>
-                    <p><strong>Khu vực:</strong> ${point.area.ward}, ${point.area.district}</p>
-                    <p><strong>Loại vị trí:</strong> ${point.positionType}</p>
-                    <p><strong>Hình thức quảng cáo:</strong> ${point.formAdvertising}</p>
-                    <p><strong>Có quảng cáo:</strong> ${point.havePanel ? "Có" : "Không"}</p>
-                    <p><strong>Quy hoạch:</strong> ${point.isZoning ? "Đã quy hoạch" : "Chưa quy hoạch"}</p>
-                    <p><strong>Ảnh:</strong> <br><img class="img-fluid" src="http://localhost:3500/api/pointImg/getImgPoint/${point.picturePoint}" referrerpolicy="no-referrer" ></p>
-                `;
+                    modalBody.innerHTML = `<p class="card-text">
+                                            ID: <b>${point._id}</b><br>
+                                            Tên điểm đặt: <b>${point.name}</b><br>
+                                            Toạ độ: <b>${point.locate[0]}, ${point.locate[1]}</b><br>
+                                            Địa chỉ: <b>${point.address.trim()}, ${point.area.ward}, ${point.area.district}</b><br>
+                                            Loại vị trí: <b>${point.positionType}</b><br>
+                                            Hình thức quảng cáo: <b>${point.formAdvertising}</b><br>
+                                            Có bảng quảng cáo: <b>${point.havePanel ? "Có" : "Không"}</b><br>
+                                            Quy hoạch: <b style="color:${point.isZoning ? 'green"> Đã quy hoạch' : 'red">Chưa quy hoạch'}</b><br><br>
+                                            <img class="img-fluid" src="http://localhost:3500/api/pointImg/getImgPoint/${point.picturePoint}" referrerpolicy="no-referrer">
+                                           </p>`;
                 }).catch(err => console.log(err));
         } catch (e) {
             console.log(e)
@@ -319,16 +318,14 @@
             listPoint = data.data;
             listPoint.forEach(item => {
                 const id = item._id;
-                const row = `<tr>
-                                <th scope="row">
-                                    <a href="#" data-toggle="modal" data-target="#pointDetailModal"
-                                        data-id="${id}">${id.substr(-4)}</a>
-                                </th>
+                const row = `<tr data-toggle="modal" data-target="#pointDetailModal"
+                                        data-id="${id}">
+                                <th scope="row">${id.substr(-4)}</th>
                                 <td>${item.name}</td>
-                                <td>${item.locate[0]}\n${item.locate[1]}</td>
+                                <td>${item.locate[0]}<br>${item.locate[1]}</td>
                                 <td>${item.address}</td>
                                 <td>${item.formAdvertising}</td>
-                                <td>${item.isZoning ? "V" : "X"}</td>
+                                <td>${item.isZoning ? '<b style="color:green"> Đã quy hoạch</b>' : '<b style="color:red"> Chưa quy hoạch</b>'}</td>
                                 <td class="text-nowrap overflow-hidden" style="width: 1%;">
                                     <button class="btn btn-sm btn-outline-primary" onclick="editRow('${id}')" data-toggle="modal"
                                         data-target="#editModal">
@@ -342,6 +339,7 @@
                                     </button>
                                 </td>
                             </tr>`;
+
                 $('tbody').append(row);
             });
         })
@@ -523,18 +521,5 @@
     function updateInputWardDistrict(inputWard, inputDistrict) {
         document.getElementById("ward").value = inputWard;
         document.getElementById("district").value = inputDistrict;
-    }
-
-    function showPosition(lng, lat) {
-        try {
-            const popup = window.open('http://localhost:3500/api/controlPoint/submap', 'popup', 'width=600,height=600');
-            popup.onload = () => {
-                if (popup.opener) {
-                    popup.opener.showAlert();
-                }
-            }
-        } catch (e) {
-            console.log(e)
-        }
     }
 </script>

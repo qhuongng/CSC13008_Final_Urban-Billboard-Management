@@ -38,8 +38,7 @@
                 </div>
             </div>
 
-            <small class="text-muted">Click đúp vào một dòng để xem thông tin chi tiết và yêu cầu chỉnh sửa đã gửi (nếu
-                có).</small>
+            <small class="text-muted">Click đúp vào một dòng để xem thông tin chi tiết.</small>
             <div class="d-flex mt-2" id="info-container">
                 <div class="table-responsive">
                     <table class="table table-hover" id="modificationsTable">
@@ -67,26 +66,12 @@
                     <div class="modal-dialog modal-dialog-centered" role="document">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h5 class="modal-title" id="info-modal-title">Chi tiết bảng quảng cáo</h5>
+                                <h5 class="modal-title" id="info-modal-title">Chi tiết yêu cầu</h5>
                                 <button type="button" class="close" data-dismiss="modal" aria-label="close">
                                     <span aria-hidden="true">&times;</span>
                                 </button>
                             </div>
-                            <div class="modal-body">
-                                <ul class="nav nav-tabs mb-3" id="tab-content">
-                                    <li class="nav-item "><a class="nav-link active" href="#modalContent"
-                                            data-toggle="tab">Chi tiết</a>
-                                    </li>
-                                    <li class="nav-item"><a class="nav-link" href="#place-modification"
-                                            data-toggle="tab">Yêu cầu chỉnh sửa</a>
-                                    </li>
-                                </ul>
-                                <div class="tab-content">
-                                    <div class="tab-pane active" id="modalContent">
-                                    </div>
-                                    <div class="tab-pane" id="place-modification">
-                                    </div>
-                                </div>
+                            <div class="modal-body" id="modal-content">
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-outline-success" data-dismiss="modal">
@@ -237,8 +222,8 @@
                         const row = document.createElement('tr');
 
                         row.innerHTML = `
-                <td>${modification.idPoint}</td>
-                <td>${modification.idPanel}</td>
+                <th scope="row">${modification.idPoint.substr(-4)}</th>
+                <th scope="row">${modification.idPanel.substr(-4)}</th>
                 <td>${modification.changedList[0] === '-1' ? 'Không chỉnh sửa' : 'Yêu cầu chỉnh sửa'}</td>
                 <td>${modification.changedList[1] === "-1" ? 'Không chỉnh sửa' : 'Yêu cầu chỉnh sửa'}</td>
                 <td>${modification.changedList[2] === "-1" ? 'Không chỉnh sửa' : 'Yêu cầu chỉnh sửa'}</td>
@@ -253,10 +238,7 @@
             <button class="btn btn-outline-danger btn-block float-right" onclick="openDenyModal('${modification._id}', 'deny')">
                 <i class="bi bi-x-lg"></i>
                 Từ chối
-            </button>` : `<button class="btn btn-outline-success btn-block float-right" disabled>
-                <i class="bi bi-check2"></i>
-                Đã xử lý
-            </button>`}
+            </button>` : `&nbsp;`}
                 </td>
             `;
 
@@ -392,8 +374,7 @@
         }
 
         async function loadDetails(modification) {
-            document.getElementById('modalContent').innerHTML = "";
-            document.getElementById('place-modification').innerHTML = "";
+            document.getElementById('modal-content').innerHTML = "";
 
             await fetch(`http://localhost:3500/api/point/getPoint/${modification.idPoint}`)
                 .then(response => response.json())
@@ -417,69 +398,23 @@
                     email = user.email;
                     phone = user.phone
                 });
-            
+
             await fetch(`http://localhost:3500/api/panel/getPanelById/${modification.idPanel}`)
                 .then(response => response.json())
                 .then(data => {
                     let panel = data.data;
-                    Paneltype = panel.Paneltype;
-                    amount = panel.amount;
-                    size = panel.size
-
-                });
-
-            console.log(modification);
-
-            let details = `<div id="modificationId">ID yêu cầu: <b>${modification._id}</b></div><br><br>
-                            <h6 class="card-subtitle mb-2">Thông tin bảng quảng cáo</h6>
-                            <p class="card-text">Địa chỉ điểm đặt: <b>${address}</b><br>
-                                                Tên điểm đặt: <b>${namePoint}</b><br>
-                                                Loại vị trí: <b>${positionType}</b><br>
-                                                Loại hình quảng cáo: <b>${formAdvertising}</b><br>
-                                                Tình trạng quy hoạch: <b>${isZoning ? 'Đã quy hoạch' : 'Chưa quy hoạch'}</b><br>
-                                                Loại bảng quảng cáo: <b>${Paneltype}</b><br>
-                                                Số lượng: <b>${amount}</b><br>
-                                                Kích thước: <b>${size}</b><br>
-                                                Hình ảnh đính kèm:<br><br>
-                                                <img class="img-fluid" src="http://localhost:3500/api/pointImg/getImgPoint/${picture}" alt=""><br><br>
-                            </p>
-                            <h6 class="card-subtitle mb-2">Thông tin cán bộ</h6>
-                            <p class="card-text">Tên cán bộ: <b>${name}</b><br>
-                                                Email cán bộ: <b>${email}</b><br>
-                                                Số điện thoại: <b>${phone}</b><br><br>
-                                                Tình trạng xét duyệt: <b style="color:${modification.state == 1 ? 'green"> Chấp nhận' : modification.state == 0 ? 'gold"> Chưa duyệt' : 'red"> Bị từ chối'}</b>
-                            </p>`;
-
-            document.getElementById('modalContent').innerHTML = details;
-            await fetch(`http://localhost:3500/api/modification/getAllModification`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.data.length > 0) {
-                        let fetchedMods = data.data;
-
-                        fetchedMods.forEach(mod => {
-                            if (mod.idPoint == idpoint && mod.idUser == userId) {
-                                modification = mod;
-                            }
-                        })
-                    }
-                })
-                .catch(error => {
-                    // Handle any errors that occurred during the fetch
-                    console.error('Error fetching panel modification request:', error);
+                    panelId = panel._id;
                 });
 
             let panelModHtml = '';
 
-            if (!modification) {
-                document.getElementById("place-modification").innerHTML = "Cán bộ chưa gửi yêu cầu chỉnh sửa cho bảng quảng cáo này.";
-            }
-            else {
-                let oldZoneState;
-                let newZoneState;
-
-
-                let bodyHtml = `<table class="table">
+            let bodyHtml = `ID yêu cầu: <b>${modification._id}</b><br>
+                                Địa chỉ điểm đặt: <b>${address}</b><br>
+                                ID bảng quảng cáo: <b>${panelId}</b><br><br>
+                                Tên cán bộ gửi yêu cầu: <b>${name}</b><br>
+                                Email cán bộ: <b>${email}</b><br>
+                                Số điện thoại: <b>${phone}</b><br><br>
+                                    <table class="table">
                                         <thead>
                                             <tr>
                                             <th scope="col">Thông tin</th>
@@ -500,16 +435,15 @@
                                             </tr>
                                             <tr>
                                             <th scope="row">Kích thước</th>
-                                            <td>${modification.changedList[1] == "-1" ? size : modification.changedList[1].oldValue}</td>
-                                            <td>${modification.changedList[1] == "-1" ? "<em>Không chỉnh sửa</em>" : modification.changedList[1].newValue}</td>
+                                            <td>${modification.changedList[2] == "-1" ? size : modification.changedList[2].oldValue}</td>
+                                            <td>${modification.changedList[2] == "-1" ? "<em>Không chỉnh sửa</em>" : modification.changedList[2].newValue}</td>
                                             </tr>
                                         </tbody>
                                         </table><br>
                                         Lý do chỉnh sửa: <b>${modification.reason}</b><br><br>
                                         Tình trạng xét duyệt: <b style="color:${modification.state == 1 ? 'green"> Đã duyệt' : modification.state == 0 ? 'gold"> Chưa duyệt' : 'red"> Bị từ chối'}</b>`;
 
-                document.getElementById("place-modification").innerHTML = bodyHtml;
-            }
+            document.getElementById("modal-content").innerHTML = bodyHtml;
         }
 
         function highlightRow(row) {

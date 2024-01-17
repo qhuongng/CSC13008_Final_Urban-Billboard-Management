@@ -24,7 +24,6 @@
                         Thêm quận
                     </a>
                 </div>
-
                 <div class="table-responsive">
                     <table class="table table-hover" id="districtTable" style="table-layout:fixed">
                         <thead>
@@ -58,6 +57,9 @@
                             </tr>
                         </thead>
                         <tbody id="wardBody">
+                            <tr>
+                                <td colspan="3">Click đúp vào một quận để xem dữ liệu phường.</td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -166,11 +168,12 @@
                         const wardTableBody = document.getElementById('wardBody');
                         wardTableBody.innerHTML = ''; // Clear previous content
 
-                        data.data.forEach(ward => {
-                            const tableBody = document.getElementById("wardBody");
-                            const newRow = document.createElement('tr');
+                        if (data.data.length > 0) {
+                            data.data.forEach(ward => {
+                                const tableBody = document.getElementById("wardBody");
+                                const newRow = document.createElement('tr');
 
-                            newRow.innerHTML = `<th scope="row">${ward.wardId}</th>
+                                newRow.innerHTML = `<th scope="row">${ward.wardId}</th>
                                                 <td>${ward.wardName}</td>
                                                 <td>
                                                     <a role="button" class="btn btn-sm btn-outline-primary float-right" href="controlWardDistrict/editWard?wardId=${ward.wardId}&wardName=${encodeURIComponent(ward.wardName)}&districtRefId=${district}">
@@ -178,9 +181,14 @@
                                                     </a>
                                                 </td>`;
 
-                            tableBody.appendChild(newRow);
-
-                        });
+                                tableBody.appendChild(newRow);
+                            });
+                        }
+                        else {
+                            const newRow = document.createElement('tr');
+                            newRow.innerHTML = `<td colspan=3">Chưa có dữ liệu.</td>`;
+                            wardTableBody.appendChild(newRow);
+                        }
                     } else {
                         console.error('Error: Data is not an array');
                     }

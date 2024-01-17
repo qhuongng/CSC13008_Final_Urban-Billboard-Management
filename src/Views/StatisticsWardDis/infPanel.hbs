@@ -329,7 +329,7 @@
 
                     const row = document.createElement('tr');
 
-                    let rowHtml = `<th scope="row">${panel._id}</th>
+                    let rowHtml = `<th scope="row">${panel._id.substr(-4)}</th>
                                     <td>${panel.Paneltype}</td>
                                     <td>${panel.address}</td>`;
 
@@ -794,7 +794,7 @@
 
                     const row = document.createElement('tr');
 
-                    let rowHtml = `<th scope="row">${panel._id}</th>
+                    let rowHtml = `<th scope="row">${panel._id.substr(-4)}</th>
                                     <td>${panel.Paneltype}</td>
                                     <td>${panel.address}</td>`;
 
