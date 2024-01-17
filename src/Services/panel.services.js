@@ -21,6 +21,13 @@ const createPanel = (newPanel) => {
           message: "The Point is not zoning",
         });
       } else {
+        if (checkPoint.havePanel === false) {
+          const updatePoint = await Point.findOneAndUpdate(
+            { _id: idPoint },
+            { havePanel: true },
+            { new: true }
+          )
+        }
         const newPanelData = {
           idPoint,
           Paneltype,
