@@ -125,8 +125,7 @@
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-outline-secondary"
                                     data-dismiss="modal">Không</button>
-                                <button type="button" class="btn btn-outline-primary"
-                                    onclick="denyAction()">Có</button>
+                                <button type="button" class="btn btn-outline-primary" onclick="denyAction()">Có</button>
                             </div>
                         </div>
                     </div>
@@ -222,8 +221,8 @@
                     const row = document.createElement('tr');
 
                     row.innerHTML = `
-                <td>${license.idPoint}</td>
-                <td>${license.idPanel}</td>
+                <th scope="row">${license.idPoint.substr(-4)}</th>
+                <th scope="row">${license.idPanel.substr(-4)}</th>
                 <td>${license.companyName}</td>
                 <td>${license.companyEmail}</td>
                 <td>${license.companyPhone}</td>
@@ -237,10 +236,7 @@
             <button class="btn btn-outline-danger btn-block float-right" onclick="openDenyModal('${license._id}', 'deny')">
                 <i class="bi bi-x-lg"></i>
                 Từ chối
-            </button>` : `<button class="btn btn-outline-success btn-block float-right" disabled>
-                <i class="bi bi-check2"></i>
-                Đã xử lý
-            </button>`}
+            </button>` : `&nbsp;`}
                 </td>
             `;
 

@@ -1,38 +1,41 @@
 <script src="http://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.2/js/toastr.min.js"></script>
 <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
-<div class="container mt-3">
-    <!-- Page Title -->
-    <div class="mt-3 d-flex justify-content-between">
-        <h2 class="mb-4">Các bảng quảng cáo</h2>
-        <div>
-            <button class="btn btn-outline-success mr-2" data-toggle="modal" data-target="#addModal">
-                <i class="bi bi-plus-circle"></i>
-                Thêm bảng quảng cáo
-            </button>
+<div class="control-responsive p-4 d-flex flex-column align-items-center">
+    <div class="container mt-3">
+        <!-- Page Title -->
+        <div class="mt-3 d-flex justify-content-between">
+            <h2 class="mb-4">Các bảng quảng cáo</h2>
+            <div>
+                <button class="btn btn-outline-success mr-2" data-toggle="modal" data-target="#addModal">
+                    <i class="bi bi-plus-circle"></i>
+                    Thêm bảng quảng cáo
+                </button>
+            </div>
         </div>
-    </div>
-    <!-- Table -->
-    <div class="table-responsive">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th scope="col">ID</th>
-                    <th scope="col">Loại bảng quảng cáo</th>
-                    <th scope="col">Kích thước</th>
-                    <th scope="col">Số lượng</th>
-                    <th scope="col">ID điểm đặt</th>
-                    <th scope="col">&nbsp;</th>
-                </tr>
-            </thead>
-            <tbody>
-            </tbody>
-        </table>
+        <!-- Table -->
+        <small class="text-muted">Click đúp vào một dòng để xem thông tin chi tiết.</small>
+        <div class="table-responsive mt-2">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th scope="col">ID bảng quảng cáo</th>
+                        <th scope="col">Loại bảng quảng cáo</th>
+                        <th scope="col">Kích thước</th>
+                        <th scope="col">Số lượng</th>
+                        <th scope="col">ID điểm đặt</th>
+                        <th scope="col">&nbsp;</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 
 <div class="modal fade" id="panelDetailModal" tabindex="-1" role="dialog" aria-labelledby="panelDetailModalLabel"
     aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="panelDetailModalLabel">Chi tiết bảng quảng cáo</h5>
@@ -43,8 +46,9 @@
             <div class="modal-body" id="panelDetailBody">
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">
-                    Đóng
+                <button type="button" class="btn btn-outline-success" data-dismiss="modal">
+                    <i class="bi bi-skip-backward-fill"></i>
+                    Quay lại
                 </button>
             </div>
         </div>
@@ -68,7 +72,7 @@
                         <select class="custom-select" id="selectPanelType" name="selectPanelType"></select>
                     </div>
                     <div class="form-group">
-                        <label for="pointName">Điểm đặt</label>
+                        <label for="pointName">ID điểm đặt</label>
                         <input type="text" class="form-control" id="selectIdPoint"
                             onclick='window.open("http://localhost:3500/api/controlPanel/submap", "popup" ,"width=600,height=600")'
                             placeholder="Click để mở bản đồ" readonly>
@@ -77,6 +81,9 @@
                     <div class="form-group">
                         <label for="selectSizeWidth">Chiều rộng bảng quảng cáo</label>
                         <input type="text" class="form-control" id="selectSizeWidth" name="selectSize">
+                    </div>
+
+                    <div class="form-group">
                         <label for="selectSizeHeight">Chiều cao bảng quảng cáo</label>
                         <input type="text" class="form-control" id="selectSizeHeight" name="selectSize">
                     </div>
@@ -115,12 +122,12 @@
             <div class="modal-body">
                 <form id="editForm">
                     <div class="form-group">
-                        <label for="edit-data">ID bảng quảng cáo </label>
+                        <label for="edit-data">ID bảng quảng cáo</label>
                         <input type="text" class="form-control" id="edit-data" readonly />
                     </div>
 
                     <div class="form-group">
-                        <label for="edit-data">ID điểm đăt quảng cáo </label>
+                        <label for="edit-data">ID điểm đặt </label>
                         <input type="text" class="form-control" id="selectIdPoint-edit" readonly />
                     </div>
 
@@ -252,17 +259,14 @@
                             const point = data.data;
 
                             modalBody.innerHTML = `
-                            <p><strong>ID: </strong> ${panel._id}</p>
-                            <p><strong>Loại bảng quảng cáo: </strong> ${panel.Paneltype}</p>
-                            <p><strong>Kích thước: </strong> ${panel.size}</p>
-                            <p><strong>Số lượng:</strong> ${panel.amount}</p>
-                            <p><strong>ID điểm đặt: </strong> ${panel.idPoint}</p>
-                            <p><strong>Tên điểm đặt: </strong> ${point.name}</p>
-                            <p><strong>Địa chỉ: </strong> ${point.address}</p>
-                            <p><strong>Loại vị trí: </strong> ${point.positionType}</p>
-                            <p><strong>Hình thức quảng cáo: </strong> ${point.formAdvertising}</p>
-                            <p><strong>Quy hoạch: </strong> ${point.isZoning ? "Đã quy hoạch" : "Chưa quy hoạch"}</p>
-                            <p><strong>Ảnh:</strong> <br><img class="img-fluid" src="http://localhost:3500/api/pointImg/getImgPoint/${point.picturePoint}" referrerpolicy="no-referrer" ></p>
+                            <p>ID: <b>${panel._id}</b><br>
+                            Loại bảng quảng cáo: <b>${panel.Paneltype}</b><br>
+                            Kích thước: <b>${panel.size}</b><br>
+                            Số lượng: <b>${panel.amount}</b><br><br>
+                            ID điểm đặt: <b>${panel.idPoint}</b><br>
+                            Tên điểm đặt: <b>${point.name}</b><br>
+                            Địa chỉ: <b>${point.address}</b><br><br>
+                            <img class="img-fluid" src="http://localhost:3500/api/pointImg/getImgPoint/${point.picturePoint}" referrerpolicy="no-referrer" ></p>
                         `;
                         }).catch(err => console.log(err));
                 }).catch(err => console.log(err));
@@ -277,28 +281,22 @@
             listPoint = data.data;
             listPoint.forEach((item, index) => {
                 const id = item._id;
-                const row = `<tr>
-                                <th scope="row">
-                                    <a href="#" data-toggle="modal" data-target="#panelDetailModal"
-                                        data-id="${id}">${id.substr(-4)}</a>
-                                </th>
+                const row = `<tr data-toggle="modal" data-target="#panelDetailModal" data-id="${id}">
+                                <th scope="row">${id.substr(-4)}</th>
                                 <td>${item.Paneltype}</td>
                                 <td>${item.size}</td>
                                 <td>${item.amount}</td>
-                                <td>
-                                    <a href="#" data-toggle="modal" data-target="#panelDetailModal"
-                                        data-id="${id}">${item.idPoint.substr(-4)}</a>
-                                </td>
+                                <td>${item.idPoint.substr(-4)}</td>
                                 <td class="text-nowrap overflow-hidden" style="width: 1%;">
                                     <button class="btn btn-sm btn-outline-primary" onclick="editRow('${index}', '${id}', '${item.idPoint}')" data-toggle="modal"
                                         data-target="#editModal">
                                         <i class="bi bi-pencil"></i>
-                                        Edit
+                                        Sửa
                                     </button>
                                     <button class="btn btn-sm btn-outline-danger" onclick="deleteRow('${index}', '${id}', '${item.idPoint}')" data-toggle="modal"
                                         data-target="#deleteModal">
                                         <i class="bi bi-trash"></i>
-                                        Delete
+                                        Xóa
                                     </button>
                                 </td>
                             </tr>`;
@@ -462,18 +460,5 @@
     function updateInputWardDistrict(inputWard, inputDistrict) {
         document.getElementById("ward").value = inputWard;
         document.getElementById("district").value = inputDistrict;
-    }
-
-    function showPosition(lng, lat) {
-        try {
-            const popup = window.open('http://localhost:3500/api/controlPanel/submap', 'popup', 'width=600,height=600');
-            popup.onload = () => {
-                if (popup.opener) {
-                    popup.opener.showAlert();
-                }
-            }
-        } catch (e) {
-            console.log(e)
-        }
     }
 </script>
