@@ -161,7 +161,7 @@
             }
 
             // Save button click event
-            $('#saveButton').on('click', function () {
+            $('#saveButton').on('click', async function () {
                 const updatedValue = document.getElementById('updatedValue').value;
 
                 let updateData = {};
@@ -184,27 +184,23 @@
                 }
 
                 // Call the update API here
-                fetch(`http://localhost:3500/api/user/update-user/${userId}`, {
+                const response = await fetch(`http://localhost:3500/api/user/update-user/${userId}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify(updateData),
                 })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.status === 'OK') {
-                            toastr.options.onHidden = () => { window.location.href = `/api/profile/${userId}` }
-                            toastr.success("Cập nhật thành công.")
-                        } else {
-                            toastr.error("Cập nhật thất bại.");
-                        }
-                        //$('#detailsModal').modal('hide');
-                    })
-                    .catch(error => {
-                        // Handle error or show a notification
-                        toastr.error('Error updating user details');
-                    });
+
+                if (response.status === 200) {
+                    toastr.options.onHidden = () => { window.location.href = `/api/profile/${userId}` }
+                    toastr.success("Cập nhật thành công.")
+                } else if (response.status === 205) {
+                    toastr.error("Email đã được sử dụng.");
+                }
+                else {
+                    toastr.error("Cập nhập thất bại.");
+                }
             });
 
         </script>

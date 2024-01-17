@@ -70,15 +70,22 @@ const loginUser = (userLogin) => {
 }
 
 const updateUser = (id, data) => {
+
     return new Promise(async (resolve, reject) => {
         try {
             const checkUser = await User.findOne({
-                _id: id
+                email: data.email
             })
-            if (checkUser === null) {
-                reject('The user is not defined');
+
+            if (checkUser !== null) {
+                console.log(123);
+                resolve({
+                    status: 'ERR',
+                    message: 'Update user fail',
+                    data: checkUser
+                })
             }
-            const updatedUser = await User.findByIdAndUpdate(id, data, { new: true })
+            const updatedUser = await User.findOneAndUpdate({ _id: id }, data, { new: true })
             resolve({
                 status: 'OK',
                 message: 'Update user success',

@@ -232,7 +232,7 @@
                             body: formData,
                         }).then(response => response.json()).then(data => {
                             console.log(data);
-                            toastr.options.onHidden = () => { window.location.href = '/api/controlLicense'; }
+                            toastr.options.onHidden = () => { window.location.href = '/api/controlLicense/license'; }
                             toastr.success("Yêu cầu đã được gửi thành công.");
                         }).catch(error => {
                             // report request failed
