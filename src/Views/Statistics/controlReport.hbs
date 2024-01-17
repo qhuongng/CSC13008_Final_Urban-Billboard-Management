@@ -13,7 +13,7 @@
     {{#ifCond authUser.role.[0] '===' "-1"}}
     <div class="control-responsive p-4 d-flex flex-column">
         <div class="container mt-3">
-            <h2 class="mb-4">Xử lý báo cáo</h2>
+            <h2 class="mb-4">Xử lí báo cáo</h2>
 
             <div class="d-flex flex-column mb-4" id="filters-container">
                 <div class="row d-flex" id="location-filters">
@@ -60,7 +60,7 @@
                                 <th>Quận</th>
                                 <th>Địa chỉ</th>
                                 <th>Tình trạng</th>
-                                <th>Cách xử lý</th>
+                                <th>Cách xử lí</th>
                             </tr>
                         </thead>
                         <tbody id="reportsBody">
@@ -89,7 +89,7 @@
                                     <i class="bi bi-skip-backward-fill"></i>
                                     Quay lại
                                 </button>
-                                <button class="btn btn-primary" id="saveButton">
+                                <button class="btn btn-outline-primary" id="saveButton">
                                     <i class="bi bi-check2"></i>
                                     Lưu
                                 </button>
@@ -361,8 +361,10 @@
                           Hình ảnh đối tượng báo cáo:</strong><br><br>
                           ${imgDivs}
                           <br>
-                          <div class="form-group">
-                            <label for="statusSelect">Tình trạng xử lý</label>
+                          ${report.state === 2 ? `Tình trạng xử lí: <b style="color:green">Đã xử lí</b><br>
+                                                    Hình thức xử lí: <b>${report.actionHandler}</b></p>` :
+                    `<div class="form-group">
+                            <label for="statusSelect">Tình trạng xử lí</label>
                             <select class="custom-select" id="statusSelect">
                                 <option value="0" ${report.state === 0 ? 'selected' : ''}>Chưa xử lí</option>
                                 <option value="1" ${report.state === 1 ? 'selected' : ''}>Đang xử lí</option>
@@ -370,13 +372,20 @@
                             </select>
                           </div>
                           <div class="form-group">
-                            <label for="handlingMethodInput">Cách thức xử lý</label>
+                            <label for="handlingMethodInput">Hình thức xử lí</label>
                             <input type="text" class="form-control overflow-auto" id="handlingMethodInput" value="${report.actionHandler}">
-                          </div>
+                          </div>`}
                       </p>`;
 
 
             document.getElementById('modalContent').innerHTML = details;
+
+            if (report.state === 2) {
+                document.getElementById('saveButton').style.display = "none";
+            }
+            else {
+                document.getElementById('saveButton').style.display = "block";
+            }
         }
 
         document.addEventListener('DOMContentLoaded', function () {
@@ -450,7 +459,7 @@
     {{else}}
     <div class="control-responsive p-4 d-flex flex-column align-items-center">
         <div class="container mt-3">
-            <h2 class="mb-4">Xử lý báo cáo</h2>
+            <h2 class="mb-4">Xử lí báo cáo</h2>
 
             <div class="d-flex justify-content-between align-items-end mb-4" id="filters-container">
                 <div class="row flex-fill mr-3" id="filters">
@@ -493,7 +502,7 @@
                                 <th>Quận</th>
                                 <th>Địa chỉ</th>
                                 <th>Tình trạng</th>
-                                <th>Cách xử lý</th>
+                                <th>Cách xử lí</th>
                             </tr>
                         </thead>
                         <tbody id="reportsBody">
@@ -522,7 +531,7 @@
                                     <i class="bi bi-skip-backward-fill"></i>
                                     Quay lại
                                 </button>
-                                <button class="btn btn-primary" id="saveButton">
+                                <button class="btn btn-outline-primary" id="saveButton">
                                     <i class="bi bi-check2"></i>
                                     Lưu
                                 </button>
@@ -733,8 +742,10 @@
                           Hình ảnh đối tượng báo cáo:</strong><br><br>
                           ${imgDivs}
                           <br>
-                          <div class="form-group">
-                            <label for="statusSelect">Tình trạng xử lý</label>
+                          ${report.state === 2 ? `Tình trạng xử lí: <b style="color:green">Đã xử lí</b><br>
+                                                    Hình thức xử lí: <b>${report.actionHandler}</b></p>` :
+                    `<div class="form-group">
+                            <label for="statusSelect">Tình trạng xử li</label>
                             <select class="custom-select" id="statusSelect">
                                 <option value="0" ${report.state === 0 ? 'selected' : ''}>Chưa xử lí</option>
                                 <option value="1" ${report.state === 1 ? 'selected' : ''}>Đang xử lí</option>
@@ -742,12 +753,19 @@
                             </select>
                           </div>
                           <div class="form-group">
-                            <label for="handlingMethodInput">Cách thức xử lý</label>
+                            <label for="handlingMethodInput">Hình thức xử li</label>
                             <input type="text" class="form-control overflow-auto" id="handlingMethodInput" value="${report.actionHandler}">
-                          </div>
+                          </div>`}
                       </p>`;
 
             document.getElementById('modalContent').innerHTML = details;
+
+            if (report.state === 2) {
+                document.getElementById('saveButton').style.display = "none";
+            }
+            else {
+                document.getElementById('saveButton').style.display = "block";
+            }
         }
 
         document.addEventListener('DOMContentLoaded', function () {
