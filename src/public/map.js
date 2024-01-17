@@ -666,7 +666,7 @@ function setupMap(center) {
 
                 if (e.features[0].properties.pointReport === 0) {
                     const reportButton =
-                        `<a class="btn btn-outline-danger float-right" href="/api/report/${1}?address=${addressURL}&lng=${long}&lat=${lat}&district=${district}&ward=${ward}">
+                        `<a class="btn btn-outline-danger float-right" href="/api/report/${1}?address=${encodeURIComponent(addressURL)}&lng=${long}&lat=${lat}&district=${district}&ward=${ward}">
                             <i class="bi bi-exclamation-octagon-fill"></i>
                             BÁO CÁO VI PHẠM
                          </a>`;
@@ -766,7 +766,7 @@ function setupMap(center) {
 
                                 if (info.panelReport === 0) {
                                     if (!(map.getLayoutProperty("unclustered-point", "visibility") !== "visible" && map.getLayoutProperty("unclustered-point-zoned", "visibility") !== "visible")) {
-                                        const reportButton = `<a id="panel-report-button" class="btn btn-outline-danger float-right" href="/api/report/${panelId}?address=${addressURL}&lng=${long}&lat=${lat}&district=${district}&ward=${ward}">
+                                        const reportButton = `<a id="panel-report-button" class="btn btn-outline-danger float-right" href="/api/report/${panelId}?address=${encodeURIComponent(addressURL)}&lng=${long}&lat=${lat}&district=${district}&ward=${ward}">
                                                                 <i class="bi bi-exclamation-octagon-fill"></i> BÁO CÁO VI PHẠM
                                                                 </a>`;
 
@@ -924,7 +924,7 @@ function reverseGeocode(lngLat, isFreeReportedPoint) {
                                                 </h5>`;
 
                 if (!isFreeReportedPoint) {
-                    const reportButton = `<a id="free-point-report-button float-right" class="btn btn-outline-danger float-right" href="/api/report/${0}?address=${data.features[0].place_name}&lng=${lngLat.lng}&lat=${lngLat.lat}&district=${data.features[0].context[2].text}&ward=${data.features[0].context[0].text}">
+                    const reportButton = `<a id="free-point-report-button float-right" class="btn btn-outline-danger float-right" href="/api/report/${0}?address=${encodeURIComponent(name + ", " + addressParts)}&lng=${lngLat.lng}&lat=${lngLat.lat}&district=${data.features[0].context[2].text}&ward=${data.features[0].context[0].text}">
                                             <i class="bi bi-exclamation-octagon-fill"></i> BÁO CÁO VI PHẠM</a>`;
 
                     document.getElementById("place-info-pane").innerHTML = `${placeInfoPaneHeader}
