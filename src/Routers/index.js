@@ -26,7 +26,6 @@ const ProfileRouter = require("./profile.routes");
 const licenseImgRouter = require("./licenseImg.routes");
 
 const controlPanelRouter = require("./controlPanel.routes");
-const controlLicenseRouter = require("./controlLicense.routes");
 const reviewLicenseRouter = require("./reviewLicense.routes");
 const modificationRouter = require("./modification.routes");
 const modificationPointRouter = require('./controlModPoint.routes');
@@ -48,24 +47,23 @@ const routes = (app) => {
 
   app.use("/api/user", UserRouter);
   app.use("/api/otp", OtpRouter);
-  app.use("/api/controlWardDistrict", controlWardDistrictRouter);
-  app.use("/api/reportStatistics", reportStatisticsRouter);
-  app.use("/api/wardStatistics", wardStatisticsRouter);
-  app.use("/api/controlPanelType", controlPanelTypeRouter);
-  app.use("/api/controlReportType", controlReportTypeRouter);
+  app.use("/api/controlWardDistrict", authLogin, controlWardDistrictRouter);
+  app.use("/api/reportStatistics", authLogin, reportStatisticsRouter);
+  app.use("/api/wardStatistics", authLogin, wardStatisticsRouter);
+  app.use("/api/controlPanelType", authLogin, controlPanelTypeRouter);
+  app.use("/api/controlReportType", authLogin, controlReportTypeRouter);
   app.use("/api/registration", RegistrationRouter);
-  app.use("/api/controlPoint", controlPointRouter);
-  app.use("/api/controlReport", controlReportRouter);
+  app.use("/api/controlPoint", authLogin, controlPointRouter);
+  app.use("/api/controlReport", authLogin, controlReportRouter);
   app.use("/api/license", licenseRouter);
-  app.use("/api/profile", ProfileRouter);
+  app.use("/api/profile", authLogin, ProfileRouter);
   app.use("/api/licenseImg", licenseImgRouter);
   app.use("/api/controlLicense", licenseRouter);
-  app.use("/api/controlLicense", controlLicenseRouter);
-  app.use("/api/reviewLicense", reviewLicenseRouter);
+  app.use("/api/reviewLicense", authLogin, reviewLicenseRouter);
   app.use("/api/modification", modificationRouter);
-  app.use("/api/controlPanel", controlPanelRouter);
-  app.use('/api/controlModPoint', modificationPointRouter);
-  app.use('/api/controlModPanel', modificationPanelRouter);
+  app.use("/api/controlPanel", authLogin, controlPanelRouter);
+  app.use('/api/controlModPoint', authLogin, modificationPointRouter);
+  app.use('/api/controlModPanel', authLogin, modificationPanelRouter);
   //
   app.get("/", (req, res) => {
     if (res.locals.auth == false) {

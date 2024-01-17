@@ -10,7 +10,9 @@ router.get('/', (req, res) => {
     res.render('viewLicense/licenseForm', { point: req.query.point, panel: req.query.panel });
 });
 
-
+router.get('/license', (req, res) => {
+    res.render('controlLicense/license')
+})
 router.post('/', upload.single('image'), licenseController.createLicense);
 router.get('/getAllLicense', licenseController.getAllLicense);
 router.get('/getLicenseByIdPanel/:id', licenseController.getAcceptedLicenseByIdPanel);
