@@ -158,6 +158,7 @@ function setupMap(center) {
     });
 
     map.on("style.load", () => {
+        map.setCenter([106.66468761740589, 10.753673741605724]);
         map.on("click", (e) => {
             // clear all the info panes if they exist
             document.getElementById("billboard-container").innerHTML = "";
@@ -652,6 +653,8 @@ function setupMap(center) {
                 const lat = props.lat;
                 const district = JSON.parse(props.area).district;
                 const ward = JSON.parse(props.area).ward;
+                console.log(district);
+                console.log(ward);
                 const address = `${props.address}<br>${ward}, ${district}`;
                 const addressURL = `${props.address.trim()}, ${ward}, ${district}`;
                 const imgUrl = `http://localhost:3500/api/pointImg/getImgPoint/${props.picturePoint}`;
