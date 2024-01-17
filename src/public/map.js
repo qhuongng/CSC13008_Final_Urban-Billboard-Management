@@ -142,6 +142,7 @@ function setupMap(center) {
     });
 
     map.on("style.load", () => {
+        map.setCenter([106.66468761740589, 10.753673741605724]);
         map.on("click", (e) => {
             // clear all the info panes if they exist
             document.getElementById("billboard-container").innerHTML = "";
