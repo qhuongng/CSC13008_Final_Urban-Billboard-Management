@@ -26,7 +26,7 @@ app.use(session({
   cookie: {}
 }));
 
-app.use(express.static(path.join(process.cwd(), "public")));
+app.use(express.static(path.join(__dirname, "public")));
 
 app.use(function (req, res, next) {
   if (typeof (req.session.auth) === 'undefined') {
@@ -80,7 +80,8 @@ app.engine(
 );
 
 app.set("view engine", "hbs");
-app.set("views", path.join(process.cwd(), "Views"));
+app.set("views", path.join(__dirname, "Views"));
+console.log(path.join(__dirname, "Views"));
 
 mongoose
   .connect(`${process.env.MONGO_URL}`)
