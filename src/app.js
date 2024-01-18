@@ -14,6 +14,8 @@ const app = express();
 
 const corsOption = {
   origin: 'https://citizen-mapapp.vercel.app',
+  methods: '*',
+  allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
 }
 app.use(cors(corsOption));
