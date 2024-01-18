@@ -75,13 +75,13 @@
                     <div class="form-group">
                         <label for="add-data">Toạ độ</label>
                         <input type="text" class="form-control" id="lnglat"
-                            onclick='window.open("https://map-application-officer.vercel.app//api/controlPoint/submap", "popup" , "width=600,height=600" )'
+                            onclick='window.open("https://officer-mapapp.vercel.app/api/controlPoint/submap", "popup" , "width=600,height=600" )'
                             placeholder="Click để mở bản đồ" readonly>
                     </div>
                     <div class="form-group">
                         <label for="add-data">Địa chỉ</label>
                         <input type="text" class="form-control" id="address"
-                            onclick='window.open("https://map-application-officer.vercel.app//api/controlPoint/submap", "popup" , "width=600,height=600" )'
+                            onclick='window.open("https://officer-mapapp.vercel.app/api/controlPoint/submap", "popup" , "width=600,height=600" )'
                             placeholder="Click để mở bản đồ" readonly>
                     </div>
                     <div class="form-group">
@@ -228,7 +228,7 @@
         "hideMethod": "fadeOut"
     }
     try {
-        fetch('https://map-application-officer.vercel.app//api/positionType/getAllTypePos')
+        fetch('https://officer-mapapp.vercel.app/api/positionType/getAllTypePos')
             .then(response => response.json())
             .then(data => {
                 const listPositionType = data.data;
@@ -256,7 +256,7 @@
     }
 
     try {
-        fetch('https://map-application-officer.vercel.app//api/adsForm/getAllForm')
+        fetch('https://officer-mapapp.vercel.app/api/adsForm/getAllForm')
             .then(response => response.json())
             .then(data => {
                 listAdsForm = data.data;
@@ -287,7 +287,7 @@
         var pointId = button.data('id');
 
         try {
-            fetch(`https://map-application-officer.vercel.app//api/point/getPoint/${pointId}`)
+            fetch(`https://officer-mapapp.vercel.app/api/point/getPoint/${pointId}`)
                 .then(response => response.json())
                 .then(data => {
                     const point = data.data;
@@ -302,7 +302,7 @@
                                             Hình thức quảng cáo: <b>${point.formAdvertising}</b><br>
                                             Có bảng quảng cáo: <b>${point.havePanel ? "Có" : "Không"}</b><br>
                                             Quy hoạch: <b style="color:${point.isZoning ? 'green"> Đã quy hoạch' : 'red">Chưa quy hoạch'}</b><br><br>
-                                            <img class="img-fluid" src="https://map-application-officer.vercel.app//api/pointImg/getImgPoint/${point.picturePoint}" referrerpolicy="no-referrer">
+                                            <img class="img-fluid" src="https://officer-mapapp.vercel.app/api/pointImg/getImgPoint/${point.picturePoint}" referrerpolicy="no-referrer">
                                            </p>`;
                 }).catch(err => console.log(err));
         } catch (e) {
@@ -310,7 +310,7 @@
         }
     });
 
-    fetch('https://map-application-officer.vercel.app//api/point/getAllPoint')
+    fetch('https://officer-mapapp.vercel.app/api/point/getAllPoint')
         .then(response => response.json())
         .then(data => {
             listPoint = data.data;
@@ -396,7 +396,7 @@
                 form.append('isZoning', isZoning);
                 form.append('havePanel', havePanel);
                 form.append('image', imgInput);
-                const response = await fetch('https://map-application-officer.vercel.app//api/point/uploadPoint', {
+                const response = await fetch('https://officer-mapapp.vercel.app/api/point/uploadPoint', {
                     method: 'POST',
                     body: form
                 })
@@ -458,7 +458,7 @@
         }
         else {
             try {
-                const response = await fetch(`https://map-application-officer.vercel.app//api/point/updatePoint/${id}`, {
+                const response = await fetch(`https://officer-mapapp.vercel.app/api/point/updatePoint/${id}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json'
@@ -489,7 +489,7 @@
             document.getElementById('deleted-id').focus();
         } else {
             try {
-                fetch(`https://map-application-officer.vercel.app//api/point/deletePoint/${id}`, {
+                fetch(`https://officer-mapapp.vercel.app/api/point/deletePoint/${id}`, {
                     method: 'DELETE'
                 })
                     .then(response => response.json())

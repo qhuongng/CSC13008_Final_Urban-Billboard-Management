@@ -26,7 +26,7 @@ function escapeHtml(unsafe) {
 }
 
 async function loadPoints() {
-  return fetch("https://map-application-officer.vercel.app//api/point/getAllPoint")
+  return fetch("https://officer-mapapp.vercel.app/api/point/getAllPoint")
     .then((response) => response.json())
     .then((data) => data.data);
 }

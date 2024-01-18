@@ -81,7 +81,7 @@
         else {
           txtWardNameInput.removeClass('border-danger');
           try {
-            const response = await fetch(`https://map-application-officer.vercel.app//api/ward/update-ward/${wardId}`, {
+            const response = await fetch(`https://officer-mapapp.vercel.app/api/ward/update-ward/${wardId}`, {
               method: 'PUT',
               headers: {
                 'Content-Type': 'application/json',
@@ -110,7 +110,7 @@
         const wardId = document.getElementById('wardId').value;
         const districtRefId = document.getElementById('districtRefId').value;
         try {
-          const response = await fetch(`https://map-application-officer.vercel.app//api/ward/delete-ward/${wardId}`, {
+          const response = await fetch(`https://officer-mapapp.vercel.app/api/ward/delete-ward/${wardId}`, {
             method: 'DELETE',
             headers: {
               'Content-Type': 'application/json',

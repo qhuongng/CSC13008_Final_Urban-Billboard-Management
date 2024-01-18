@@ -164,7 +164,7 @@
         });
     });
 
-    fetch('https://map-application-officer.vercel.app//api/district/getAll-dis')
+    fetch('https://officer-mapapp.vercel.app/api/district/getAll-dis')
         .then(response => response.json())
         .then(data => {
             const listWard = data.data;
@@ -179,7 +179,7 @@
             });
         });
 
-    fetch('https://map-application-officer.vercel.app//api/ward/getAll-ward')
+    fetch('https://officer-mapapp.vercel.app/api/ward/getAll-ward')
         .then(response => response.json())
         .then(data => {
             const listWard = data.data;
@@ -316,7 +316,7 @@
             confirmPassword.addClass('border-danger');
             confirmPassword.focus();
         } else {
-            const response = await fetch('https://map-application-officer.vercel.app//api/user/register', {
+            const response = await fetch('https://officer-mapapp.vercel.app/api/user/register', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

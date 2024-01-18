@@ -171,11 +171,11 @@
             }
 
             if (wardInput && districtInput) {
-                url = `https://map-application-officer.vercel.app//api/modification/getModificationByWardDis/${wardInput}/${districtInput}`;
+                url = `https://officer-mapapp.vercel.app/api/modification/getModificationByWardDis/${wardInput}/${districtInput}`;
             } else if (districtInput) {
-                url = `https://map-application-officer.vercel.app//api/modification/getModificationByDis/${districtInput}`;
+                url = `https://officer-mapapp.vercel.app/api/modification/getModificationByDis/${districtInput}`;
             } else {
-                url = `https://map-application-officer.vercel.app//api/modification/getAllModification`;
+                url = `https://officer-mapapp.vercel.app/api/modification/getAllModification`;
             }
 
             try {
@@ -291,7 +291,7 @@
 
         async function grantmodification(modificationId) {
             try {
-                const response = await fetch('https://map-application-officer.vercel.app//api/modification/updateState', {
+                const response = await fetch('https://officer-mapapp.vercel.app/api/modification/updateState', {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
@@ -315,7 +315,7 @@
 
         async function denymodification(modificationId) {
             try {
-                const response = await fetch('https://map-application-officer.vercel.app//api/modification/updateState', {
+                const response = await fetch('https://officer-mapapp.vercel.app/api/modification/updateState', {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
@@ -373,7 +373,7 @@
             let address;
             let panel;
 
-            await fetch(`https://map-application-officer.vercel.app//api/point/getPoint/${modification.idPoint}`)
+            await fetch(`https://officer-mapapp.vercel.app/api/point/getPoint/${modification.idPoint}`)
                 .then(response => response.json())
                 .then(data => {
                     let point = data.data;
@@ -386,7 +386,7 @@
                     isZoning = point.isZoning;
                 });
 
-            await fetch(`https://map-application-officer.vercel.app//api/user/getDetails-user/${modification.idUser}`)
+            await fetch(`https://officer-mapapp.vercel.app/api/user/getDetails-user/${modification.idUser}`)
                 .then(response => response.json())
                 .then(data => {
                     let user = data.data;
@@ -472,7 +472,7 @@
             const districtSelect = document.getElementById('districtSelect');
 
             try {
-                const wardResponse = await fetch('https://map-application-officer.vercel.app//api/ward/getAll-ward');
+                const wardResponse = await fetch('https://officer-mapapp.vercel.app/api/ward/getAll-ward');
                 const wardData = await wardResponse.json();
 
                 wardData.data.forEach(ward => {
@@ -482,7 +482,7 @@
                     wardSelect.appendChild(option);
                 });
 
-                const districtResponse = await fetch('https://map-application-officer.vercel.app//api/district/getAll-dis');
+                const districtResponse = await fetch('https://officer-mapapp.vercel.app/api/district/getAll-dis');
                 const districtData = await districtResponse.json();
 
                 districtData.data.forEach(dis => {
@@ -509,7 +509,7 @@
 
             if (selectedDistrict) {
                 try {
-                    const wardResponse = await fetch(`https://map-application-officer.vercel.app//api/ward/getWard/${selectedDistrict}`);
+                    const wardResponse = await fetch(`https://officer-mapapp.vercel.app/api/ward/getWard/${selectedDistrict}`);
                     const wardData = await wardResponse.json();
 
                     wardData.data.forEach(ward => {

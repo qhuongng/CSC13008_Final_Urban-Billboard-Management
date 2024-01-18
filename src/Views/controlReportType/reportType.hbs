@@ -145,7 +145,7 @@
         "showMethod": "fadeIn",
         "hideMethod": "fadeOut"
     }
-    fetch('https://map-application-officer.vercel.app//api/reportType/getAllReportType')
+    fetch('https://officer-mapapp.vercel.app/api/reportType/getAllReportType')
         .then(response => response.json())
         .then(data => {
             const listReportType = data.data;
@@ -180,7 +180,7 @@
         } else {
             try {
                 newReportType.removeClass('border-danger');
-                const response = await fetch('https://map-application-officer.vercel.app//api/reportType/createTypeReport', {
+                const response = await fetch('https://officer-mapapp.vercel.app/api/reportType/createTypeReport', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -242,7 +242,7 @@
             editedData.removeClass('border-danger');
             try {
                 //đang sửa tới đây
-                const response = await fetch('https://map-application-officer.vercel.app//api/reportType/updateReportType', {
+                const response = await fetch('https://officer-mapapp.vercel.app/api/reportType/updateReportType', {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json'
@@ -265,7 +265,7 @@
     async function deleteSelectedRow() {
         const id = document.getElementById('deleted-id').value;
         try {
-            const response = await fetch('https://map-application-officer.vercel.app//api/reportType/deleteReportType', {
+            const response = await fetch('https://officer-mapapp.vercel.app/api/reportType/deleteReportType', {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json'

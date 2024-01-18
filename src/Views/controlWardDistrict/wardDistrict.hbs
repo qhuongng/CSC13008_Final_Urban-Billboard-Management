@@ -104,7 +104,7 @@
             }
         });
 
-        fetch('https://map-application-officer.vercel.app//api/district/getAll-dis')
+        fetch('https://officer-mapapp.vercel.app/api/district/getAll-dis')
             .then(response => response.json())
             .then(data => {
                 console.log('Districts Response:', data);
@@ -158,7 +158,7 @@
         function showWards(district) {
             console.log(district);
 
-            fetch(`https://map-application-officer.vercel.app//api/ward/getDetail-ward/${district}`)
+            fetch(`https://officer-mapapp.vercel.app/api/ward/getDetail-ward/${district}`)
                 .then(response => response.json())
                 .then(data => {
                     // Ensure that data is an array before using forEach

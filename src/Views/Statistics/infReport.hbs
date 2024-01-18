@@ -145,15 +145,15 @@
             }
 
             if (wardInput && districtInput && emailInputValue) {
-                url = `https://map-application-officer.vercel.app//api/report/getReportByWardAndDisAndEmail/${wardInput}/${districtInput}/${emailInputValue}`;
+                url = `https://officer-mapapp.vercel.app/api/report/getReportByWardAndDisAndEmail/${wardInput}/${districtInput}/${emailInputValue}`;
             } else if (wardInput && districtInput) {
-                url = `https://map-application-officer.vercel.app//api/report/getReportByWardAndDis/${wardInput}/${districtInput}`;
+                url = `https://officer-mapapp.vercel.app/api/report/getReportByWardAndDis/${wardInput}/${districtInput}`;
             } else if (districtInput) {
-                url = `https://map-application-officer.vercel.app//api/report/getReportByDis/${districtInput}`;
+                url = `https://officer-mapapp.vercel.app/api/report/getReportByDis/${districtInput}`;
             } else if (emailInputValue) {
-                url = `https://map-application-officer.vercel.app//api/report/getReportByEmail/${emailInputValue}`;
+                url = `https://officer-mapapp.vercel.app/api/report/getReportByEmail/${emailInputValue}`;
             } else {
-                url = 'https://map-application-officer.vercel.app//api/report/getAllReport';
+                url = 'https://officer-mapapp.vercel.app/api/report/getAllReport';
             }
 
             try {
@@ -278,11 +278,11 @@
             let imgDivs = "";
 
             if (report.reportPicture.length === 2) {
-                imgDivs += `<img class="img-fluid" src="https://map-application-officer.vercel.app//api/reportImg/getImgReport/${report.reportPicture[0]}"" alt=""><br>
-                                        <img class="img-fluid" src="https://map-application-officer.vercel.app//api/reportImg/getImgReport/${report.reportPicture[1]}"" alt=""><br><br>`
+                imgDivs += `<img class="img-fluid" src="https://officer-mapapp.vercel.app/api/reportImg/getImgReport/${report.reportPicture[0]}"" alt=""><br>
+                                        <img class="img-fluid" src="https://officer-mapapp.vercel.app/api/reportImg/getImgReport/${report.reportPicture[1]}"" alt=""><br><br>`
             }
             else if (report.reportPicture.length === 1) {
-                imgDivs += `<img class="img-fluid" src="https://map-application-officer.vercel.app//api/reportImg/getImgReport/${report.reportPicture[0]}"" alt=""><br><br>`
+                imgDivs += `<img class="img-fluid" src="https://officer-mapapp.vercel.app/api/reportImg/getImgReport/${report.reportPicture[0]}"" alt=""><br><br>`
             }
 
             const details = `<h6 class="card-subtitle mb-2 text-muted">${report.address}</h6>
@@ -313,7 +313,7 @@
             const districtSelect = document.getElementById('districtSelect');
 
             try {
-                const wardResponse = await fetch('https://map-application-officer.vercel.app//api/ward/getAll-ward');
+                const wardResponse = await fetch('https://officer-mapapp.vercel.app/api/ward/getAll-ward');
                 const wardData = await wardResponse.json();
 
                 wardData.data.forEach(ward => {
@@ -323,7 +323,7 @@
                     wardSelect.appendChild(option);
                 });
 
-                const districtResponse = await fetch('https://map-application-officer.vercel.app//api/district/getAll-dis');
+                const districtResponse = await fetch('https://officer-mapapp.vercel.app/api/district/getAll-dis');
                 const districtData = await districtResponse.json();
 
                 districtData.data.forEach(dis => {
@@ -350,7 +350,7 @@
 
             if (selectedDistrict) {
                 try {
-                    const wardResponse = await fetch(`https://map-application-officer.vercel.app//api/ward/getWard/${selectedDistrict}`);
+                    const wardResponse = await fetch(`https://officer-mapapp.vercel.app/api/ward/getWard/${selectedDistrict}`);
                     const wardData = await wardResponse.json();
 
                     wardData.data.forEach(ward => {

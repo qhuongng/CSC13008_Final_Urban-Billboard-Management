@@ -123,13 +123,13 @@
             let point;
             let panel;
 
-            await fetch(`https://map-application-officer.vercel.app//api/point/getPoint/${pointId}`)
+            await fetch(`https://officer-mapapp.vercel.app/api/point/getPoint/${pointId}`)
                 .then(response => response.json())
                 .then(data => {
                     point = data.data;
                 });
 
-            await fetch(`https://map-application-officer.vercel.app//api/panel/getPanelById/${panelId}`)
+            await fetch(`https://officer-mapapp.vercel.app/api/panel/getPanelById/${panelId}`)
                 .then(response => response.json())
                 .then(data => {
                     panel = data.data;
@@ -224,7 +224,7 @@
                     var form = document.querySelector('form');
                     var formData = new FormData(form);
 
-                    fetch(`https://map-application-officer.vercel.app//api/license/?point=${pointId}&panel=${panelId}`,
+                    fetch(`https://officer-mapapp.vercel.app/api/license/?point=${pointId}&panel=${panelId}`,
                         {
                             method: 'POST',
                             body: formData,
