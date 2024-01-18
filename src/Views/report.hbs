@@ -12,8 +12,8 @@
     <script src="https://cdn.tiny.cloud/1/ezd73nxbzc7bu6e86g2l82jbbffke0mwevwrnyvc5q8h89j6/tinymce/6/tinymce.min.js"
         referrerpolicy="origin"></script>
 
-    <script src="http://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.2/js/toastr.min.js"></script>
-    <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.1/css/toastr.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.1/js/toastr.js"></script>
 
     <script>
         tinymce.init({
@@ -104,6 +104,26 @@
         </form>
     </div>
     <script>
+
+        toastr.options.closeButton = true;
+        toastr.options = {
+            "closeButton": true,
+            "debug": false,
+            "newestOnTop": false,
+            "progressBar": false,
+            "positionClass": "toast-top-center",
+            "preventDuplicates": false,
+            "onclick": null,
+            "showDuration": "300",
+            "hideDuration": "300",
+            "timeOut": "2000",
+            "extendedTimeOut": "1000",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+        }
+
         document.addEventListener('DOMContentLoaded', function () {
             const postContent = async (event) => {
                 event.preventDefault();
@@ -183,7 +203,7 @@
                     }
 
                     try {
-                        const captchaRes = await fetch('http://localhost:3200/verify-recaptcha', {
+                        const captchaRes = await fetch('https://citizen-mapapp.vercel.app/verify-recaptcha', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -206,32 +226,13 @@
                             var reportDistrict = document.getElementById('district').value;
                             var reportWard = document.getElementById('ward').value;
 
-                            fetch(`http://localhost:3500/api/report/${reportId}?address=${encodeURIComponent(reportAddress)}&lng=${reportLng}&lat=${reportLat}&district=${encodeURIComponent(reportDistrict)}&ward=${encodeURIComponent(reportWard)}`,
+                            fetch(`https://citizen-mapapp.vercel.app/api/report/${reportId}?address=${encodeURIComponent(reportAddress)}&lng=${reportLng}&lat=${reportLat}&district=${encodeURIComponent(reportDistrict)}&ward=${encodeURIComponent(reportWard)}`,
                                 {
                                     method: 'POST',
                                     body: formData,
                                 }).then(response => response.json()).then(data => {
                                     // Xử lý response và lưu vào localStorage
                                     localStorage.setItem(data._id, JSON.stringify(data));
-
-                                    toastr.options.closeButton = true;
-                                    toastr.options = {
-                                        "closeButton": true,
-                                        "debug": false,
-                                        "newestOnTop": false,
-                                        "progressBar": false,
-                                        "positionClass": "toast-bottom-right",
-                                        "preventDuplicates": false,
-                                        "onclick": null,
-                                        "showDuration": "300",
-                                        "hideDuration": "300",
-                                        "timeOut": "2000",
-                                        "extendedTimeOut": "1000",
-                                        "showEasing": "swing",
-                                        "hideEasing": "linear",
-                                        "showMethod": "fadeIn",
-                                        "hideMethod": "fadeOut"
-                                    }
 
                                     toastr.options.onHidden = () => { window.location.href = '/'; }
                                     toastr.success("Báo cáo đã được gửi thành công.");

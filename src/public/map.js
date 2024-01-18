@@ -85,13 +85,13 @@ function toggleLayerVisibility(clickedLayer, visibility) {
 }
 
 async function loadPoints() {
-    return fetch("http://localhost:3500/api/point/getAllPoint")
+    return fetch("https://citizen-mapapp.vercel.app/api/point/getAllPoint")
         .then((response) => response.json())
         .then((data) => data.data)
 }
 
 async function loadReports() {
-    return fetch("http://localhost:3500/api/report/getAllReport")
+    return fetch("https://citizen-mapapp.vercel.app/api/report/getAllReport")
         .then((response) => response.json())
         .then((data) => data.data)
 }
@@ -657,7 +657,7 @@ function setupMap(center) {
                 console.log(ward);
                 const address = `${props.address}<br>${ward}, ${district}`;
                 const addressURL = `${props.address.trim()}, ${ward}, ${district}`;
-                const imgUrl = `http://localhost:3500/api/pointImg/getImgPoint/${props.picturePoint}`;
+                const imgUrl = `https://citizen-mapapp.vercel.app/api/pointImg/getImgPoint/${props.picturePoint}`;
                 const placeInfoPaneHeader = `<div class="card-body">
                                                 <h5 class="card-title">
                                                     <i class="bi bi-info-circle"></i>
@@ -715,7 +715,7 @@ function setupMap(center) {
                     center: [long, lat],
                 });
 
-                fetch(`http://localhost:3500/api/panel/getListPanel/${pointId}`)
+                fetch(`https://citizen-mapapp.vercel.app/api/panel/getListPanel/${pointId}`)
                     .then((response) => response.json())
                     .then((data) => {
                         if (data.data && data.data.length > 0) {

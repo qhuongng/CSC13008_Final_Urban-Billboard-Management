@@ -22,6 +22,8 @@ app.engine(
   "hbs",
   handlebars.engine({
     extname: "hbs",
+    defaultLayout: 'main',
+    layoutsDir: path.join(__dirname, "Views/Layouts"),
   })
 );
 
