@@ -140,7 +140,7 @@
             // Get userId from the URL path
             const userId = window.location.pathname.split('/').pop();
             // Fetch user details from the server
-            fetch(`http://localhost:3500/api/user/getDetails-user/${userId}`)
+            fetch(`https://map-application-officer.vercel.app//api/user/getDetails-user/${userId}`)
                 .then(response => response.json())
                 .then(data => {
                     // Update the HTML elements with user details
@@ -184,7 +184,7 @@
                 }
 
                 // Call the update API here
-                const response = await fetch(`http://localhost:3500/api/user/update-user/${userId}`, {
+                const response = await fetch(`https://map-application-officer.vercel.app//api/user/update-user/${userId}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',

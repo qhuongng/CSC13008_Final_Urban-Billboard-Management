@@ -161,11 +161,11 @@
               let imgDivs = "";
 
               if (report.reportPicture.length === 2) {
-                imgDivs += `<img class="img-fluid" src="http://localhost:3500/api/reportImg/getImgReport/${report.reportPicture[0]}"" alt=""><br>
-                                        <img class="img-fluid" src="http://localhost:3500/api/reportImg/getImgReport/${report.reportPicture[1]}"" alt=""><br><br>`
+                imgDivs += `<img class="img-fluid" src="https://map-application-officer.vercel.app//api/reportImg/getImgReport/${report.reportPicture[0]}"" alt=""><br>
+                                        <img class="img-fluid" src="https://map-application-officer.vercel.app//api/reportImg/getImgReport/${report.reportPicture[1]}"" alt=""><br><br>`
               }
               else if (report.reportPicture.length === 1) {
-                imgDivs += `<img class="img-fluid" src="http://localhost:3500/api/reportImg/getImgReport/${report.reportPicture[0]}"" alt=""><br><br>`
+                imgDivs += `<img class="img-fluid" src="https://map-application-officer.vercel.app//api/reportImg/getImgReport/${report.reportPicture[0]}"" alt=""><br><br>`
               }
 
               let bodyHtml = `<h6 class="card-subtitle mb-2 text-muted">${report.address}</h6>
@@ -200,7 +200,7 @@
 
           let latestLicense;
 
-          await fetch(`http://localhost:3500/api/license/getLicenseByIdPanel/${info.panelId}`)
+          await fetch(`https://map-application-officer.vercel.app//api/license/getLicenseByIdPanel/${info.panelId}`)
             .then(response => response.json())
             .then(data => {
               if (data.data.length > 0) {
@@ -224,7 +224,7 @@
             panelLicenseHtml = `<h6 class="card-subtitle mb-2">Thông tin quảng cáo</h6>
                                                     Nội dung quảng cáo:<br>${latestLicense.content}<br>
                                                     Hình ảnh đính kèm:<br><br>
-                                                    <img class="img-fluid" src="http://localhost:3500/api/licenseImg/getImgLicense/${latestLicense.imageId}" alt=""><br><br>
+                                                    <img class="img-fluid" src="https://map-application-officer.vercel.app//api/licenseImg/getImgLicense/${latestLicense.imageId}" alt=""><br><br>
                                 </p>
                                 <h6 class="card-subtitle mb-2">Thông tin công ty xin cấp phép</h6>
                                 <p class="card-text">Tên công ty: <b>${latestLicense.companyName}</b><br>
@@ -251,11 +251,11 @@
             let imgDivs = "";
 
             if (report.reportPicture.length === 2) {
-              imgDivs += `<img class="img-fluid" src="http://localhost:3500/api/reportImg/getImgReport/${report.reportPicture[0]}"" alt=""><br>
-                                        <img class="img-fluid" src="http://localhost:3500/api/reportImg/getImgReport/${report.reportPicture[1]}"" alt=""><br><br>`
+              imgDivs += `<img class="img-fluid" src="https://map-application-officer.vercel.app//api/reportImg/getImgReport/${report.reportPicture[0]}"" alt=""><br>
+                                        <img class="img-fluid" src="https://map-application-officer.vercel.app//api/reportImg/getImgReport/${report.reportPicture[1]}"" alt=""><br><br>`
             }
             else if (report.reportPicture.length === 1) {
-              imgDivs += `<img class="img-fluid" src="http://localhost:3500/api/reportImg/getImgReport/${report.reportPicture[0]}"" alt=""><br><br>`
+              imgDivs += `<img class="img-fluid" src="https://map-application-officer.vercel.app//api/reportImg/getImgReport/${report.reportPicture[0]}"" alt=""><br><br>`
             }
 
             let bodyHtml = `<h6 class="card-subtitle mb-2 text-muted">${report.address}</h6>

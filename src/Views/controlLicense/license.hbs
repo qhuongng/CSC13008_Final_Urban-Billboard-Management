@@ -118,7 +118,7 @@
 
             // Fetch disName
             try {
-                const disResponse = await fetch(`http://localhost:3500/api/district/getDisById/${disId}`);
+                const disResponse = await fetch(`https://map-application-officer.vercel.app//api/district/getDisById/${disId}`);
                 const disData = await disResponse.json();
 
                 // Assuming the response data structure includes disName property
@@ -142,7 +142,7 @@
             wardCheckboxesContainer.innerHTML = '';
 
             try {
-                const wardsResponse = await fetch(`http://localhost:3500/api/ward/getWard/${disName}`);
+                const wardsResponse = await fetch(`https://map-application-officer.vercel.app//api/ward/getWard/${disName}`);
                 const wardsData = await wardsResponse.json();
 
                 if (wardsData.status === 'OK') {
@@ -189,7 +189,7 @@
             const apiPromises = [];
 
             if (wardInput.length === 0 || wardInput.includes('')) {
-                const url = `http://localhost:3500/api/license/getLicenseByDis/${districtInput}`;
+                const url = `https://map-application-officer.vercel.app//api/license/getLicenseByDis/${districtInput}`;
                 const promise = fetch(url)
                     .then(response => response.json())
                     .then(data => {
@@ -209,9 +209,9 @@
                     let url;
 
                     if (wardInput && districtInput) {
-                        url = `http://localhost:3500/api/license/getLicenseByWardDis/${ward}/${districtInput}`;
+                        url = `https://map-application-officer.vercel.app//api/license/getLicenseByWardDis/${ward}/${districtInput}`;
                     } else if (districtInput) {
-                        url = `http://localhost:3500/api/license/getLicenseByDis/${districtInput}`;
+                        url = `https://map-application-officer.vercel.app//api/license/getLicenseByDis/${districtInput}`;
                     }
 
                     const promise = fetch(url)
@@ -325,14 +325,14 @@
             let address;
             let panel;
 
-            await fetch(`http://localhost:3500/api/point/getPoint/${license.idPoint}`)
+            await fetch(`https://map-application-officer.vercel.app//api/point/getPoint/${license.idPoint}`)
                 .then(response => response.json())
                 .then(data => {
                     let point = data.data;
                     address = point.address.trim() + ", " + point.area.ward + ", " + point.area.district;
                 });
 
-            await fetch(`http://localhost:3500/api/panel/getPanelById/${license.idPanel}`)
+            await fetch(`https://map-application-officer.vercel.app//api/panel/getPanelById/${license.idPanel}`)
                 .then(response => response.json())
                 .then(data => {
                     let fetched = data.data;
@@ -345,7 +345,7 @@
                                                 Bảng quảng cáo: <b>${panel}</b><br>
                                                 Nội dung quảng cáo:<br>${license.content}<br>
                                                 Hình ảnh đính kèm:<br><br>
-                                                <img class="img-fluid" src="http://localhost:3500/api/licenseImg/getImgLicense/${license.imageId}" alt=""><br><br>
+                                                <img class="img-fluid" src="https://map-application-officer.vercel.app//api/licenseImg/getImgLicense/${license.imageId}" alt=""><br><br>
                             </p>
                             <h6 class="card-subtitle mb-2">Thông tin công ty xin cấp phép</h6>
                             <p class="card-text">Tên công ty: <b>${license.companyName}</b><br>
@@ -389,7 +389,7 @@
                 const licenseId = licenseIdText.replace('ID yêu cầu:', '').trim();
 
                 try {
-                    const response = await fetch(`http://localhost:3500/api/license/deleteLicense/${licenseId}`, {
+                    const response = await fetch(`https://map-application-officer.vercel.app//api/license/deleteLicense/${licenseId}`, {
                         method: 'DELETE',
                         headers: {
                             'Content-Type': 'application/json',
@@ -524,7 +524,7 @@
 
             // Fetch wardName
             try {
-                const wardResponse = await fetch(`http://localhost:3500/api/ward/getWardById/${wardId}`);
+                const wardResponse = await fetch(`https://map-application-officer.vercel.app//api/ward/getWardById/${wardId}`);
                 const wardData = await wardResponse.json();
 
                 // Assuming the response data structure includes wardName property
@@ -538,7 +538,7 @@
 
             // Fetch disName
             try {
-                const disResponse = await fetch(`http://localhost:3500/api/district/getDisById/${disId}`);
+                const disResponse = await fetch(`https://map-application-officer.vercel.app//api/district/getDisById/${disId}`);
                 const disData = await disResponse.json();
 
                 // Assuming the response data structure includes disName property
@@ -563,7 +563,7 @@
             let url;
 
             if (wardInput && districtInput) {
-                url = `http://localhost:3500/api/license/getLicenseByWardDis/${wardInput}/${districtInput}`;
+                url = `https://map-application-officer.vercel.app//api/license/getLicenseByWardDis/${wardInput}/${districtInput}`;
             }
 
             try {
@@ -659,14 +659,14 @@
             let address;
             let panel;
 
-            await fetch(`http://localhost:3500/api/point/getPoint/${license.idPoint}`)
+            await fetch(`https://map-application-officer.vercel.app//api/point/getPoint/${license.idPoint}`)
                 .then(response => response.json())
                 .then(data => {
                     let point = data.data;
                     address = point.address.trim() + ", " + point.area.ward + ", " + point.area.district;
                 });
 
-            await fetch(`http://localhost:3500/api/panel/getPanelById/${license.idPanel}`)
+            await fetch(`https://map-application-officer.vercel.app//api/panel/getPanelById/${license.idPanel}`)
                 .then(response => response.json())
                 .then(data => {
                     let fetched = data.data;
@@ -679,7 +679,7 @@
                                                 Bảng quảng cáo: <b>${panel}</b><br>
                                                 Nội dung quảng cáo:<br>${license.content}<br>
                                                 Hình ảnh đính kèm:<br><br>
-                                                <img class="img-fluid" src="http://localhost:3500/api/licenseImg/getImgLicense/${license.imageId}" alt=""><br><br>
+                                                <img class="img-fluid" src="https://map-application-officer.vercel.app//api/licenseImg/getImgLicense/${license.imageId}" alt=""><br><br>
                             </p>
                             <h6 class="card-subtitle mb-2">Thông tin công ty xin cấp phép</h6>
                             <p class="card-text">Tên công ty: <b>${license.companyName}</b><br>
@@ -723,7 +723,7 @@
                 const licenseId = licenseIdText.replace('ID yêu cầu:', '').trim();
 
                 try {
-                    const response = await fetch(`http://localhost:3500/api/license/deleteLicense/${licenseId}`, {
+                    const response = await fetch(`https://map-application-officer.vercel.app//api/license/deleteLicense/${licenseId}`, {
                         method: 'DELETE',
                         headers: {
                             'Content-Type': 'application/json',

@@ -197,7 +197,7 @@
             let panelTypes;
             let posTypes;
 
-            await fetch(`http://localhost:3500/api/point/getPoint/${pointId}`)
+            await fetch(`https://map-application-officer.vercel.app//api/point/getPoint/${pointId}`)
                 .then(response => response.json())
                 .then(data => {
                     point = data.data;
@@ -206,7 +206,7 @@
             document.getElementById("point").value = point.address.trim() + ", " + point.area.ward + ", " + point.area.district;
 
             if (panelId != "-1") {
-                await fetch(`http://localhost:3500/api/panel/getPanelById/${panelId}`)
+                await fetch(`https://map-application-officer.vercel.app//api/panel/getPanelById/${panelId}`)
                     .then(response => response.json())
                     .then(data => {
                         panel = data.data;
@@ -215,7 +215,7 @@
                 document.getElementById("panel").value = panel.Paneltype + " (" + panel._id + ")";
 
                 // fetch panel types
-                await fetch(`http://localhost:3500/api/panelType/getAllPanelType`)
+                await fetch(`https://map-application-officer.vercel.app//api/panelType/getAllPanelType`)
                     .then(response => response.json())
                     .then(data => {
                         panelTypes = data.data;
@@ -240,7 +240,7 @@
                     });
             } else {
                 // fetch position types
-                await fetch(`http://localhost:3500/api/positionType/getAllTypePos`)
+                await fetch(`https://map-application-officer.vercel.app//api/positionType/getAllTypePos`)
                     .then(response => response.json())
                     .then(data => {
                         posTypes = data.data;
@@ -261,7 +261,7 @@
                     });
 
                 // fetch ad types
-                await fetch(`http://localhost:3500/api/adsForm/getAllForm`)
+                await fetch(`https://map-application-officer.vercel.app//api/adsForm/getAllForm`)
                     .then(response => response.json())
                     .then(data => {
                         adForms = data.data;
@@ -404,7 +404,7 @@
                         changedList.push(group1);
                         changedList.push(group2);
 
-                        const response = await fetch('http://localhost:3500/api/modification/createModification', {
+                        const response = await fetch('https://map-application-officer.vercel.app//api/modification/createModification', {
                             method: 'POST',
                             headers: { "Content-Type": "application/json" },
                             body: JSON.stringify({
@@ -555,7 +555,7 @@
                         changedList.push(group1);
                         changedList.push(group2);
 
-                        const response = await fetch('http://localhost:3500/api/modification/createModification', {
+                        const response = await fetch('https://map-application-officer.vercel.app//api/modification/createModification', {
                             method: 'POST',
                             headers: { "Content-Type": "application/json" },
                             body: JSON.stringify({

@@ -26,7 +26,7 @@ function escapeHtml(unsafe) {
 }
 
 async function loadPoints() {
-  return fetch("http://localhost:3500/api/point/getAllPoint")
+  return fetch("https://map-application-officer.vercel.app//api/point/getAllPoint")
     .then((response) => response.json())
     .then((data) => data.data);
 }
@@ -320,20 +320,16 @@ function setupMap(center) {
             e.features[0].properties.isZoning === true
               ? "ĐÃ QUY HOẠCH"
               : "CHƯA QUY HOẠCH";
-          const description = `<strong>${
-            e.features[0].properties.billboardType
-          }</strong><br>
-                                        ${
-                                          e.features[0].properties.positionType
-                                        }<br>
+          const description = `<strong>${e.features[0].properties.billboardType
+            }</strong><br>
+                                        ${e.features[0].properties.positionType
+            }<br>
                                         ${e.features[0].properties.address}<br>
-                                        ${
-                                          JSON.parse(
-                                            e.features[0].properties.area
-                                          ).ward
-                                        }, ${
-            JSON.parse(e.features[0].properties.area).district
-          }<br>
+                                        ${JSON.parse(
+              e.features[0].properties.area
+            ).ward
+            }, ${JSON.parse(e.features[0].properties.area).district
+            }<br>
                                         <strong><em>${isZoning}</em></strong>`;
 
           // Ensure that if the map is zoomed out such that

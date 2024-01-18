@@ -87,13 +87,13 @@ function toggleLayerVisibility(clickedLayer, visibility) {
 }
 
 async function loadPoints() {
-    return fetch("http://localhost:3500/api/point/getAllPoint")
+    return fetch("https://map-application-officer.vercel.app//api/point/getAllPoint")
         .then((response) => response.json())
         .then((data) => data.data)
 }
 
 async function loadReports() {
-    return fetch("http://localhost:3500/api/report/getAllReport")
+    return fetch("https://map-application-officer.vercel.app//api/report/getAllReport")
         .then((response) => response.json())
         .then((data) => data.data)
 }
@@ -210,7 +210,7 @@ function setupMap(center) {
         let authDist = "-1";
 
         if (authUser.role[1] != "-1") {
-            await fetch("http://localhost:3500/api/district/getAll-dis")
+            await fetch("https://map-application-officer.vercel.app//api/district/getAll-dis")
                 .then((response) => response.json())
                 .then((data) => {
                     for (let i = 0; i < data.data.length; i++) {
@@ -222,7 +222,7 @@ function setupMap(center) {
         }
 
         if (authUser.role[0] != "-1") {
-            await fetch(`http://localhost:3500/api/ward/getDetail-ward/${authUser.role[1]}`)
+            await fetch(`https://map-application-officer.vercel.app//api/ward/getDetail-ward/${authUser.role[1]}`)
                 .then((response) => response.json())
                 .then((data) => {
                     for (let i = 0; i < data.data.length; i++) {
@@ -649,7 +649,7 @@ function setupMap(center) {
                 const ward = JSON.parse(props.area).ward;
                 const address = `${props.address}<br>${ward}, ${district}`;
                 const addressURL = `${props.address.trim()}, ${ward}, ${district}`;
-                const imgUrl = `http://localhost:3500/api/pointImg/getImgPoint/${props.picturePoint}`;
+                const imgUrl = `https://map-application-officer.vercel.app//api/pointImg/getImgPoint/${props.picturePoint}`;
                 const placeInfoPaneHeader = `<div class="card-body">
                                                 <h5 class="card-title">
                                                     <i class="bi bi-info-circle"></i>
@@ -674,11 +674,11 @@ function setupMap(center) {
                         let imgDivs = "";
 
                         if (info.reportPicture.length === 2) {
-                            imgDivs += `<img class="img-fluid" src="http://localhost:3500/api/reportImg/getImgReport/${info.reportPicture[0]}"" alt=""><br>
-                                        <img class="img-fluid" src="http://localhost:3500/api/reportImg/getImgReport/${info.reportPicture[1]}"" alt=""><br><br>`
+                            imgDivs += `<img class="img-fluid" src="https://map-application-officer.vercel.app//api/reportImg/getImgReport/${info.reportPicture[0]}"" alt=""><br>
+                                        <img class="img-fluid" src="https://map-application-officer.vercel.app//api/reportImg/getImgReport/${info.reportPicture[1]}"" alt=""><br><br>`
                         }
                         else if (info.reportPicture.length === 1) {
-                            imgDivs += `<img class="img-fluid" src="http://localhost:3500/api/reportImg/getImgReport/${info.reportPicture[0]}"" alt=""><br><br>`
+                            imgDivs += `<img class="img-fluid" src="https://map-application-officer.vercel.app//api/reportImg/getImgReport/${info.reportPicture[0]}"" alt=""><br><br>`
                         }
 
                         let bodyHtml = `<h6 class="card-subtitle mb-2 text-muted">${info.address}</h6>
@@ -739,7 +739,7 @@ function setupMap(center) {
                 });
 
                 // fetch all the panels of selected point
-                fetch(`http://localhost:3500/api/panel/getListPanel/${pointId}`)
+                fetch(`https://map-application-officer.vercel.app//api/panel/getListPanel/${pointId}`)
                     .then((response) => response.json())
                     .then((data) => {
                         if (data.data && data.data.length > 0) {

@@ -145,7 +145,7 @@
     });
 
     async function loadDropdowns() {
-        await fetch('http://localhost:3500/api/district/getAll-dis')
+        await fetch('https://map-application-officer.vercel.app//api/district/getAll-dis')
             .then(response => response.json())
             .then(data => {
                 dists = data.data;
@@ -160,7 +160,7 @@
                 });
             });
 
-        await fetch('http://localhost:3500/api/ward/getAll-ward')
+        await fetch('https://map-application-officer.vercel.app//api/ward/getAll-ward')
             .then(response => response.json())
             .then(data => {
                 wards = data.data;
@@ -200,7 +200,7 @@
         });
     });
 
-    fetch('http://localhost:3500/api/user/getAll-User')
+    fetch('https://map-application-officer.vercel.app//api/user/getAll-User')
         .then(res => res.json())
         .then(data => {
             const userList = data.data;
@@ -216,7 +216,7 @@
                 let authDist = "-1";
 
                 if (item.role[1] !== "-1") {
-                    const distPromise = fetch("http://localhost:3500/api/district/getAll-dis")
+                    const distPromise = fetch("https://map-application-officer.vercel.app//api/district/getAll-dis")
                         .then(response => response.json())
                         .then(data => {
                             for (let i = 0; i < data.data.length; i++) {
@@ -230,7 +230,7 @@
                 }
 
                 if (item.role[0] !== "-1") {
-                    const wardPromise = fetch(`http://localhost:3500/api/ward/getDetail-ward/${item.role[1]}`)
+                    const wardPromise = fetch(`https://map-application-officer.vercel.app//api/ward/getDetail-ward/${item.role[1]}`)
                         .then(response => response.json())
                         .then(data => {
                             for (let i = 0; i < data.data.length; i++) {
@@ -354,7 +354,7 @@
             });
 
             try {
-                const response = await fetch(`http://localhost:3500/api/user/update-user/${id}`, {
+                const response = await fetch(`https://map-application-officer.vercel.app//api/user/update-user/${id}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json'

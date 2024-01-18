@@ -76,7 +76,7 @@
       }
       else {
         districtNameInput.removeClass('border-danger');
-        const response = await fetch(`http://localhost:3500/api/district/update-district/${districtId}`, {
+        const response = await fetch(`https://map-application-officer.vercel.app//api/district/update-district/${districtId}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -101,7 +101,7 @@
     const sendDeleteRequest = async () => {
       const districtId = document.getElementById('districtId').value
       try {
-        const response = await fetch(`http://localhost:3500/api/district/delete-district/${districtId}`, {
+        const response = await fetch(`https://map-application-officer.vercel.app//api/district/delete-district/${districtId}`, {
           method: 'DELETE',
         });
 

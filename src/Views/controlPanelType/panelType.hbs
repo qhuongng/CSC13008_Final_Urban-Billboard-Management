@@ -143,7 +143,7 @@
         "showMethod": "fadeIn",
         "hideMethod": "fadeOut"
     }
-    fetch('http://localhost:3500/api/panelType/getAllPanelType')
+    fetch('https://map-application-officer.vercel.app//api/panelType/getAllPanelType')
         .then(res => res.json())
         .then(data => {
             const listPanelType = data.data;
@@ -179,7 +179,7 @@
         } else {
             try {
                 newPanelType.removeClass('border-danger');
-                const response = await fetch('http://localhost:3500/api/panelType/createTypePanel', {
+                const response = await fetch('https://map-application-officer.vercel.app//api/panelType/createTypePanel', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -239,7 +239,7 @@
             editedData.removeClass('border-danger');
             try {
                 //đang sửa tới đây
-                const response = await fetch('http://localhost:3500/api/panelType/updateTypePanel', {
+                const response = await fetch('https://map-application-officer.vercel.app//api/panelType/updateTypePanel', {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json'
@@ -262,7 +262,7 @@
     async function deleteSelectedRow() {
         const id = document.getElementById('delete-id').value;
         try {
-            const response = await fetch('http://localhost:3500/api/panelType/deleteTypePanel', {
+            const response = await fetch('https://map-application-officer.vercel.app//api/panelType/deleteTypePanel', {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json'

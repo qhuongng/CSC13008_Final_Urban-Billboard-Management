@@ -74,7 +74,7 @@
                     <div class="form-group">
                         <label for="pointName">ID điểm đặt</label>
                         <input type="text" class="form-control" id="selectIdPoint"
-                            onclick='window.open("http://localhost:3500/api/controlPanel/submap", "popup" ,"width=600,height=600")'
+                            onclick='window.open("https://map-application-officer.vercel.app//api/controlPanel/submap", "popup" ,"width=600,height=600")'
                             placeholder="Click để mở bản đồ" readonly>
                     </div>
 
@@ -216,7 +216,7 @@
         "hideMethod": "fadeOut"
     }
     try {
-        fetch('http://localhost:3500/api/panelType/getAllPanelType')
+        fetch('https://map-application-officer.vercel.app//api/panelType/getAllPanelType')
             .then(response => response.json())
             .then(data => {
                 const listPanelType = data.data;
@@ -247,13 +247,13 @@
         const panelId = button.data('id');
 
         try {
-            fetch(`http://localhost:3500/api/panel/getPanelById/${panelId}`)
+            fetch(`https://map-application-officer.vercel.app//api/panel/getPanelById/${panelId}`)
                 .then(response => response.json())
                 .then(data => {
                     const panel = data.data;
                     const modalBody = document.getElementById('panelDetailBody');
 
-                    fetch(`http://localhost:3500/api/point/getPoint/${panel.idPoint}`)
+                    fetch(`https://map-application-officer.vercel.app//api/point/getPoint/${panel.idPoint}`)
                         .then(response => response.json())
                         .then(data => {
                             const point = data.data;
@@ -266,7 +266,7 @@
                             ID điểm đặt: <b>${panel.idPoint}</b><br>
                             Tên điểm đặt: <b>${point.name}</b><br>
                             Địa chỉ: <b>${point.address}</b><br><br>
-                            <img class="img-fluid" src="http://localhost:3500/api/pointImg/getImgPoint/${point.picturePoint}" referrerpolicy="no-referrer" ></p>
+                            <img class="img-fluid" src="https://map-application-officer.vercel.app//api/pointImg/getImgPoint/${point.picturePoint}" referrerpolicy="no-referrer" ></p>
                         `;
                         }).catch(err => console.log(err));
                 }).catch(err => console.log(err));
@@ -275,7 +275,7 @@
         }
     });
 
-    fetch('http://localhost:3500/api/panel/getAllPanel')
+    fetch('https://map-application-officer.vercel.app//api/panel/getAllPanel')
         .then(response => response.json())
         .then(data => {
             listPoint = data.data;
@@ -332,7 +332,7 @@
         } else {
             try {
                 const size = width + 'm x ' + height + "m";
-                const response = await fetch('http://localhost:3500/api/panel/uploadPanel', {
+                const response = await fetch('https://map-application-officer.vercel.app//api/panel/uploadPanel', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -399,7 +399,7 @@
         } else {
             try {
                 const size = width + 'm x ' + height + "m";
-                const response = await fetch(`http://localhost:3500/api/panel/updatePanel/${id}`, {
+                const response = await fetch(`https://map-application-officer.vercel.app//api/panel/updatePanel/${id}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json'
@@ -430,7 +430,7 @@
             document.getElementById('deleted-id').focus();
         } else {
             try {
-                fetch(`http://localhost:3500/api/panel/deletePanel/${id}`, {
+                fetch(`https://map-application-officer.vercel.app//api/panel/deletePanel/${id}`, {
                     method: 'DELETE'
                 })
                     .then(response => response.json())

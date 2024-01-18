@@ -130,7 +130,7 @@
 
             // Fetch disName
             try {
-                const disResponse = await fetch(`http://localhost:3500/api/district/getDisById/${disId}`);
+                const disResponse = await fetch(`https://map-application-officer.vercel.app//api/district/getDisById/${disId}`);
                 const disData = await disResponse.json();
 
                 // Assuming the response data structure includes disName property
@@ -154,7 +154,7 @@
             wardCheckboxesContainer.innerHTML = '';
 
             try {
-                const wardsResponse = await fetch(`http://localhost:3500/api/ward/getWard/${disName}`);
+                const wardsResponse = await fetch(`https://map-application-officer.vercel.app//api/ward/getWard/${disName}`);
                 const wardsData = await wardsResponse.json();
 
                 if (wardsData.status === 'OK') {
@@ -202,7 +202,7 @@
             const apiPromises = [];
 
             if (wardInput.length === 0 || wardInput.includes('')) {
-                const url = `http://localhost:3500/api/point/getPointByDis/${districtInput}`;
+                const url = `https://map-application-officer.vercel.app//api/point/getPointByDis/${districtInput}`;
                 const promise = fetch(url)
                     .then(response => response.json())
                     .then(data => {
@@ -220,9 +220,9 @@
                     let url;
 
                     if (wardInput && districtInput) {
-                        url = `http://localhost:3500/api/point/getPointByWardAndDis/${wardInput}/${districtInput}`;
+                        url = `https://map-application-officer.vercel.app//api/point/getPointByWardAndDis/${wardInput}/${districtInput}`;
                     } else if (districtInput) {
-                        url = `http://localhost:3500/api/point/getPointByDis/${districtInput}`;
+                        url = `https://map-application-officer.vercel.app//api/point/getPointByDis/${districtInput}`;
                     }
 
                     const promise = fetch(url)
@@ -257,7 +257,7 @@
             let panelPromises = [];
 
             points.forEach(point => {
-                const promise = fetch(`http://localhost:3500/api/panel/getListPanel/${point._id}`)
+                const promise = fetch(`https://map-application-officer.vercel.app//api/panel/getListPanel/${point._id}`)
                     .then(response => response.json())
                     .then(data => {
                         if (data.status === 'OK') {
@@ -310,7 +310,7 @@
                     // if the request exists, hide the request button
                     let modification;
 
-                    await fetch(`http://localhost:3500/api/modification/getAllModification`)
+                    await fetch(`https://map-application-officer.vercel.app//api/modification/getAllModification`)
                         .then(response => response.json())
                         .then(data => {
                             if (data.data.length > 0) {
@@ -367,7 +367,7 @@
 
             let licenseImgId;
 
-            await fetch(`http://localhost:3500/api/license/getLicenseByIdPanel/${panel._id}`)
+            await fetch(`https://map-application-officer.vercel.app//api/license/getLicenseByIdPanel/${panel._id}`)
                 .then(response => response.json())
                 .then(data => {
                     if (data.data.length > 0) {
@@ -389,7 +389,7 @@
                           Số lượng: <b>${panel.amount}</b><br>
                           Kích thước: <b>${panel.size}</b><br>
                           ${licenseImgId ? `Hình ảnh bảng quảng cáo:<br><br>
-                          <img class="img-fluid" src="http://localhost:3500/api/licenseImg/getImgLicense/${licenseImgId}" alt=""><br>
+                          <img class="img-fluid" src="https://map-application-officer.vercel.app//api/licenseImg/getImgLicense/${licenseImgId}" alt=""><br>
                           </p>` : '</p>'}`;
 
             document.getElementById('billboard-info').innerHTML = details;
@@ -397,7 +397,7 @@
             // load licenses for panel
             let licenses = [];
 
-            await fetch(`http://localhost:3500/api/license/getAllLicense`)
+            await fetch(`https://map-application-officer.vercel.app//api/license/getAllLicense`)
                 .then(response => response.json())
                 .then(data => {
                     if (data.data.length > 0) {
@@ -429,7 +429,7 @@
                                                         Bảng quảng cáo cần cấp phép: <b>${panel.Paneltype} (${panel._id})</b><br>
                                                         Nội dung quảng cáo: <b>${license.content}</b><br>
                                                         Hình ảnh đính kèm:<br><br>
-                                                        <img class="img-fluid" src="http://localhost:3500/api/licenseImg/getImgLicense/${license.imageId}" alt=""><br>
+                                                        <img class="img-fluid" src="https://map-application-officer.vercel.app//api/licenseImg/getImgLicense/${license.imageId}" alt=""><br>
                                     </p>
                                     <h6 class="card-subtitle mb-2">Thông tin công ty xin cấp phép</h6>
                                     <p class="card-text">Tên công ty: <b>${license.companyName}</b><br>
@@ -475,7 +475,7 @@
             // load modification request by the current user
             let modification;
 
-            await fetch(`http://localhost:3500/api/modification/getAllModification`)
+            await fetch(`https://map-application-officer.vercel.app//api/modification/getAllModification`)
                 .then(response => response.json())
                 .then(data => {
                     if (data.data.length > 0) {
@@ -659,7 +659,7 @@
 
             // Fetch wardName
             try {
-                const wardResponse = await fetch(`http://localhost:3500/api/ward/getWardById/${wardId}`);
+                const wardResponse = await fetch(`https://map-application-officer.vercel.app//api/ward/getWardById/${wardId}`);
                 const wardData = await wardResponse.json();
 
                 // Assuming the response data structure includes wardName property
@@ -673,7 +673,7 @@
 
             // Fetch disName
             try {
-                const disResponse = await fetch(`http://localhost:3500/api/district/getDisById/${disId}`);
+                const disResponse = await fetch(`https://map-application-officer.vercel.app//api/district/getDisById/${disId}`);
                 const disData = await disResponse.json();
 
                 // Assuming the response data structure includes disName property
@@ -699,9 +699,9 @@
             let url;
 
             if (wardInput && districtInput) {
-                url = `http://localhost:3500/api/point/getPointByWardAndDis/${wardInput}/${districtInput}`;
+                url = `https://map-application-officer.vercel.app//api/point/getPointByWardAndDis/${wardInput}/${districtInput}`;
             } else if (districtInput) {
-                url = `http://localhost:3500/api/point/getPointByDis/${districtInput}`;
+                url = `https://map-application-officer.vercel.app//api/point/getPointByDis/${districtInput}`;
             }
 
             try {
@@ -722,7 +722,7 @@
             let panelPromises = [];
 
             points.forEach(point => {
-                const promise = fetch(`http://localhost:3500/api/panel/getListPanel/${point._id}`)
+                const promise = fetch(`https://map-application-officer.vercel.app//api/panel/getListPanel/${point._id}`)
                     .then(response => response.json())
                     .then(data => {
                         if (data.status === 'OK') {
@@ -775,7 +775,7 @@
                     // if the request exists, hide the request button
                     let modification;
 
-                    await fetch(`http://localhost:3500/api/modification/getAllModification`)
+                    await fetch(`https://map-application-officer.vercel.app//api/modification/getAllModification`)
                         .then(response => response.json())
                         .then(data => {
                             if (data.data.length > 0) {
@@ -831,7 +831,7 @@
 
             let licenseImgId;
 
-            await fetch(`http://localhost:3500/api/license/getLicenseByIdPanel/${panel._id}`)
+            await fetch(`https://map-application-officer.vercel.app//api/license/getLicenseByIdPanel/${panel._id}`)
                 .then(response => response.json())
                 .then(data => {
                     if (data.data.length > 0) {
@@ -853,7 +853,7 @@
                           Số lượng: <b>${panel.amount}</b><br>
                           Kích thước: <b>${panel.size}</b><br>
                           ${licenseImgId ? `Hình ảnh bảng quảng cáo:<br><br>
-                          <img class="img-fluid" src="http://localhost:3500/api/licenseImg/getImgLicense/${licenseImgId}" alt=""><br>
+                          <img class="img-fluid" src="https://map-application-officer.vercel.app//api/licenseImg/getImgLicense/${licenseImgId}" alt=""><br>
                           </p>` : '</p>'}`
                 ;
 
@@ -861,7 +861,7 @@
 
             let licenses = [];
 
-            await fetch(`http://localhost:3500/api/license/getAllLicense`)
+            await fetch(`https://map-application-officer.vercel.app//api/license/getAllLicense`)
                 .then(response => response.json())
                 .then(data => {
                     if (data.data.length > 0) {
@@ -893,7 +893,7 @@
                                                         Bảng quảng cáo cần cấp phép: <b>${panel.Paneltype} (${panel._id})</b><br>
                                                         Nội dung quảng cáo: <b>${license.content}</b><br>
                                                         Hình ảnh đính kèm:<br><br>
-                                                        <img class="img-fluid" src="http://localhost:3500/api/licenseImg/getImgLicense/${license.imageId}" alt=""><br>
+                                                        <img class="img-fluid" src="https://map-application-officer.vercel.app//api/licenseImg/getImgLicense/${license.imageId}" alt=""><br>
                                     </p>
                                     <h6 class="card-subtitle mb-2">Thông tin công ty xin cấp phép</h6>
                                     <p class="card-text">Tên công ty: <b>${license.companyName}</b><br>
@@ -926,7 +926,7 @@
             // load modification request by the current user
             let modification;
 
-            await fetch(`http://localhost:3500/api/modification/getAllModification`)
+            await fetch(`https://map-application-officer.vercel.app//api/modification/getAllModification`)
                 .then(response => response.json())
                 .then(data => {
                     if (data.data.length > 0) {
