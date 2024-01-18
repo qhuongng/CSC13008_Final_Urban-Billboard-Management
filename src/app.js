@@ -46,6 +46,7 @@ app.engine(
   handlebars.engine({
     extname: "hbs",
     defaultLayout: 'main',
+    layoutsDir: "Views/Layouts/",
     helpers: {
       ifCond(v1, operator, v2, options) {
         switch (operator) {
