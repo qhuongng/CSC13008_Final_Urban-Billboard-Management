@@ -130,7 +130,7 @@
     let licenseImgId;
     let licenseEndDate;
 
-    await fetch(`https://citizen-mapapp.vercel.app/api/license/getLicenseByIdPanel/${info.panelId}`)
+    await fetch(`https://officer-mapapp.vercel.app/api/license/getLicenseByIdPanel/${info.panelId}`)
       .then(response => response.json())
       .then(data => {
         if (data.data.length > 0) {
@@ -154,7 +154,7 @@
                                       Hình thức: <b>${info.billboardType}</b><br>
                                       Phân loại: <b>${info.positionType}</b>
                                       ${licenseEndDate ? `<br>Ngày hết hạn: <b>${licenseEndDate}</b></p>` : "</p>"}
-                                      ${licenseImgId ? `<img class="img-fluid" src="https://citizen-mapapp.vercel.app/api/licenseImg/getImgLicense/${licenseImgId}" referrerpolicy="no-referrer" alt=""><br>` : '<em style="color:red">Bảng quảng cáo này chưa có nội dung được cấp phép.</em>'}`;
+                                      ${licenseImgId ? `<img class="img-fluid" src="https://officer-mapapp.vercel.app/api/licenseImg/getImgLicense/${licenseImgId}" referrerpolicy="no-referrer" alt=""><br>` : '<em style="color:red">Bảng quảng cáo này chưa có nội dung được cấp phép.</em>'}`;
 
     let footerHtml = `<button type="button" class="btn btn-outline-success" data-dismiss="modal">
                         <i class="bi bi-skip-backward-fill"></i>
@@ -180,11 +180,11 @@
     let imgDivs = "";
 
     if (info.reportImgId.length === 2) {
-      imgDivs += `<img class="img-fluid" src="https://citizen-mapapp.vercel.app/api/reportImg/getImgReport/${info.reportImgId[0]}"" alt=""><br>
-                  <img class="img-fluid" src="https://citizen-mapapp.vercel.app/api/reportImg/getImgReport/${info.reportImgId[1]}"" alt=""><br><br>`
+      imgDivs += `<img class="img-fluid" src="https://officer-mapapp.vercel.app/api/reportImg/getImgReport/${info.reportImgId[0]}"" alt=""><br>
+                  <img class="img-fluid" src="https://officer-mapapp.vercel.app/api/reportImg/getImgReport/${info.reportImgId[1]}"" alt=""><br><br>`
     }
     else if (info.reportImgId.length === 1) {
-      imgDivs += `<img class="img-fluid" src="https://citizen-mapapp.vercel.app/api/reportImg/getImgReport/${info.reportImgId[0]}"" alt=""><br><br>`
+      imgDivs += `<img class="img-fluid" src="https://officer-mapapp.vercel.app/api/reportImg/getImgReport/${info.reportImgId[0]}"" alt=""><br><br>`
     }
 
     let bodyHtml = `<h6 class="card-subtitle mb-2 text-muted">${info.address}</h6>

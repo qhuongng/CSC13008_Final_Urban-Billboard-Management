@@ -226,7 +226,7 @@
                             var reportDistrict = document.getElementById('district').value;
                             var reportWard = document.getElementById('ward').value;
 
-                            fetch(`https://citizen-mapapp.vercel.app/api/report/${reportId}?address=${encodeURIComponent(reportAddress)}&lng=${reportLng}&lat=${reportLat}&district=${encodeURIComponent(reportDistrict)}&ward=${encodeURIComponent(reportWard)}`,
+                            fetch(`https://officer-mapapp.vercel.app/api/report/${reportId}?address=${encodeURIComponent(reportAddress)}&lng=${reportLng}&lat=${reportLat}&district=${encodeURIComponent(reportDistrict)}&ward=${encodeURIComponent(reportWard)}`,
                                 {
                                     method: 'POST',
                                     body: formData,
