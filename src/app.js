@@ -47,7 +47,7 @@ app.engine(
     extname: "hbs",
     defaultLayout: 'main',
     layoutsDir: "/Views/Layouts/",
-    layoutsDir: "/Views/Partials/",
+    partialsDir: "/Views/Partials/",
     helpers: {
       ifCond(v1, operator, v2, options) {
         switch (operator) {
