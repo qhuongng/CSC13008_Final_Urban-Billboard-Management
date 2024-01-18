@@ -87,6 +87,7 @@ mongoose
   .connect(`${process.env.MONGO_URL}`)
   .then(() => {
     console.log("Connect DB success");
+    console.log(path.join(__dirname, "Views"));
   })
   .catch((err) => {
     console.log(err);
