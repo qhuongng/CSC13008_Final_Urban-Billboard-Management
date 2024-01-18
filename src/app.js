@@ -12,7 +12,7 @@ dotenv.config();
 
 const app = express();
 const corsOption = {
-  origin: "http://citizen-mapapp.vercel.app",
+  origin: "https://citizen-mapapp.vercel.app",
   credentials: true
 }
 app.use(cors(corsOption));// sau này chỉnh lại thành đg dẫn mặc định
