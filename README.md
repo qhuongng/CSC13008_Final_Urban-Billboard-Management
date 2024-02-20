@@ -33,4 +33,4 @@ As the two portals are developed on two separate branches, the repository needs 
 2. On the first clone, check out the branch **newMain**, run `npm i` to install necessary packages, then run `npm start`. The officer's portal should now be available at **http<i></i>://localhost:3500**.
 3. On the second clone, check out the branch **citizen**, run `npm i` to install necessary packages, then run `npm start`. The officer's portal should now be available at **http<i></i>://localhost:3200**.
 
-***Note:** Please ensure the officer's portal is up to establish a connection to the database before building and running the citizen's portal.*
+***Note:** Please ensure the officer's portal is up to establish a connection with the database before building and running the citizen's portal.*
