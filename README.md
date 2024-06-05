@@ -30,7 +30,21 @@ As the two portals are developed on two separate branches, the repository needs 
 [Node.js and npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) are required to build and run the system.
 
 1. Clone the repository for local development [here](https://github.com/hoadang0305/Map-Application).
-2. On the first clone, check out the branch **newMain**, run `npm i` to install necessary packages, then run `npm start`. The officer's portal should now be available at **http<i></i>://localhost:3500**.
+   
+2. On the first clone, check out the branch **newMain**.
+   - Set up a **.env** file in the same directory as **package.json** with the following variables:
+   
+      ```
+        PORT = 3500
+        MONGO_URL = mongodb+srv://nhathoa22:18102018nhathoa@cluster0.kxofuma.mongodb.net/MapProject?retryWrites=true&w=majority
+        MAPBOX_APIKEY = <YOUR MAPBOX API KEY HERE>
+        ACCESS_TOKEN = access_token
+        EMAIL= <YOUR EMAIL ADDRESS TO SEND NOTIFICATION EMAILS>
+        PASSEMAIL = <YOUR EMAIL ADDRESS' PASSWORD>
+      ```
+
+   - Run `npm i` to install necessary packages, then run `npm start`. The officer's portal should now be available at **http<i></i>://localhost:3500**.
+     
 3. On the second clone, check out the branch **citizen**, run `npm i` to install necessary packages, then run `npm start`. The officer's portal should now be available at **http<i></i>://localhost:3200**.
 
 ***Note:** Please ensure the officer's portal is up to establish a connection with the database before building and running the citizen's portal.*
